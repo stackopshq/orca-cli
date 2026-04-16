@@ -6,17 +6,17 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A professional CLI for the Sharktech Cloud Provider API">
+        <meta name="description" content="OpenStack Rich Command-line Alternative">
       
       
       
         <link rel="canonical" href="https://stackopshq.github.io/shark-cli/commands/volume/">
       
       
-        <link rel="prev" href="../keypair/">
+        <link rel="prev" href="../image/">
       
       
-        <link rel="next" href="../security-group/">
+        <link rel="next" href="../backup/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Volumes - shark-cli</title>
+        <title>volume - orca</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#volumes-shark-volume" class="md-skip">
+        <a href="#orca-volume-volume" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="shark-cli" class="md-header__button md-logo" aria-label="shark-cli" data-md-component="logo">
+    <a href="../.." title="orca" class="md-header__button md-logo" aria-label="orca" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,13 +108,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            shark-cli
+            orca
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Volumes
+              volume
             
           </span>
         </div>
@@ -232,13 +232,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="shark-cli" class="md-nav__button md-logo" aria-label="shark-cli" data-md-component="logo">
+    <a href="../.." title="orca" class="md-nav__button md-logo" aria-label="orca" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    shark-cli
+    orca
   </label>
   
     <div class="md-nav__source">
@@ -397,6 +397,312 @@
   
   
   
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orca-exclusive
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Orca-exclusive
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../watch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    watch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../doctor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    doctor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cleanup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../export/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    export
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../profile/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    profile
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compute
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Compute
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../server/" class="md-nav__link">
         
@@ -405,7 +711,7 @@
   <span class="md-ellipsis">
     
   
-    Compute (server)
+    server
   
 
     
@@ -433,63 +739,7 @@
   <span class="md-ellipsis">
     
   
-    Flavors
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../image/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Images
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../network/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Networks
+    flavor
   
 
     
@@ -517,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Key Pairs
+    keypair
   
 
     
@@ -530,6 +780,348 @@
   
 
               
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aggregate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    aggregate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../availability-zone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    availability-zone
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compute-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    compute-service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hypervisor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    hypervisor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../server-group/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    server-group
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../event/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    event
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Image
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    image
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Block Storage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Block Storage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -554,7 +1146,7 @@
   <span class="md-ellipsis">
     
   
-    Volumes
+    volume
   
 
     
@@ -572,7 +1164,7 @@
   <span class="md-ellipsis">
     
   
-    Volumes
+    volume
   
 
     
@@ -598,40 +1190,127 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#volumes" class="md-nav__link">
+  <a href="#attachment-complete" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Volumes
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Volumes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#list" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        list
+        attachment-complete
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#show" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#attachment-create" class="md-nav__link">
     <span class="md-ellipsis">
       
-        show
+        attachment-create
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#attachment-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachment-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attachment-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachment-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attachment-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachment-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attachment-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachment-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-restore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-restore
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#create" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -641,63 +1320,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#update" class="md-nav__link">
-    <span class="md-ellipsis">
       
-        update
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#extend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        extend
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#retype" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        retype
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-bootable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        set-bootable
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-readonly" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        set-readonly
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
+        <li class="md-nav__item">
   <a href="#delete" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -707,47 +1331,404 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#extend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extend
+      
+    </span>
+  </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#snapshots" class="md-nav__link">
+  <a href="#group-create" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Snapshots
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Snapshots">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#snapshot-list" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        snapshot-list
+        group-create
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#snapshot-show" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#group-delete" class="md-nav__link">
     <span class="md-ellipsis">
       
-        snapshot-show
+        group-delete
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#group-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-snapshot-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-snapshot-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-snapshot-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-snapshot-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-snapshot-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-snapshot-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-snapshot-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-snapshot-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-unset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-unset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-update
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        message-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        message-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        message-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        migrate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-associate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-associate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-disassociate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-disassociate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        retype
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revert-to-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        revert-to-snapshot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        service-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        service-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-bootable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set-bootable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-readonly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set-readonly
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#snapshot-create" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -757,8 +1738,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#snapshot-delete" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -768,17 +1749,221 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#snapshot-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        snapshot-list
+      
+    </span>
+  </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#full-example-data-volume-lifecycle" class="md-nav__link">
+  <a href="#snapshot-set" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Full Example: Data Volume Lifecycle
+        snapshot-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#snapshot-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        snapshot-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-accept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-accept
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tree
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-access-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-access-add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-access-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-access-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-access-remove" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-access-remove
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
       
     </span>
   </a>
@@ -801,14 +1986,216 @@
   
   
     <li class="md-nav__item">
-      <a href="../security-group/" class="md-nav__link">
+      <a href="../backup/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Security Groups
+    backup (Freezer)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Object Storage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Object Storage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    container
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../object/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    object
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Network
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Network
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    network
   
 
     
@@ -836,7 +2223,7 @@
   <span class="md-ellipsis">
     
   
-    Floating IPs
+    floating-ip
   
 
     
@@ -849,6 +2236,177 @@
   
 
               
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security-group/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    security-group
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    qos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../subnet-pool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    subnet-pool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trunk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    trunk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Load Balancer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Load Balancer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -864,7 +2422,94 @@
   <span class="md-ellipsis">
     
   
-    Load Balancers (Octavia)
+    loadbalancer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_9" id="__nav_3_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DNS
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zone/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    zone
   
 
     
@@ -885,14 +2530,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../secret/" class="md-nav__link">
+      <a href="../recordset/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Secrets (Barbican)
+    recordset
   
 
     
@@ -905,6 +2550,152 @@
   
 
               
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_10" id="__nav_3_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orchestration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Orchestration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stack (Heat)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_11" id="__nav_3_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clusters
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Clusters
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -920,7 +2711,94 @@
   <span class="md-ellipsis">
     
   
-    Clusters (Magnum)
+    cluster (Magnum)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics & Alarms
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Metrics & Alarms
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    metric (Gnocchi)
   
 
     
@@ -941,14 +2819,838 @@
   
   
     <li class="md-nav__item">
-      <a href="../metric/" class="md-nav__link">
+      <a href="../alarm/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Metrics (Gnocchi)
+    alarm (Aodh)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_13" id="__nav_3_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Placement
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Placement
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../placement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    placement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_14" id="__nav_3_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secrets
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Secrets
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../secret/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    secret (Barbican)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_15" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identity
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Identity
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    user
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../role/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    role
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    group
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../credential/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    credential
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../application-credential/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    application-credential
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../access-rule/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    access-rule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../token/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    token
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    auth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../endpoint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    endpoint
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../endpoint-group/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    endpoint-group
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../region/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    region
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../limit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    limit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_16" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_16" id="__nav_3_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ip
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    limits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quota/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    quota
   
 
     
@@ -976,7 +3678,7 @@
   <span class="md-ellipsis">
     
   
-    Service Catalog
+    catalog
   
 
     
@@ -985,6 +3687,42 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../completion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    completion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1024,40 +3762,127 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#volumes" class="md-nav__link">
+  <a href="#attachment-complete" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Volumes
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Volumes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#list" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        list
+        attachment-complete
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#show" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#attachment-create" class="md-nav__link">
     <span class="md-ellipsis">
       
-        show
+        attachment-create
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#attachment-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachment-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attachment-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachment-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attachment-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachment-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attachment-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachment-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-restore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-restore
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backup-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#create" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1067,63 +3892,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#update" class="md-nav__link">
-    <span class="md-ellipsis">
       
-        update
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#extend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        extend
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#retype" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        retype
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-bootable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        set-bootable
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-readonly" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        set-readonly
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
+        <li class="md-nav__item">
   <a href="#delete" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1133,47 +3903,404 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#extend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extend
+      
+    </span>
+  </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#snapshots" class="md-nav__link">
+  <a href="#group-create" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Snapshots
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Snapshots">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#snapshot-list" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        snapshot-list
+        group-create
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#snapshot-show" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#group-delete" class="md-nav__link">
     <span class="md-ellipsis">
       
-        snapshot-show
+        group-delete
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#group-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-snapshot-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-snapshot-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-snapshot-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-snapshot-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-snapshot-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-snapshot-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-snapshot-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-snapshot-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-type-unset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-type-unset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group-update
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        message-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        message-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        message-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        migrate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-associate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-associate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-disassociate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-disassociate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qos-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qos-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        retype
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revert-to-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        revert-to-snapshot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        service-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        service-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-bootable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set-bootable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-readonly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set-readonly
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#snapshot-create" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1183,8 +4310,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#snapshot-delete" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1194,17 +4321,221 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#snapshot-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        snapshot-list
+      
+    </span>
+  </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#full-example-data-volume-lifecycle" class="md-nav__link">
+  <a href="#snapshot-set" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Full Example: Data Volume Lifecycle
+        snapshot-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#snapshot-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        snapshot-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-accept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-accept
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transfer-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transfer-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tree
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-access-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-access-add
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-access-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-access-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-access-remove" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-access-remove
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-create
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-delete
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type-show
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
       
     </span>
   </a>
@@ -1231,191 +4562,2290 @@
   
 
 
-<h1 id="volumes-shark-volume">Volumes — <code>shark volume</code><a class="headerlink" href="#volumes-shark-volume" title="Permanent link">&para;</a></h1>
-<p>Manage block storage volumes and snapshots (Cinder v3). Volumes are persistent block devices that can be attached to servers. Snapshots provide point-in-time copies of a volume's data.</p>
+<h1 id="orca-volume-volume"><code>orca volume</code> — volume<a class="headerlink" href="#orca-volume-volume" title="Permanent link">&para;</a></h1>
+<p>Manage block storage volumes &amp; snapshots.</p>
 <hr />
-<h2 id="volumes">Volumes<a class="headerlink" href="#volumes" title="Permanent link">&para;</a></h2>
-<h3 id="list">list<a class="headerlink" href="#list" title="Permanent link">&para;</a></h3>
-<p>List all volumes with their size, status, type, and server attachments.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>list
-</code></pre></div>
-<h3 id="show">show<a class="headerlink" href="#show" title="Permanent link">&para;</a></h3>
-<p>Display detailed properties of a volume: type, bootable flag, encryption, multi-attach, availability zone, and attachment info.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>show<span class="w"> </span>&lt;volume-id&gt;
-</code></pre></div>
-<h3 id="create">create<a class="headerlink" href="#create" title="Permanent link">&para;</a></h3>
-<p>Create a new block storage volume. You can create an empty volume, clone from a snapshot, clone from another volume, or create from an image.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Empty volume</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>shark<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>data-vol<span class="w"> </span>--size<span class="w"> </span><span class="m">50</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># From snapshot</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>shark<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>restored<span class="w"> </span>--size<span class="w"> </span><span class="m">50</span><span class="w"> </span>--snapshot-id<span class="w"> </span>&lt;snap-id&gt;
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># From image (bootable)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>shark<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>boot-vol<span class="w"> </span>--size<span class="w"> </span><span class="m">20</span><span class="w"> </span>--image-id<span class="w"> </span>&lt;image-id&gt;
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># With specific type</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>shark<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>fast-vol<span class="w"> </span>--size<span class="w"> </span><span class="m">100</span><span class="w"> </span>--type<span class="w"> </span>ceph-ssd
+<h2 id="attachment-complete">attachment-complete<a class="headerlink" href="#attachment-complete" title="Permanent link">&para;</a></h2>
+<p>ATTACHMENT_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>attachment-complete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
 <table>
 <thead>
 <tr>
 <th>Option</th>
-<th>Required</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>--name</code></td>
-<td>yes</td>
-<td>Volume name</td>
-</tr>
-<tr>
-<td><code>--size</code></td>
-<td>yes</td>
-<td>Size in GB</td>
-</tr>
-<tr>
-<td><code>--type</code></td>
-<td>no</td>
-<td>Volume type</td>
-</tr>
-<tr>
-<td><code>--description</code></td>
-<td>no</td>
-<td>Description</td>
-</tr>
-<tr>
-<td><code>--snapshot-id</code></td>
-<td>no</td>
-<td>Create from snapshot</td>
-</tr>
-<tr>
-<td><code>--source-vol</code></td>
-<td>no</td>
-<td>Clone from existing volume</td>
-</tr>
-<tr>
-<td><code>--image-id</code></td>
-<td>no</td>
-<td>Create from image</td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<h3 id="update">update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h3>
-<p>Update a volume's name or description. The volume can be in any status.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>update<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--name<span class="w"> </span>new-name
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>shark<span class="w"> </span>volume<span class="w"> </span>update<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--description<span class="w"> </span><span class="s2">&quot;Production database&quot;</span>
-</code></pre></div>
-<h3 id="extend">extend<a class="headerlink" href="#extend" title="Permanent link">&para;</a></h3>
-<p>Extend a volume to a larger size. The new size must be greater than the current size. The volume must be in <code>available</code> status (or <code>in-use</code> if the backend supports online resize).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>extend<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--size<span class="w"> </span><span class="m">100</span>
-</code></pre></div>
-<h3 id="retype">retype<a class="headerlink" href="#retype" title="Permanent link">&para;</a></h3>
-<p>Change the volume type (e.g. from HDD to SSD). The data may be migrated depending on the migration policy.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>retype<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--type<span class="w"> </span>ceph-ssd
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>shark<span class="w"> </span>volume<span class="w"> </span>retype<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--type<span class="w"> </span>ceph-ssd<span class="w"> </span>--migration-policy<span class="w"> </span>on-demand
+<hr />
+<h2 id="attachment-create">attachment-create<a class="headerlink" href="#attachment-create" title="Permanent link">&para;</a></h2>
+<p>INSTANCE_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>attachment-create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
 <table>
 <thead>
 <tr>
 <th>Option</th>
-<th>Default</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>--type</code></td>
-<td><em>required</em></td>
-<td>New volume type</td>
+<td><code>--mode [rw|ro]</code></td>
+<td>Attach mode: read-write or read-only.</td>
 </tr>
 <tr>
-<td><code>--migration-policy</code></td>
-<td><code>never</code></td>
-<td><code>never</code> or <code>on-demand</code></td>
+<td><code>--connector JSON</code></td>
+<td>Connector info as JSON (host, initiator,</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="set-bootable">set-bootable<a class="headerlink" href="#set-bootable" title="Permanent link">&para;</a></h3>
-<p>Set or unset the bootable flag on a volume. A bootable volume can be used to boot a server.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>set-bootable<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span><span class="nb">true</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>shark<span class="w"> </span>volume<span class="w"> </span>set-bootable<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span><span class="nb">false</span>
-</code></pre></div>
-<h3 id="set-readonly">set-readonly<a class="headerlink" href="#set-readonly" title="Permanent link">&para;</a></h3>
-<p>Set or unset the read-only flag on a volume to prevent writes.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>set-readonly<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span><span class="nb">true</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>shark<span class="w"> </span>volume<span class="w"> </span>set-readonly<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span><span class="nb">false</span>
-</code></pre></div>
-<h3 id="delete">delete<a class="headerlink" href="#delete" title="Permanent link">&para;</a></h3>
-<p>Permanently delete a volume. The volume must be in <code>available</code> status (not attached). Asks for confirmation.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>delete<span class="w"> </span>&lt;volume-id&gt;
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>shark<span class="w"> </span>volume<span class="w"> </span>delete<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>-y
-</code></pre></div>
 <hr />
-<h2 id="snapshots">Snapshots<a class="headerlink" href="#snapshots" title="Permanent link">&para;</a></h2>
-<h3 id="snapshot-list">snapshot-list<a class="headerlink" href="#snapshot-list" title="Permanent link">&para;</a></h3>
-<p>List all volume snapshots with their source volume, size, and status.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>snapshot-list
-</code></pre></div>
-<h3 id="snapshot-show">snapshot-show<a class="headerlink" href="#snapshot-show" title="Permanent link">&para;</a></h3>
-<p>Display snapshot details: source volume, size, status, description, timestamps.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>snapshot-show<span class="w"> </span>&lt;snapshot-id&gt;
-</code></pre></div>
-<h3 id="snapshot-create">snapshot-create<a class="headerlink" href="#snapshot-create" title="Permanent link">&para;</a></h3>
-<p>Create a point-in-time snapshot of a volume. Use <code>--force</code> to snapshot an in-use volume (crash-consistent).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>snapshot-create<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--name<span class="w"> </span>daily-backup
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>shark<span class="w"> </span>volume<span class="w"> </span>snapshot-create<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--name<span class="w"> </span>live-snap<span class="w"> </span>--force
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>shark<span class="w"> </span>volume<span class="w"> </span>snapshot-create<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--name<span class="w"> </span>snap<span class="w"> </span>--description<span class="w"> </span><span class="s2">&quot;Before upgrade&quot;</span>
+<h2 id="attachment-delete">attachment-delete<a class="headerlink" href="#attachment-delete" title="Permanent link">&para;</a></h2>
+<p>ATTACHMENT_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>attachment-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
 <table>
 <thead>
 <tr>
 <th>Option</th>
-<th>Required</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>--name</code></td>
-<td>yes</td>
-<td>Snapshot name</td>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
 </tr>
 <tr>
-<td><code>--description</code></td>
-<td>no</td>
-<td>Description</td>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="attachment-list">attachment-list<a class="headerlink" href="#attachment-list" title="Permanent link">&para;</a></h2>
+<p>List volume attachments (Cinder v3 attachment API).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>attachment-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--volume-id TEXT</code></td>
+<td>Filter by volume ID.</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="attachment-set">attachment-set<a class="headerlink" href="#attachment-set" title="Permanent link">&para;</a></h2>
+<p>Update (finalize) a volume attachment with connector info.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>attachment-set<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--connector JSON</code></td>
+<td>Updated connector info as JSON.  [required]</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="attachment-show">attachment-show<a class="headerlink" href="#attachment-show" title="Permanent link">&para;</a></h2>
+<p>Show a volume attachment.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>attachment-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="backup-create">backup-create<a class="headerlink" href="#backup-create" title="Permanent link">&para;</a></h2>
+<p>Create a Cinder volume backup.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>backup-create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>Backup name.</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>Backup description.</td>
+</tr>
+<tr>
+<td><code>--container TEXT</code></td>
+<td>Optional backup container name.</td>
+</tr>
+<tr>
+<td><code>--snapshot-id TEXT</code></td>
+<td>Snapshot ID to backup instead of full volume.</td>
 </tr>
 <tr>
 <td><code>--force</code></td>
-<td>no</td>
-<td>Force snapshot of in-use volume</td>
+<td>Allow backing up an in-use volume.</td>
+</tr>
+<tr>
+<td><code>--incremental</code></td>
+<td>Perform an incremental backup.</td>
+</tr>
+<tr>
+<td><code>--wait</code></td>
+<td>Wait for backup to reach 'available'.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="snapshot-delete">snapshot-delete<a class="headerlink" href="#snapshot-delete" title="Permanent link">&para;</a></h3>
-<p>Delete a volume snapshot. Asks for confirmation.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>shark<span class="w"> </span>volume<span class="w"> </span>snapshot-delete<span class="w"> </span>&lt;snapshot-id&gt;
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>shark<span class="w"> </span>volume<span class="w"> </span>snapshot-delete<span class="w"> </span>&lt;snapshot-id&gt;<span class="w"> </span>-y
-</code></pre></div>
 <hr />
-<h2 id="full-example-data-volume-lifecycle">Full Example: Data Volume Lifecycle<a class="headerlink" href="#full-example-data-volume-lifecycle" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># 1. Create a data volume</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>shark<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>data-vol<span class="w"> </span>--size<span class="w"> </span><span class="m">50</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># 2. Attach to a server</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>shark<span class="w"> </span>server<span class="w"> </span>attach-volume<span class="w"> </span>&lt;server-id&gt;<span class="w"> </span>&lt;volume-id&gt;
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1"># 3. Snapshot before maintenance</span>
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>shark<span class="w"> </span>volume<span class="w"> </span>snapshot-create<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--name<span class="w"> </span>pre-maintenance
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="c1"># 4. Extend the volume</span>
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>shark<span class="w"> </span>server<span class="w"> </span>detach-volume<span class="w"> </span>&lt;server-id&gt;<span class="w"> </span>&lt;volume-id&gt;
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>shark<span class="w"> </span>volume<span class="w"> </span>extend<span class="w"> </span>&lt;volume-id&gt;<span class="w"> </span>--size<span class="w"> </span><span class="m">100</span>
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>shark<span class="w"> </span>server<span class="w"> </span>attach-volume<span class="w"> </span>&lt;server-id&gt;<span class="w"> </span>&lt;volume-id&gt;
+<h2 id="backup-delete">backup-delete<a class="headerlink" href="#backup-delete" title="Permanent link">&para;</a></h2>
+<p>Delete a Cinder volume backup.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>backup-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--force</code></td>
+<td>Force delete even if backup is in error.</td>
+</tr>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="backup-list">backup-list<a class="headerlink" href="#backup-list" title="Permanent link">&para;</a></h2>
+<p>List Cinder volume backups.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>backup-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--all-projects</code></td>
+<td>Include all projects (admin).</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="backup-restore">backup-restore<a class="headerlink" href="#backup-restore" title="Permanent link">&para;</a></h2>
+<p>Restore a Cinder volume backup.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>backup-restore<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--volume-id TEXT</code></td>
+<td>Restore to this existing volume ID.</td>
+</tr>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>Name for the new volume (if not restoring to existing).</td>
+</tr>
+<tr>
+<td><code>--wait</code></td>
+<td>Wait for restored volume to become 'available'.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="backup-show">backup-show<a class="headerlink" href="#backup-show" title="Permanent link">&para;</a></h2>
+<p>Show Cinder volume backup details.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>backup-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="create">create<a class="headerlink" href="#create" title="Permanent link">&para;</a></h2>
+<p>Create a volume.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>Volume name.</td>
+</tr>
+<tr>
+<td><code>--size INTEGER</code></td>
+<td>Size in GB.</td>
+</tr>
+<tr>
+<td><code>--type TEXT</code></td>
+<td>Volume type.</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>Volume description.</td>
+</tr>
+<tr>
+<td><code>--snapshot-id TEXT</code></td>
+<td>Create from snapshot.</td>
+</tr>
+<tr>
+<td><code>--source-vol TEXT</code></td>
+<td>Create from existing volume (clone).</td>
+</tr>
+<tr>
+<td><code>--image-id TEXT</code></td>
+<td>Create from image.</td>
+</tr>
+<tr>
+<td><code>--wait</code></td>
+<td>Wait until the volume reaches 'available' status.</td>
+</tr>
+<tr>
+<td><code>-i, --interactive</code></td>
+<td>Step-by-step wizard — choose name, size, and type</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="delete">delete<a class="headerlink" href="#delete" title="Permanent link">&para;</a></h2>
+<p>Delete a volume.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--dry-run</code></td>
+<td>Show what would be deleted without deleting.</td>
+</tr>
+<tr>
+<td><code>--wait</code></td>
+<td>Wait until the volume is fully deleted.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="extend">extend<a class="headerlink" href="#extend" title="Permanent link">&para;</a></h2>
+<p>Extend a volume to a larger size.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>extend<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--size INTEGER</code></td>
+<td>New size in GB (must be larger).  [required]</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-create">group-create<a class="headerlink" href="#group-create" title="Permanent link">&para;</a></h2>
+<p>Create a volume group.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--group-type TEXT</code></td>
+<td>Group type ID.  [required]</td>
+</tr>
+<tr>
+<td><code>--volume-type TEXT</code></td>
+<td>Volume type ID (repeatable).  [required]</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>Description.</td>
+</tr>
+<tr>
+<td><code>--availability-zone TEXT</code></td>
+<td>Availability zone.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-delete">group-delete<a class="headerlink" href="#group-delete" title="Permanent link">&para;</a></h2>
+<p>Delete a volume group.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--delete-volumes</code></td>
+<td>Also delete all volumes in the group.</td>
+</tr>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-list">group-list<a class="headerlink" href="#group-list" title="Permanent link">&para;</a></h2>
+<p>List volume groups.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-show">group-show<a class="headerlink" href="#group-show" title="Permanent link">&para;</a></h2>
+<p>Show a volume group.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-snapshot-create">group-snapshot-create<a class="headerlink" href="#group-snapshot-create" title="Permanent link">&para;</a></h2>
+<p>[OPTIONS] GROUP_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-snapshot-create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>Snapshot name.</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>Snapshot description.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-snapshot-delete">group-snapshot-delete<a class="headerlink" href="#group-snapshot-delete" title="Permanent link">&para;</a></h2>
+<p>[OPTIONS] GROUP_SNAPSHOT_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-snapshot-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-snapshot-list">group-snapshot-list<a class="headerlink" href="#group-snapshot-list" title="Permanent link">&para;</a></h2>
+<p>List volume group snapshots.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-snapshot-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-snapshot-show">group-snapshot-show<a class="headerlink" href="#group-snapshot-show" title="Permanent link">&para;</a></h2>
+<p>GROUP_SNAPSHOT_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-snapshot-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-type-create">group-type-create<a class="headerlink" href="#group-type-create" title="Permanent link">&para;</a></h2>
+<p>Create a volume group type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-type-create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>Group type description.</td>
+</tr>
+<tr>
+<td><code>--public / --private</code></td>
+<td>Public or private group type.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-type-delete">group-type-delete<a class="headerlink" href="#group-type-delete" title="Permanent link">&para;</a></h2>
+<p>GROUP_TYPE_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-type-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-type-list">group-type-list<a class="headerlink" href="#group-type-list" title="Permanent link">&para;</a></h2>
+<p>List volume group types.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-type-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-type-set">group-type-set<a class="headerlink" href="#group-type-set" title="Permanent link">&para;</a></h2>
+<p>Update a volume group type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-type-set<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>New name.</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>New description.</td>
+</tr>
+<tr>
+<td><code>--public / --private</code></td>
+<td>Change visibility.</td>
+</tr>
+<tr>
+<td><code>--property KEY=VALUE</code></td>
+<td>Group spec key=value (repeatable).</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-type-show">group-type-show<a class="headerlink" href="#group-type-show" title="Permanent link">&para;</a></h2>
+<p>Show a volume group type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-type-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-type-unset">group-type-unset<a class="headerlink" href="#group-type-unset" title="Permanent link">&para;</a></h2>
+<p>Unset group spec properties on a group type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-type-unset<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--property KEY</code></td>
+<td>Group spec key to remove (repeatable).</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="group-update">group-update<a class="headerlink" href="#group-update" title="Permanent link">&para;</a></h2>
+<p>Update a volume group — rename or add/remove volumes.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>group-update<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>New name.</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>New description.</td>
+</tr>
+<tr>
+<td><code>--add-volume TEXT</code></td>
+<td>Volume ID to add to the group (repeatable).</td>
+</tr>
+<tr>
+<td><code>--remove-volume TEXT</code></td>
+<td>Volume ID to remove from the group (repeatable).</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="list">list<a class="headerlink" href="#list" title="Permanent link">&para;</a></h2>
+<p>List volumes.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="message-delete">message-delete<a class="headerlink" href="#message-delete" title="Permanent link">&para;</a></h2>
+<p>Delete a Cinder error message.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>message-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="message-list">message-list<a class="headerlink" href="#message-list" title="Permanent link">&para;</a></h2>
+<p>List Cinder error messages.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>message-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--resource-id TEXT</code></td>
+<td>Filter by resource UUID.</td>
+</tr>
+<tr>
+<td><code>--resource-type [volume|snapshot|backup|group]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="message-show">message-show<a class="headerlink" href="#message-show" title="Permanent link">&para;</a></h2>
+<p>Show a Cinder error message.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>message-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="migrate">migrate<a class="headerlink" href="#migrate" title="Permanent link">&para;</a></h2>
+<p>Migrate a volume to a different Cinder host/backend.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>migrate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--host TEXT</code></td>
+<td>Destination host (e.g. cinder@lvm#LVM).  [required]</td>
+</tr>
+<tr>
+<td><code>--force-host-copy</code></td>
+<td>Bypass the driver, force host-level copy.</td>
+</tr>
+<tr>
+<td><code>--lock-volume</code></td>
+<td>Lock the volume during migration.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="qos-associate">qos-associate<a class="headerlink" href="#qos-associate" title="Permanent link">&para;</a></h2>
+<p>Associate a QoS spec with a volume type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>qos-associate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="qos-create">qos-create<a class="headerlink" href="#qos-create" title="Permanent link">&para;</a></h2>
+<p>Create a volume QoS spec.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>qos-create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--consumer [front-end|back-end|both]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--property KEY=VALUE</code></td>
+<td>QoS spec key=value (repeatable).</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="qos-delete">qos-delete<a class="headerlink" href="#qos-delete" title="Permanent link">&para;</a></h2>
+<p>Delete a volume QoS spec.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>qos-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>Delete even if associated with a volume type.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="qos-disassociate">qos-disassociate<a class="headerlink" href="#qos-disassociate" title="Permanent link">&para;</a></h2>
+<p>TYPE_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>qos-disassociate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--all</code></td>
+<td>Disassociate from all volume types.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="qos-list">qos-list<a class="headerlink" href="#qos-list" title="Permanent link">&para;</a></h2>
+<p>List volume QoS specs.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>qos-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="qos-set">qos-set<a class="headerlink" href="#qos-set" title="Permanent link">&para;</a></h2>
+<p>Add or update keys on a volume QoS spec.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>qos-set<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--property KEY=VALUE</code></td>
+<td>QoS spec key=value to add or update (repeatable).</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="qos-show">qos-show<a class="headerlink" href="#qos-show" title="Permanent link">&para;</a></h2>
+<p>Show volume QoS spec details.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>qos-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="retype">retype<a class="headerlink" href="#retype" title="Permanent link">&para;</a></h2>
+<p>Change volume type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>retype<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--type TEXT</code></td>
+<td>New volume type.  [required]</td>
+</tr>
+<tr>
+<td><code>--migration-policy [never|on-demand]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="revert-to-snapshot">revert-to-snapshot<a class="headerlink" href="#revert-to-snapshot" title="Permanent link">&para;</a></h2>
+<p>SNAPSHOT_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>revert-to-snapshot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="service-list">service-list<a class="headerlink" href="#service-list" title="Permanent link">&para;</a></h2>
+<p>List Cinder services.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>service-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--host TEXT</code></td>
+<td>Filter by host.</td>
+</tr>
+<tr>
+<td><code>--binary TEXT</code></td>
+<td>Filter by binary (e.g. cinder-volume).</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="service-set">service-set<a class="headerlink" href="#service-set" title="Permanent link">&para;</a></h2>
+<p>Enable or disable a Cinder service.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>service-set<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--enable</code></td>
+<td>Enable the service.</td>
+</tr>
+<tr>
+<td><code>--disable</code></td>
+<td>Disable the service.</td>
+</tr>
+<tr>
+<td><code>--disabled-reason TEXT</code></td>
+<td>Reason for disabling.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="set">set<a class="headerlink" href="#set" title="Permanent link">&para;</a></h2>
+<p>Set volume properties or metadata.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>orca<span class="w"> </span>volume<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--property KEY=VALUE</code></td>
+<td>Metadata key=value pair (repeatable).</td>
+</tr>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>New name.</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>New description.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="set-bootable">set-bootable<a class="headerlink" href="#set-bootable" title="Permanent link">&para;</a></h2>
+<p>Set or unset bootable flag on a volume.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>set-bootable<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--bootable / --no-bootable</code></td>
+<td>Mark volume as bootable or non-bootable.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="set-readonly">set-readonly<a class="headerlink" href="#set-readonly" title="Permanent link">&para;</a></h2>
+<p>Set or unset read-only flag on a volume.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>set-readonly<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--readonly / --no-readonly</code></td>
+<td>Mark volume as read-only or read-write.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="show">show<a class="headerlink" href="#show" title="Permanent link">&para;</a></h2>
+<p>Show volume details.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="snapshot-create">snapshot-create<a class="headerlink" href="#snapshot-create" title="Permanent link">&para;</a></h2>
+<p>VOLUME_ID_OR_NAME</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>snapshot-create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>Snapshot name.  [required]</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>Snapshot description.</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>Force snapshot of in-use volume.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="snapshot-delete">snapshot-delete<a class="headerlink" href="#snapshot-delete" title="Permanent link">&para;</a></h2>
+<p>Delete a volume snapshot.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>snapshot-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="snapshot-list">snapshot-list<a class="headerlink" href="#snapshot-list" title="Permanent link">&para;</a></h2>
+<p>List volume snapshots.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>snapshot-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="snapshot-set">snapshot-set<a class="headerlink" href="#snapshot-set" title="Permanent link">&para;</a></h2>
+<p>Update a snapshot's name, description, or metadata.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>snapshot-set<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>New name.</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>New description.</td>
+</tr>
+<tr>
+<td><code>--property KEY=VALUE</code></td>
+<td>Metadata key=value (repeatable).</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="snapshot-show">snapshot-show<a class="headerlink" href="#snapshot-show" title="Permanent link">&para;</a></h2>
+<p>Show snapshot details.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>snapshot-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary">summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Show aggregated volume count and total size for the project.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>summary<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="transfer-accept">transfer-accept<a class="headerlink" href="#transfer-accept" title="Permanent link">&para;</a></h2>
+<p>AUTH_KEY</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>transfer-accept<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="transfer-create">transfer-create<a class="headerlink" href="#transfer-create" title="Permanent link">&para;</a></h2>
+<p>Create a volume transfer request.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>transfer-create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>Transfer name.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="transfer-delete">transfer-delete<a class="headerlink" href="#transfer-delete" title="Permanent link">&para;</a></h2>
+<p>Delete a volume transfer request.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>transfer-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="transfer-list">transfer-list<a class="headerlink" href="#transfer-list" title="Permanent link">&para;</a></h2>
+<p>List volume transfer requests.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>transfer-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--all-projects</code></td>
+<td>List transfers from all projects (admin).</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="transfer-show">transfer-show<a class="headerlink" href="#transfer-show" title="Permanent link">&para;</a></h2>
+<p>Show a volume transfer request.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>transfer-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="tree">tree<a class="headerlink" href="#tree" title="Permanent link">&para;</a></h2>
+<p>Display a volume / snapshot dependency tree.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>tree<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--volume-id TEXT</code></td>
+<td>Show only this volume and its snapshots.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="type-access-add">type-access-add<a class="headerlink" href="#type-access-add" title="Permanent link">&para;</a></h2>
+<p>PROJECT_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>type-access-add<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="type-access-list">type-access-list<a class="headerlink" href="#type-access-list" title="Permanent link">&para;</a></h2>
+<p>List projects that have access to a private volume type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>type-access-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="type-access-remove">type-access-remove<a class="headerlink" href="#type-access-remove" title="Permanent link">&para;</a></h2>
+<p>PROJECT_ID</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>type-access-remove<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="type-create">type-create<a class="headerlink" href="#type-create" title="Permanent link">&para;</a></h2>
+<p>Create a volume type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>type-create<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>Description.</td>
+</tr>
+<tr>
+<td><code>--public / --private</code></td>
+<td>Make type public or private.  [default: public]</td>
+</tr>
+<tr>
+<td><code>--property KEY=VALUE</code></td>
+<td>Extra spec (repeatable).</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="type-delete">type-delete<a class="headerlink" href="#type-delete" title="Permanent link">&para;</a></h2>
+<p>Delete a volume type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>type-delete<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-y, --yes</code></td>
+<td>Skip confirmation.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="type-list">type-list<a class="headerlink" href="#type-list" title="Permanent link">&para;</a></h2>
+<p>List volume types.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>type-list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--default</code></td>
+<td>Show the default type only.</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="type-set">type-set<a class="headerlink" href="#type-set" title="Permanent link">&para;</a></h2>
+<p>Update a volume type.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>type-set<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>New name.</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>New description.</td>
+</tr>
+<tr>
+<td><code>--property KEY=VALUE</code></td>
+<td>Extra spec to add or update (repeatable).</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="type-show">type-show<a class="headerlink" href="#type-show" title="Permanent link">&para;</a></h2>
+<p>Show volume type details.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>type-show<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>Disable JSON indentation.</td>
+</tr>
+<tr>
+<td><code>--max-width INTEGER</code></td>
+<td>Maximum table width (0 = unlimited).</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>Fit table to terminal width.</td>
+</tr>
+<tr>
+<td><code>-c, --column TEXT</code></td>
+<td>Column to include (repeatable). Shows all if</td>
+</tr>
+<tr>
+<td><code>-f, --format [table|json|value]</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="unset">unset<a class="headerlink" href="#unset" title="Permanent link">&para;</a></h2>
+<p>Unset volume metadata keys.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a>orca<span class="w"> </span>volume<span class="w"> </span><span class="nb">unset</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--property KEY</code></td>
+<td>Metadata key to remove (repeatable).</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="update">update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h2>
+<p>Update volume name or description.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a>orca<span class="w"> </span>volume<span class="w"> </span>update<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name TEXT</code></td>
+<td>New name.</td>
+</tr>
+<tr>
+<td><code>--description TEXT</code></td>
+<td>New description.</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show this message and exit.</td>
+</tr>
+</tbody>
+</table>
+<hr />
 
 
 

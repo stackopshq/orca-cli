@@ -13,11 +13,87 @@
          <lastmod>2026-04-16</lastmod>
     </url>
     <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/access-rule/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/aggregate/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/alarm/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/application-credential/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/audit/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/auth/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/availability-zone/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/backup/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
          <loc>https://stackopshq.github.io/shark-cli/commands/catalog/</loc>
          <lastmod>2026-04-16</lastmod>
     </url>
     <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/cleanup/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
          <loc>https://stackopshq.github.io/shark-cli/commands/cluster/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/completion/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/compute-service/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/container/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/credential/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/doctor/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/domain/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/endpoint-group/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/endpoint/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/event/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/export/</loc>
          <lastmod>2026-04-16</lastmod>
     </url>
     <url>
@@ -29,11 +105,31 @@
          <lastmod>2026-04-16</lastmod>
     </url>
     <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/group/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/hypervisor/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
          <loc>https://stackopshq.github.io/shark-cli/commands/image/</loc>
          <lastmod>2026-04-16</lastmod>
     </url>
     <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/ip/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
          <loc>https://stackopshq.github.io/shark-cli/commands/keypair/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/limit/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/limits/</loc>
          <lastmod>2026-04-16</lastmod>
     </url>
     <url>
@@ -49,6 +145,46 @@
          <lastmod>2026-04-16</lastmod>
     </url>
     <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/object/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/overview/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/placement/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/profile/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/project/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/qos/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/quota/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/recordset/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/region/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/role/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
          <loc>https://stackopshq.github.io/shark-cli/commands/secret/</loc>
          <lastmod>2026-04-16</lastmod>
     </url>
@@ -57,11 +193,55 @@
          <lastmod>2026-04-16</lastmod>
     </url>
     <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/server-group/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
          <loc>https://stackopshq.github.io/shark-cli/commands/server/</loc>
          <lastmod>2026-04-16</lastmod>
     </url>
     <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/service/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/stack/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/subnet-pool/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/token/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/trunk/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/trust/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/usage/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/user/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
          <loc>https://stackopshq.github.io/shark-cli/commands/volume/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/watch/</loc>
+         <lastmod>2026-04-16</lastmod>
+    </url>
+    <url>
+         <loc>https://stackopshq.github.io/shark-cli/commands/zone/</loc>
          <lastmod>2026-04-16</lastmod>
     </url>
 </urlset>
