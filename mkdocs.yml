@@ -1,8 +1,8 @@
 site_name: orca
 site_description: OpenStack Rich Command-line Alternative
-site_url: https://stackopshq.github.io/shark-cli/
-repo_url: https://github.com/stackopshq/shark-cli
-repo_name: stackopshq/shark-cli
+site_url: https://stackopshq.github.io/orca-cli/
+repo_url: https://github.com/stackopshq/orca-cli
+repo_name: stackopshq/orca-cli
 
 theme:
   name: material
