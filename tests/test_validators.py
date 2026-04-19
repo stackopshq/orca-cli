@@ -21,6 +21,15 @@ class TestValidateId:
     def test_accepts_numeric(self):
         assert validate_id(None, None, "42") == "42"
 
+    def test_accepts_bare_hex_uuid(self):
+        # Keystone project/user IDs are commonly hex-without-hyphens
+        uid = "120b4dbd14934ba6ba1975792ae6b789"
+        assert validate_id(None, None, uid) == uid
+
+    def test_rejects_hex_wrong_length(self):
+        with pytest.raises(click.BadParameter):
+            validate_id(None, None, "120b4dbd14934ba6")
+
     def test_rejects_arbitrary_string(self):
         with pytest.raises(click.BadParameter, match="not a valid resource ID"):
             validate_id(None, None, "not-a-uuid")
