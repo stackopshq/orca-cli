@@ -194,36 +194,45 @@ def alarm_set(ctx, alarm_id, name, description, severity, enabled, repeat_action
               rule_json, alarm_actions, ok_actions, insufficient_data_actions):
     """Update an alarm."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    # Fetch current alarm to know its type
-    current = client.get(f"{_url(client)}/v2/alarms/{alarm_id}")
-    body: dict = {}
+    updates: dict = {}
     if name is not None:
-        body["name"] = name
+        updates["name"] = name
     if description is not None:
-        body["description"] = description
+        updates["description"] = description
     if severity is not None:
-        body["severity"] = severity
+        updates["severity"] = severity
     if enabled is not None:
-        body["enabled"] = enabled
+        updates["enabled"] = enabled
     if repeat_actions is not None:
-        body["repeat_actions"] = repeat_actions
+        updates["repeat_actions"] = repeat_actions
     if alarm_actions:
-        body["alarm_actions"] = list(alarm_actions)
+        updates["alarm_actions"] = list(alarm_actions)
     if ok_actions:
-        body["ok_actions"] = list(ok_actions)
+        updates["ok_actions"] = list(ok_actions)
     if insufficient_data_actions:
-        body["insufficient_data_actions"] = list(insufficient_data_actions)
+        updates["insufficient_data_actions"] = list(insufficient_data_actions)
+    rule_update: dict | None = None
     if rule_json is not None:
         try:
-            rule = json.loads(rule_json)
+            rule_update = json.loads(rule_json)
         except json.JSONDecodeError as exc:
             raise click.BadParameter(f"Invalid JSON: {exc}", param_hint="--rule")
-        atype = current.get("type", "")
-        rule_key = "composite_rule" if atype == "composite" else f"{atype}_rule"
-        body[rule_key] = rule
-    if not body:
+    if not updates and rule_update is None:
         console.print("Nothing to update.")
         return
+
+    # Aodh PUT wants the full alarm representation — fetch, merge, send.
+    current = client.get(f"{_url(client)}/v2/alarms/{alarm_id}")
+    body = dict(current)
+    body.update(updates)
+    if rule_update is not None:
+        atype = current.get("type", "")
+        rule_key = "composite_rule" if atype == "composite" else f"{atype}_rule"
+        body[rule_key] = rule_update
+    # Aodh rejects read-only fields on PUT
+    for ro in ("alarm_id", "project_id", "user_id", "timestamp",
+               "state_timestamp", "state_reason", "state_reason_data"):
+        body.pop(ro, None)
     client.put(f"{_url(client)}/v2/alarms/{alarm_id}", json=body)
     console.print(f"Alarm [bold]{alarm_id}[/bold] updated.")
 

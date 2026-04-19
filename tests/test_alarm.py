@@ -208,7 +208,22 @@ class TestAlarmSet:
         result = invoke(["alarm", "set", ALARM_ID, "--name", "renamed"])
         assert result.exit_code == 0
         body = mock_client.put.call_args[1]["json"]
+        # Aodh needs the full representation: the update carries the name
+        # override *and* the merged existing fields (type, rule, severity…).
         assert body["name"] == "renamed"
+        assert body["type"] == "gnocchi_resources_threshold"
+        assert body["severity"] == "low"
+        assert "gnocchi_resources_threshold_rule" in body
+
+    def test_set_strips_readonly_fields(self, invoke, mock_client):
+        _aodh(mock_client)
+        mock_client.get.return_value = _alarm()
+        result = invoke(["alarm", "set", ALARM_ID, "--name", "renamed"])
+        assert result.exit_code == 0
+        body = mock_client.put.call_args[1]["json"]
+        for ro in ("alarm_id", "project_id", "user_id",
+                   "timestamp", "state_timestamp"):
+            assert ro not in body
 
     def test_set_rule(self, invoke, mock_client):
         _aodh(mock_client)
@@ -220,7 +235,7 @@ class TestAlarmSet:
         result = invoke(["alarm", "set", ALARM_ID, "--rule", new_rule])
         assert result.exit_code == 0
         body = mock_client.put.call_args[1]["json"]
-        assert "gnocchi_resources_threshold_rule" in body
+        assert body["gnocchi_resources_threshold_rule"]["threshold"] == 90.0
 
     def test_set_nothing(self, invoke, mock_client):
         _aodh(mock_client)
