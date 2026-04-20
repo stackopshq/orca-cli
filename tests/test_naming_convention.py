@@ -140,18 +140,16 @@ LEGACY_HYPHENATED_SUBCOMMANDS: dict[str, set[str]] = {
     },
     "security-group": {"rule-add", "rule-delete"},
     "server": {
-        # Cases pending arbitration — see ADR-0008 migration tracking:
-        # - confirm-resize / revert-resize would clash with `resize` as
-        #   both an action (`server resize <id> --flavor ...`) and a
-        #   sub-group; needs a Click pattern decision.
-        # - live-migrate is a compound verb without a clean sub-group
-        #   shape in openstackclient either.
-        # - port-forward is orca-exclusive (no openstack equivalent).
-        # Note: attach-interface is now `deprecated=True` (façade with
-        # smart dispatch warning) and excluded from this whitelist by
-        # the test runtime.
+        # Decided exceptions (arbitrated, kept on purpose):
+        # - confirm-resize / revert-resize: `resize` is both an action
+        #   (`server resize <id> --flavor ...`) and would need to be a
+        #   sub-group; statu quo, not worth the Click acrobatics.
+        # - port-forward: orca-exclusive (no openstack equivalent),
+        #   compound verb, kept as-is.
+        # Note: attach-interface and live-migrate are now `deprecated=True`
+        # façades and excluded from this whitelist automatically by the
+        # test runtime.
         "confirm-resize",
-        "live-migrate",
         "port-forward",
         "revert-resize",
     },

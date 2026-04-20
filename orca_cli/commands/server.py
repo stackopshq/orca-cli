@@ -1696,23 +1696,52 @@ def server_port_forward(
 @server.command("migrate")
 @click.argument("server_id")
 @click.option("--host", default=None, help="Target host (admin only, optional).")
+@click.option("--live", "live", is_flag=True,
+              help="Live-migrate (no downtime) instead of cold migration.")
+@click.option("--block-migration/--no-block-migration", "block_migration", default=False,
+              show_default=True,
+              help="Live mode only: copy disk over the network "
+                   "(slower but no shared storage needed).")
 @click.pass_context
-def server_migrate(ctx: click.Context, server_id: str, host: str | None) -> None:
-    """Cold-migrate a server to another host."""
-    ServerService(ctx.find_object(OrcaContext).ensure_client()).migrate(server_id, host)
-    console.print(f"[green]Migration of server {server_id} started.[/green]")
+def server_migrate(ctx: click.Context, server_id: str, host: str | None,
+                   live: bool, block_migration: bool) -> None:
+    """Migrate a server to another host (cold by default).
+
+    \b
+    Examples:
+      orca server migrate <id>                       # cold migration
+      orca server migrate <id> --host compute02      # cold, target host
+      orca server migrate <id> --live                # live migration
+      orca server migrate <id> --live --block-migration
+    """
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    if live:
+        service.live_migrate(server_id, host=host, block_migration=block_migration)
+        console.print(f"[green]Live migration of server {server_id} started.[/green]")
+    else:
+        if block_migration:
+            raise click.UsageError("--block-migration only applies in --live mode.")
+        service.migrate(server_id, host)
+        console.print(f"[green]Migration of server {server_id} started.[/green]")
     console.print("[dim]Use 'orca server show' to track progress.[/dim]")
 
 
-@server.command("live-migrate")
+@server.command("live-migrate", deprecated=True)
 @click.argument("server_id")
 @click.option("--host", default=None, help="Target host (admin only, optional).")
 @click.option("--block-migration/--no-block-migration", "block_migration", default=False,
-              show_default=True, help="Use block migration (copies disk, slower but no shared storage needed).")
+              show_default=True, help="Copy disk over the network (no shared storage needed).")
 @click.pass_context
 def server_live_migrate(ctx: click.Context, server_id: str, host: str | None,
                         block_migration: bool) -> None:
-    """Live-migrate a server without downtime."""
+    """Live-migrate a server (deprecated — use 'server migrate --live')."""
+    bm_flag = " --block-migration" if block_migration else ""
+    host_flag = f" --host {host}" if host else ""
+    click.secho(
+        f"warning: 'server live-migrate' is deprecated; use "
+        f"'orca server migrate {server_id} --live{host_flag}{bm_flag}' instead.",
+        fg="yellow", err=True,
+    )
     ServerService(ctx.find_object(OrcaContext).ensure_client()).live_migrate(
         server_id, host=host, block_migration=block_migration,
     )
