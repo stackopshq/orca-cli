@@ -81,3 +81,10 @@ readers can see how far along the work is.
   to migrate when ImageService and VolumeService land, plus one bulk
   `PUT /servers/{id}/tags` call (the service exposes per-tag add/delete
   operations only).
+- 2026-04-20 — `volume`: VolumeService + Volume / VolumeSnapshot /
+  VolumeBackup / VolumeAttachment TypedDicts. All 71 subcommands now
+  go through the service. Remaining ``client.volume_url`` references
+  in commands/volume.py are URLs passed to ``wait_for_resource`` —
+  not HTTP calls. Service covers volumes, snapshots, backups,
+  attachments, types (+ access + extra-specs), QoS, transfers,
+  messages, groups, group snapshots, group types, services.
