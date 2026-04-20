@@ -55,8 +55,24 @@ line-length = 120
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
-ignore = ["E501"]
+select = ["E", "F", "W", "I", "B", "S", "C901"]
+ignore = [
+    "E501",  # line-too-long
+    "S110",  # try-except-pass — best-effort cache/prefetch/completion paths must never crash the CLI
+    "S112",  # try-except-continue — same rationale as S110
+    "S311",  # pseudo-random — used for retry jitter, never for crypto
+    "S603",  # subprocess without shell=True — that is exactly the safe form
+    "S606",  # start-process-with-no-shell — we never want a shell wrapper
+    "S607",  # partial path (ssh, openssl) — resolved from user PATH, intentional
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25
+
+[tool.ruff.lint.per-file-ignores]
+# Tests: pytest assert; dummy creds in fixtures; intentional broad raises;
+# bind-all addresses in IP-validator inputs; complex setup helpers.
+"tests/*" = ["S101", "S105", "S106", "S107", "S104", "B017", "B018", "C901"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
