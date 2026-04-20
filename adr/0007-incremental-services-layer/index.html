@@ -3466,9 +3466,14 @@ been migrated keep calling <code>OrcaClient</code> directly — there is no flag
 <p>When migrating a resource, leave a one-line entry below so future ADR
 readers can see how far along the work is.</p>
 <ul>
-<li>2026-04-20 — <code>server</code>: ServerService + Server TypedDict, four commands
-  migrated (<code>list</code>, <code>show</code>, <code>delete</code>, <code>reboot</code>). Remaining 30+ server
-  commands still call <code>OrcaClient</code> directly.</li>
+<li>2026-04-20 — <code>server</code>: ServerService + Server TypedDict introduced.
+  All 59 server subcommands now go through the service for compute API
+  calls. Five <code>client.*</code> calls remain in <code>commands/server.py</code>: four
+  cross-service (Glance image lookup, Cinder volume lookup, Cinder
+  snapshot create, used by <code>ssh user-detection</code> / <code>clone</code> / <code>snapshot</code>)
+  to migrate when ImageService and VolumeService land, plus one bulk
+  <code>PUT /servers/{id}/tags</code> call (the service exposes per-tag add/delete
+  operations only).</li>
 </ul>
 
 
