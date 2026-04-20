@@ -68,3 +68,15 @@ class ConfigurationError(OrcaCLIError):
 
     def __init__(self, message: str = "Configuration not found. Run 'orca setup' first.") -> None:
         super().__init__(message)
+
+
+class ProfileNotFoundError(ConfigurationError):
+    """Raised when a referenced profile does not exist in the config file."""
+
+    def __init__(self, name: str) -> None:
+        super().__init__(f"Profile '{name}' does not exist.")
+
+
+class ProfileConflictError(ConfigurationError):
+    """Raised when a profile operation would corrupt the active profile or
+    collide with an existing one (rename target, active deletion)."""

@@ -326,14 +326,11 @@ def profile_switch(name: str | None) -> None:
             return
         name = items[idx][0]
 
-    try:
-        cfg = get_profile(name)
-        if not cfg:
-            raise KeyError(name)
-        set_active_profile(name)
-    except KeyError:
+    cfg = get_profile(name)
+    if not cfg:
         available = ", ".join(sorted(profiles.keys()))
         raise click.ClickException(f"Profile '{name}' not found. Available: {available}")
+    set_active_profile(name)
 
     color = _profile_color(cfg)
     styled_name = f"[{color} bold]{name}[/{color} bold]" if color else f"[bold]{name}[/bold]"
@@ -382,12 +379,7 @@ def profile_remove(name: str, yes: bool) -> None:
     """Remove a profile."""
     if not yes:
         click.confirm(f"Delete profile '{name}'?", abort=True)
-    try:
-        delete_profile(name)
-    except KeyError:
-        raise click.ClickException(f"Profile '{name}' not found.")
-    except ValueError as e:
-        raise click.ClickException(str(e))
+    delete_profile(name)
     console.print(f"[green]Profile '{name}' removed.[/green]")
 
 
@@ -500,10 +492,7 @@ def profile_regions(ctx: click.Context) -> None:
 @click.argument("new_name")
 def profile_rename(old_name: str, new_name: str) -> None:
     """Rename a profile."""
-    try:
-        rename_profile(old_name, new_name)
-    except (KeyError, ValueError) as e:
-        raise click.ClickException(str(e))
+    rename_profile(old_name, new_name)
     console.print(f"[green]Profile '{old_name}' renamed to '{new_name}'.[/green]")
 
 

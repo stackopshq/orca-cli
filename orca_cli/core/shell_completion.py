@@ -11,6 +11,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from orca_cli.core.exceptions import OrcaCLIError
+
 _COMPLETION_EVAL = {
     "bash": 'eval "$(_ORCA_COMPLETE=bash_source orca)"',
     "zsh": 'eval "$(_ORCA_COMPLETE=zsh_source orca)"',
@@ -81,4 +83,4 @@ def install_completion(shell: str) -> str:
         return install_completion_fish()
     if shell in ("bash", "zsh"):
         return install_completion_bashzsh(shell)
-    raise ValueError(f"Unsupported shell: {shell}")
+    raise OrcaCLIError(f"Unsupported shell: {shell}")

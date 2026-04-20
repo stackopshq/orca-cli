@@ -241,7 +241,7 @@ class TestProfileRemove:
 
         result = invoke(["profile", "remove", "nope", "-y"])
         assert result.exit_code != 0
-        assert "not found" in result.output.lower()
+        assert "does not exist" in result.output.lower()
 
 
 # ══════════════════════════════════════════════════════════════════════════

@@ -48,8 +48,9 @@ class TestProfileCRUD:
         assert get_active_profile_name() == "staging"
 
     def test_set_active_nonexistent_raises(self, config_dir, sample_profile):
+        from orca_cli.core.exceptions import ProfileNotFoundError
         save_profile("prod", sample_profile)
-        with pytest.raises(KeyError, match="nope"):
+        with pytest.raises(ProfileNotFoundError, match="nope"):
             set_active_profile("nope")
 
     def test_delete_profile(self, config_dir, sample_profile):
@@ -60,9 +61,10 @@ class TestProfileCRUD:
         assert "staging" not in list_profiles()
 
     def test_delete_active_raises(self, config_dir, sample_profile):
+        from orca_cli.core.exceptions import ProfileConflictError
         save_profile("prod", sample_profile)
         set_active_profile("prod")
-        with pytest.raises(ValueError, match="Cannot delete the active"):
+        with pytest.raises(ProfileConflictError, match="Cannot delete the active"):
             delete_profile("prod")
 
     def test_rename_profile(self, config_dir, sample_profile):
@@ -74,9 +76,10 @@ class TestProfileCRUD:
         assert get_active_profile_name() == "new"
 
     def test_rename_to_existing_raises(self, config_dir, sample_profile):
+        from orca_cli.core.exceptions import ProfileConflictError
         save_profile("a", sample_profile)
         save_profile("b", sample_profile)
-        with pytest.raises(ValueError, match="already exists"):
+        with pytest.raises(ProfileConflictError, match="already exists"):
             rename_profile("a", "b")
 
     def test_get_nonexistent_profile_returns_empty(self, config_dir):

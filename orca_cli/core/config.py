@@ -37,6 +37,8 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
+from orca_cli.core.exceptions import ProfileConflictError, ProfileNotFoundError
+
 CONFIG_DIR = Path.home() / ".orca"
 CONFIG_FILE = CONFIG_DIR / "config.yaml"
 
@@ -166,7 +168,7 @@ def set_active_profile(name: str) -> None:
     """Switch the active profile."""
     raw = _ensure_structure(_load_raw())
     if name not in raw.get("profiles", {}):
-        raise KeyError(f"Profile '{name}' does not exist.")
+        raise ProfileNotFoundError(name)
     raw["active_profile"] = name
     _save_raw(raw)
 
@@ -185,9 +187,11 @@ def delete_profile(name: str) -> None:
     """Delete a profile. Cannot delete the active profile."""
     raw = _ensure_structure(_load_raw())
     if name not in raw.get("profiles", {}):
-        raise KeyError(f"Profile '{name}' does not exist.")
+        raise ProfileNotFoundError(name)
     if raw.get("active_profile") == name:
-        raise ValueError(f"Cannot delete the active profile '{name}'. Switch first.")
+        raise ProfileConflictError(
+            f"Cannot delete the active profile '{name}'. Switch first."
+        )
     del raw["profiles"][name]
     _save_raw(raw)
 
@@ -197,9 +201,9 @@ def rename_profile(old_name: str, new_name: str) -> None:
     raw = _ensure_structure(_load_raw())
     profiles = raw.get("profiles", {})
     if old_name not in profiles:
-        raise KeyError(f"Profile '{old_name}' does not exist.")
+        raise ProfileNotFoundError(old_name)
     if new_name in profiles:
-        raise ValueError(f"Profile '{new_name}' already exists.")
+        raise ProfileConflictError(f"Profile '{new_name}' already exists.")
     profiles[new_name] = profiles.pop(old_name)
     if raw.get("active_profile") == old_name:
         raw["active_profile"] = new_name
