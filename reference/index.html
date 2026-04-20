@@ -42822,8 +42822,9 @@ instances. Use --delete to remove them.</p>
 </table>
 <h5 id="orca-server-add-network">orca server add network<a class="headerlink" href="#orca-server-add-network" title="Permanent link">&para;</a></h5>
 <p>Attach a network to a server (creates a new port automatically).</p>
-<p>Example:
-  orca server add-network <server-id> <network-id></p>
+<p>Examples:
+  orca server add network <server-id> <network-id>
+  orca server add network <server-id> <network-id> --fixed-ip 10.0.0.5</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-511-1" name="__codelineno-511-1" href="#__codelineno-511-1"></a>orca server add network [OPTIONS] SERVER_ID NETWORK_ID
 </code></pre></div>
@@ -42838,6 +42839,12 @@ instances. Use --delete to remove them.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--fixed-ip</code></td>
+<td>text</td>
+<td>Pin the new port to a specific fixed IP on the network.</td>
+<td>None</td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
@@ -42957,8 +42964,9 @@ instances. Use --delete to remove them.</p>
 </table>
 <h4 id="orca-server-add-network">orca server add-network<a class="headerlink" href="#orca-server-add-network" title="Permanent link">&para;</a></h4>
 <p>Attach a network to a server (creates a new port automatically).</p>
-<p>Example:
-  orca server add-network <server-id> <network-id></p>
+<p>Examples:
+  orca server add network <server-id> <network-id>
+  orca server add network <server-id> <network-id> --fixed-ip 10.0.0.5</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-516-1" name="__codelineno-516-1" href="#__codelineno-516-1"></a>orca server add-network [OPTIONS] SERVER_ID NETWORK_ID
 </code></pre></div>
@@ -42973,6 +42981,12 @@ instances. Use --delete to remove them.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--fixed-ip</code></td>
+<td>text</td>
+<td>Pin the new port to a specific fixed IP on the network.</td>
+<td>None</td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
@@ -43032,10 +43046,10 @@ instances. Use --delete to remove them.</p>
 </tbody>
 </table>
 <h4 id="orca-server-attach-interface">orca server attach-interface<a class="headerlink" href="#orca-server-attach-interface" title="Permanent link">&para;</a></h4>
-<p>Attach a network interface (port) to a server.</p>
-<p>Examples:
-  orca server attach-interface <server-id> --port-id <port-id>
-  orca server attach-interface <server-id> --net-id <network-id></p>
+<p>Attach a network interface to a server (deprecated façade).</p>
+<p>Use one of these instead, depending on what you have:
+  orca server add port <server-id> <port-id>
+  orca server add network <server-id> <network-id> [--fixed-ip <ip>]</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-519-1" name="__codelineno-519-1" href="#__codelineno-519-1"></a>orca server attach-interface [OPTIONS] SERVER_ID
 </code></pre></div>
