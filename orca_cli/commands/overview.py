@@ -17,8 +17,7 @@ def overview(ctx: click.Context) -> None:
 
     with console.status("[bold cyan]Gathering project overview…[/bold cyan]"):
         # ── Servers (Nova) ───────────────────────────────────────────
-        servers_data = client.get(f"{client.compute_url}/servers/detail", params={"limit": 1000})
-        servers = servers_data.get("servers", [])
+        servers = client.paginate(f"{client.compute_url}/servers/detail", "servers")
 
         status_counts: dict[str, int] = {}
         total_vcpus = 0
@@ -31,8 +30,7 @@ def overview(ctx: click.Context) -> None:
             total_ram += flv.get("ram", 0)
 
         # ── Volumes (Cinder) ─────────────────────────────────────────
-        volumes_data = client.get(f"{client.volume_url}/volumes/detail")
-        volumes = volumes_data.get("volumes", [])
+        volumes = client.paginate(f"{client.volume_url}/volumes/detail", "volumes")
         total_vol_gb = sum(v.get("size", 0) for v in volumes)
         vol_status: dict[str, int] = {}
         for v in volumes:
@@ -40,24 +38,23 @@ def overview(ctx: click.Context) -> None:
             vol_status[st] = vol_status.get(st, 0) + 1
 
         # ── Floating IPs (Neutron) ───────────────────────────────────
-        fips_data = client.get(f"{client.network_url}/v2.0/floatingips")
-        fips = fips_data.get("floatingips", [])
+        fips = client.paginate(f"{client.network_url}/v2.0/floatingips", "floatingips")
         fips_in_use = sum(1 for f in fips if f.get("port_id"))
         fips_free = len(fips) - fips_in_use
 
         # ── Networks / Subnets / Routers (Neutron) ───────────────────
-        nets = client.get(f"{client.network_url}/v2.0/networks").get("networks", [])
-        subnets = client.get(f"{client.network_url}/v2.0/subnets").get("subnets", [])
-        routers = client.get(f"{client.network_url}/v2.0/routers").get("routers", [])
+        nets = client.paginate(f"{client.network_url}/v2.0/networks", "networks")
+        subnets = client.paginate(f"{client.network_url}/v2.0/subnets", "subnets")
+        routers = client.paginate(f"{client.network_url}/v2.0/routers", "routers")
 
         # ── Security Groups (Neutron) ────────────────────────────────
-        sgs = client.get(f"{client.network_url}/v2.0/security-groups").get("security_groups", [])
+        sgs = client.paginate(f"{client.network_url}/v2.0/security-groups", "security_groups")
 
         # ── Key Pairs (Nova) ─────────────────────────────────────────
         kps = client.get(f"{client.compute_url}/os-keypairs").get("keypairs", [])
 
         # ── Images (Glance) ──────────────────────────────────────────
-        images = client.get(f"{client.image_url}/v2/images").get("images", [])
+        images = client.paginate(f"{client.image_url}/v2/images", "images")
 
     # ── Render ────────────────────────────────────────────────────────
     console.print()

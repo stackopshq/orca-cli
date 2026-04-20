@@ -37,7 +37,7 @@ def audit(ctx: click.Context) -> None:
 
     with console.status("[bold cyan]Running security audit…[/bold cyan]"):
         # ── Security Group Rules ─────────────────────────────────────
-        sgs = client.get(f"{client.network_url}/v2.0/security-groups").get("security_groups", [])
+        sgs = client.paginate(f"{client.network_url}/v2.0/security-groups", "security_groups")
         for sg in sgs:
             sg_name = sg.get("name", sg["id"])
             for rule in sg.get("security_group_rules", []):
@@ -84,7 +84,7 @@ def audit(ctx: click.Context) -> None:
                                      f"Wide port range {port_min}-{port_max} open to {remote}"))
 
         # ── Servers ──────────────────────────────────────────────────
-        servers = client.get(f"{client.compute_url}/servers/detail", params={"limit": 1000}).get("servers", [])
+        servers = client.paginate(f"{client.compute_url}/servers/detail", "servers")
         for srv in servers:
             srv_name = srv.get("name", srv["id"])
             srv_id = srv["id"]
@@ -111,7 +111,7 @@ def audit(ctx: click.Context) -> None:
                                  "Publicly reachable (floating IP) with no SSH key"))
 
         # ── Volumes ──────────────────────────────────────────────────
-        vols = client.get(f"{client.volume_url}/volumes/detail").get("volumes", [])
+        vols = client.paginate(f"{client.volume_url}/volumes/detail", "volumes")
         unencrypted = 0
         for v in vols:
             if not v.get("encrypted"):
@@ -121,7 +121,7 @@ def audit(ctx: click.Context) -> None:
                              f"{unencrypted} unencrypted volume(s)"))
 
         # ── Floating IPs unused ──────────────────────────────────────
-        fips = client.get(f"{client.network_url}/v2.0/floatingips").get("floatingips", [])
+        fips = client.paginate(f"{client.network_url}/v2.0/floatingips", "floatingips")
         unused_fips = [f for f in fips if not f.get("port_id")]
         if unused_fips:
             findings.append(("LOW", "Floating IPs", f"{len(unused_fips)} IP(s)",

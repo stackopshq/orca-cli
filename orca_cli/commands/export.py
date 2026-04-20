@@ -35,8 +35,7 @@ def _collect_servers(
     fip_by_port: dict[str, dict],
 ) -> list[dict]:
     """Fetch servers and enrich with resolved names."""
-    data = client.get(f"{client.compute_url}/servers/detail", params={"limit": 1000})
-    servers = data.get("servers", [])
+    servers = client.paginate(f"{client.compute_url}/servers/detail", "servers")
 
     results: list[dict] = []
     for srv in servers:
@@ -88,8 +87,7 @@ def _collect_servers(
 
 def _collect_volumes(client: Any, server_map: dict[str, str]) -> list[dict]:
     """Fetch volumes and resolve attached server names."""
-    data = client.get(f"{client.volume_url}/volumes/detail")
-    volumes = data.get("volumes", [])
+    volumes = client.paginate(f"{client.volume_url}/volumes/detail", "volumes")
 
     results: list[dict] = []
     for vol in volumes:
@@ -112,8 +110,7 @@ def _collect_volumes(client: Any, server_map: dict[str, str]) -> list[dict]:
 
 def _collect_networks(client: Any, subnet_map: dict[str, dict]) -> list[dict]:
     """Fetch networks with their subnets inlined."""
-    data = client.get(f"{client.network_url}/v2.0/networks")
-    networks = data.get("networks", [])
+    networks = client.paginate(f"{client.network_url}/v2.0/networks", "networks")
 
     results: list[dict] = []
     for net in networks:
@@ -144,15 +141,14 @@ def _collect_networks(client: Any, subnet_map: dict[str, dict]) -> list[dict]:
 
 def _collect_routers(client: Any, subnet_map: dict[str, dict], network_map: dict[str, str]) -> list[dict]:
     """Fetch routers with their interfaces."""
-    data = client.get(f"{client.network_url}/v2.0/routers")
-    routers = data.get("routers", [])
+    routers = client.paginate(f"{client.network_url}/v2.0/routers", "routers")
 
     # Get router interface ports
-    ports_data = client.get(
+    router_ports = client.paginate(
         f"{client.network_url}/v2.0/ports",
+        "ports",
         params={"device_owner": "network:router_interface"},
     )
-    router_ports = ports_data.get("ports", [])
 
     # Group ports by router (device_id)
     ports_by_router: dict[str, list[dict]] = {}
@@ -192,8 +188,7 @@ def _collect_floating_ips(
     port_device_map: dict[str, str],
 ) -> list[dict]:
     """Fetch floating IPs and resolve attached server names."""
-    data = client.get(f"{client.network_url}/v2.0/floatingips")
-    fips = data.get("floatingips", [])
+    fips = client.paginate(f"{client.network_url}/v2.0/floatingips", "floatingips")
 
     results: list[dict] = []
     for fip in fips:
@@ -214,8 +209,7 @@ def _collect_floating_ips(
 
 def _collect_security_groups(client: Any) -> list[dict]:
     """Fetch security groups with their rules."""
-    data = client.get(f"{client.network_url}/v2.0/security-groups")
-    sgs = data.get("security_groups", [])
+    sgs = client.paginate(f"{client.network_url}/v2.0/security-groups", "security_groups")
 
     results: list[dict] = []
     for sg in sgs:
@@ -263,8 +257,7 @@ def _collect_keypairs(client: Any) -> list[dict]:
 
 def _collect_images(client: Any) -> list[dict]:
     """Fetch images."""
-    data = client.get(f"{client.image_url}/v2/images")
-    images = data.get("images", [])
+    images = client.paginate(f"{client.image_url}/v2/images", "images")
 
     results: list[dict] = []
     for img in images:
@@ -318,8 +311,7 @@ def export(ctx: click.Context, output: str | None, resources: str | None, fmt: s
         # Image map (id -> name)
         image_map: dict[str, str] = {}
         try:
-            images_data = client.get(f"{client.image_url}/v2/images")
-            for img in images_data.get("images", []):
+            for img in client.paginate(f"{client.image_url}/v2/images", "images"):
                 image_map[img["id"]] = img.get("name", img["id"])
         except Exception:
             pass
@@ -327,10 +319,7 @@ def export(ctx: click.Context, output: str | None, resources: str | None, fmt: s
         # Server map (id -> name) — needed by volumes, floating_ips
         server_map: dict[str, str] = {}
         try:
-            servers_data = client.get(
-                f"{client.compute_url}/servers/detail", params={"limit": 1000},
-            )
-            for srv in servers_data.get("servers", []):
+            for srv in client.paginate(f"{client.compute_url}/servers/detail", "servers"):
                 server_map[srv["id"]] = srv.get("name", srv["id"])
         except Exception:
             pass
@@ -338,8 +327,7 @@ def export(ctx: click.Context, output: str | None, resources: str | None, fmt: s
         # Network map (id -> name)
         network_map: dict[str, str] = {}
         try:
-            nets_data = client.get(f"{client.network_url}/v2.0/networks")
-            for net in nets_data.get("networks", []):
+            for net in client.paginate(f"{client.network_url}/v2.0/networks", "networks"):
                 network_map[net["id"]] = net.get("name", net["id"])
         except Exception:
             pass
@@ -347,8 +335,7 @@ def export(ctx: click.Context, output: str | None, resources: str | None, fmt: s
         # Subnet map (id -> full subnet dict)
         subnet_map: dict[str, dict] = {}
         try:
-            subnets_data = client.get(f"{client.network_url}/v2.0/subnets")
-            for sub in subnets_data.get("subnets", []):
+            for sub in client.paginate(f"{client.network_url}/v2.0/subnets", "subnets"):
                 subnet_map[sub["id"]] = sub
         except Exception:
             pass
@@ -357,16 +344,14 @@ def export(ctx: click.Context, output: str | None, resources: str | None, fmt: s
         port_device_map: dict[str, str] = {}
         fip_by_port: dict[str, dict] = {}
         try:
-            ports_data = client.get(f"{client.network_url}/v2.0/ports")
-            for port in ports_data.get("ports", []):
+            for port in client.paginate(f"{client.network_url}/v2.0/ports", "ports"):
                 port_device_map[port["id"]] = port.get("device_id", "")
         except Exception:
             pass
 
         # Floating IP by port (for server network enrichment)
         try:
-            fips_data = client.get(f"{client.network_url}/v2.0/floatingips")
-            for fip in fips_data.get("floatingips", []):
+            for fip in client.paginate(f"{client.network_url}/v2.0/floatingips", "floatingips"):
                 pid = fip.get("port_id")
                 if pid:
                     fip_by_port[pid] = fip

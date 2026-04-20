@@ -144,6 +144,20 @@ def make_mock_client():
     client.compute_url = "https://nova.example.com/v2.1"
     client.network_url = "https://neutron.example.com"
     client.identity_url = "https://keystone.example.com:5000"
+
+    # paginate() on the real client issues one or more GETs and concatenates
+    # the pages. Tests rarely simulate multiple pages, so the default mock
+    # fetches the first page through whatever `client.get` returns and extracts
+    # `key` — matching single-page behaviour of the real helper.
+    def _paginate(url, key, *, page_size=1000, params=None, max_items=None):
+        merged = dict(params or {})
+        merged["limit"] = page_size
+        page = client.get(url, params=merged) or {}
+        items = page.get(key, []) if isinstance(page, dict) else []
+        if max_items is not None:
+            return items[:max_items]
+        return items
+    client.paginate = _paginate
     return client
 
 

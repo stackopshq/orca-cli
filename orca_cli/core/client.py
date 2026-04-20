@@ -578,6 +578,53 @@ class OrcaClient:
                headers: Optional[Dict[str, str]] = None) -> Any:
         return self._request("delete", url, extra_headers=headers, params=params)
 
+    def paginate(self, url: str, key: str, *,
+                 page_size: int = 1000,
+                 params: Optional[Dict[str, Any]] = None,
+                 max_items: Optional[int] = None) -> list:
+        """Walk an OpenStack list endpoint using marker-based pagination.
+
+        Many services (Nova, Cinder, Neutron with ``allow_pagination``) cap
+        a single response at 1000 items; without a pagination loop, callers
+        silently miss anything beyond the first page. This helper issues
+        ``limit`` + ``marker`` requests until one returns fewer than
+        ``page_size`` items, then concatenates the pages.
+
+        On endpoints that don't honour ``marker`` the first page is returned
+        as-is (the loop exits because ``len(batch) < page_size`` or because
+        the same marker is echoed back — the ``id``-based advance detects
+        the fixed point).
+
+        Args:
+            url: absolute URL of the list endpoint.
+            key: body key under which items are returned (e.g. ``"servers"``).
+            page_size: items per page (default 1000, the OpenStack cap).
+            params: extra query parameters merged into every page request.
+            max_items: stop once this many items have been collected.
+        """
+        collected: list = []
+        marker: Optional[str] = None
+        base_params: Dict[str, Any] = dict(params or {})
+        while True:
+            p = dict(base_params)
+            p["limit"] = page_size
+            if marker:
+                p["marker"] = marker
+            page = self.get(url, params=p) or {}
+            batch = page.get(key, []) if isinstance(page, dict) else []
+            if not batch:
+                break
+            collected.extend(batch)
+            if max_items is not None and len(collected) >= max_items:
+                return collected[:max_items]
+            if len(batch) < page_size:
+                break
+            last_id = batch[-1].get("id") if isinstance(batch[-1], dict) else None
+            if not last_id or last_id == marker:
+                break
+            marker = last_id
+        return collected
+
     def put_stream(self, url: str, stream, content_type: str = "application/octet-stream") -> Any:
         """PUT with a file-like stream body (for large uploads)."""
         extra = {"Content-Type": content_type}

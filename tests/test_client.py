@@ -718,6 +718,85 @@ class TestRequestRetryOnTransient:
         _no_sleep.assert_not_called()
 
 
+# ── paginate() helper ────────────────────────────────────────────────────────
+
+class TestPaginate:
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_single_page_returns_items(self, mock_httpx_cls):
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        http.get.return_value = _resp(200, {"servers": [{"id": "a"}, {"id": "b"}]})
+        mock_httpx_cls.return_value = http
+
+        client = OrcaClient(BASE_CFG)
+        items = client.paginate("https://nova.example.com/servers/detail", "servers")
+        assert [i["id"] for i in items] == ["a", "b"]
+        # One page — server returned < page_size so loop exits.
+        assert http.get.call_count == 1
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_walks_multiple_pages_via_marker(self, mock_httpx_cls):
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        page1 = [{"id": f"id-{i}"} for i in range(1000)]
+        page2 = [{"id": "id-1000"}, {"id": "id-1001"}]
+        http.get.side_effect = [
+            _resp(200, {"servers": page1}),
+            _resp(200, {"servers": page2}),
+        ]
+        mock_httpx_cls.return_value = http
+
+        client = OrcaClient(BASE_CFG)
+        items = client.paginate("https://nova.example.com/servers/detail", "servers")
+        assert len(items) == 1002
+        assert http.get.call_count == 2
+        # Second call must include marker=<last id of page 1>.
+        _, kwargs = http.get.call_args_list[1]
+        assert kwargs["params"]["marker"] == "id-999"
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_max_items_caps_result(self, mock_httpx_cls):
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        http.get.return_value = _resp(200, {"servers": [{"id": str(i)} for i in range(50)]})
+        mock_httpx_cls.return_value = http
+
+        client = OrcaClient(BASE_CFG)
+        items = client.paginate(
+            "https://nova.example.com/servers/detail", "servers", max_items=10,
+        )
+        assert len(items) == 10
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_empty_response_returns_empty(self, mock_httpx_cls):
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        http.get.return_value = _resp(200, {"servers": []})
+        mock_httpx_cls.return_value = http
+
+        client = OrcaClient(BASE_CFG)
+        assert client.paginate("https://nova.example.com/servers/detail", "servers") == []
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_breaks_when_marker_would_repeat(self, mock_httpx_cls):
+        """Defensive: if the server echoes the same last id, stop rather than loop."""
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        # Page of exactly page_size with no unique progression on last id.
+        page = [{"id": f"x-{i}"} for i in range(1000)]
+        # Second page echoes the same last id — indicates broken pagination.
+        http.get.side_effect = [_resp(200, {"servers": page}), _resp(200, {"servers": page})]
+        mock_httpx_cls.return_value = http
+
+        client = OrcaClient(BASE_CFG)
+        # Should not loop forever; code advances marker but fixed-point check
+        # breaks after second call at most.
+        items = client.paginate("https://nova.example.com/servers/detail", "servers")
+        assert len(items) >= 1000  # at least one full page collected
+        assert http.get.call_count <= 3
+
+
 # ── Nova microversion header scoping ─────────────────────────────────────────
 
 class TestNovaMicroversionHeader:

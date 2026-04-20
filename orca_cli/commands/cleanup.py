@@ -23,9 +23,13 @@ FAILED_STACK_STATUSES = {
 
 
 def _collect(client, url: str, key: str, params: dict | None = None) -> list:
-    """Fetch a resource list silently (returns [] if service unavailable)."""
+    """Fetch a resource list silently (returns [] if service unavailable).
+
+    Walks all pages via ``client.paginate`` so tenants with more than a
+    single page of a given resource type aren't silently truncated.
+    """
     try:
-        return client.get(url, params=params).get(key, [])
+        return client.paginate(url, key, params=params)
     except Exception:
         return []
 
@@ -139,7 +143,6 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,
             )
             servers = _collect(
                 client, f"{client.compute_url}/servers/detail", "servers",
-                params={"limit": 1000},
             )
             used_sg_ids: set[str] = set()
             for srv in servers:
@@ -159,7 +162,6 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,
             # Reuse servers list if already fetched, otherwise fetch
             _servers = servers if "security-group" not in skip else _collect(
                 client, f"{client.compute_url}/servers/detail", "servers",
-                params={"limit": 1000},
             )
             for srv in _servers:
                 if srv.get("status") == "ERROR":
