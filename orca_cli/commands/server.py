@@ -852,7 +852,6 @@ def server_password(ctx: click.Context, server_id: str, private_key_path: str | 
     """
     import base64
     import subprocess
-    import tempfile
     from pathlib import Path
 
     client = ctx.find_object(OrcaContext).ensure_client()
@@ -901,42 +900,28 @@ def server_password(ctx: click.Context, server_id: str, private_key_path: str | 
     except Exception:
         raise click.ClickException("Failed to decode encrypted password (invalid base64).")
 
-    # Decrypt with openssl
-    with tempfile.NamedTemporaryFile(suffix=".bin", delete=False) as tmp:
-        tmp.write(encrypted_bytes)
-        tmp_path = tmp.name
-
-    try:
+    # Decrypt with openssl, feeding ciphertext via stdin to avoid leaving
+    # an RSA-encrypted blob on disk (even briefly).
+    result = subprocess.run(
+        ["openssl", "pkeyutl", "-decrypt", "-inkey", str(key_path)],
+        input=encrypted_bytes,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        # Fallback to older rsautl for compatibility (same stdin pattern).
         result = subprocess.run(
-            [
-                "openssl", "pkeyutl", "-decrypt",
-                "-inkey", str(key_path),
-                "-in", tmp_path,
-            ],
+            ["openssl", "rsautl", "-decrypt", "-inkey", str(key_path)],
+            input=encrypted_bytes,
             capture_output=True,
         )
+    if result.returncode != 0:
+        stderr = result.stderr.decode(errors="replace").strip()
+        raise click.ClickException(
+            f"Decryption failed. Make sure you use the matching RSA private key.\n"
+            f"  openssl error: {stderr}"
+        )
 
-        if result.returncode != 0:
-            # Fallback to older rsautl for compatibility
-            result = subprocess.run(
-                [
-                    "openssl", "rsautl", "-decrypt",
-                    "-inkey", str(key_path),
-                    "-in", tmp_path,
-                ],
-                capture_output=True,
-            )
-
-        if result.returncode != 0:
-            stderr = result.stderr.decode(errors="replace").strip()
-            raise click.ClickException(
-                f"Decryption failed. Make sure you use the matching RSA private key.\n"
-                f"  openssl error: {stderr}"
-            )
-
-        password = result.stdout.decode().strip()
-    finally:
-        Path(tmp_path).unlink(missing_ok=True)
+    password = result.stdout.decode().strip()
 
     console.print(f"\n[bold green]Admin password for {server_id}:[/bold green]")
     console.print(f"  [bold]{password}[/bold]\n")
