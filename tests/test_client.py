@@ -171,7 +171,30 @@ class TestOrcaClientInit:
         assert call_kwargs["verify"] is False
 
     @patch("orca_cli.core.client.httpx.Client")
-    def test_cacert_passed_to_verify(self, mock_httpx_cls):
+    def test_cacert_passed_to_verify(self, mock_httpx_cls, tmp_path):
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        mock_httpx_cls.return_value = http
+
+        ca_file = tmp_path / "ca.pem"
+        ca_file.write_text("-----BEGIN CERTIFICATE-----\nfake\n-----END CERTIFICATE-----\n")
+
+        cfg = {
+            "auth_url": "https://ks:5000",
+            "username": "admin",
+            "password": "secret",
+            "user_domain_name": "Default",
+            "project_name": "demo",
+            "cacert": str(ca_file),
+        }
+        OrcaClient(cfg)
+        call_kwargs = mock_httpx_cls.call_args.kwargs
+        assert call_kwargs["verify"] == str(ca_file)
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_cacert_missing_raises_configuration_error(self, mock_httpx_cls, tmp_path):
+        from orca_cli.core.exceptions import ConfigurationError
+
         http = MagicMock()
         http.post.return_value = _make_auth_response()
         mock_httpx_cls.return_value = http
@@ -182,11 +205,28 @@ class TestOrcaClientInit:
             "password": "secret",
             "user_domain_name": "Default",
             "project_name": "demo",
-            "cacert": "/path/to/ca.pem",
+            "cacert": str(tmp_path / "does-not-exist.pem"),
+        }
+        with pytest.raises(ConfigurationError, match="cacert path"):
+            OrcaClient(cfg)
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_insecure_emits_stderr_warning(self, mock_httpx_cls, capsys):
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        mock_httpx_cls.return_value = http
+
+        cfg = {
+            "auth_url": "https://ks:5000",
+            "username": "admin",
+            "password": "secret",
+            "user_domain_name": "Default",
+            "project_name": "demo",
+            "insecure": "true",
         }
         OrcaClient(cfg)
-        call_kwargs = mock_httpx_cls.call_args.kwargs
-        assert call_kwargs["verify"] == "/path/to/ca.pem"
+        captured = capsys.readouterr()
+        assert "TLS certificate verification is disabled" in captured.err
 
 
 class TestEndpointResolution:

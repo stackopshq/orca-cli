@@ -20,8 +20,11 @@ from __future__ import annotations
 import email.utils
 import hashlib
 import logging
+import os
 import random
 import stat
+import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,7 +33,12 @@ from typing import Any, Dict, Optional
 import httpx
 import yaml
 
-from orca_cli.core.exceptions import APIError, AuthenticationError, PermissionDeniedError
+from orca_cli.core.exceptions import (
+    APIError,
+    AuthenticationError,
+    ConfigurationError,
+    PermissionDeniedError,
+)
 
 # Module logger — silent by default (no handlers attached). The root CLI
 # wires handlers when --debug is passed. Auth payloads are never logged,
@@ -162,10 +170,7 @@ class OrcaClient:
         self._token_data: dict = {}  # full token body from Keystone
         self._token_from_cache: bool = False  # True when loaded from disk cache
 
-        insecure = str(config.get("insecure", "false")).lower() in ("true", "1", "yes")
-        verify: bool | str = not insecure
-        if not insecure and config.get("cacert"):
-            verify = config["cacert"]
+        verify = self._resolve_tls_verify(config)
         self._http = httpx.Client(timeout=httpx.Timeout(30.0, read=600.0, write=600.0), verify=verify)
 
         # Build a stable cache key from the identity of this "cluster"
@@ -174,6 +179,42 @@ class OrcaClient:
         # Try cache first, fall back to live authentication
         if not self._load_token_cache():
             self._authenticate()
+
+    # ── TLS verification ─────────────────────────────────────────────────────
+
+    @staticmethod
+    def _resolve_tls_verify(config: dict) -> bool | str:
+        """Derive the ``httpx`` ``verify=`` argument from profile config.
+
+        Returns ``False`` when ``insecure=true`` (and emits a visible warning
+        so the user can't forget that MITM is undetectable on this connection),
+        the ``cacert`` path when a custom CA is configured, or ``True`` for the
+        default OS trust store. Raises ``ConfigurationError`` when ``cacert``
+        points at a missing or non-readable file — failing fast beats a
+        cryptic SSL handshake error later.
+        """
+        insecure = str(config.get("insecure", "false")).lower() in ("true", "1", "yes")
+        cacert_path = config.get("cacert")
+
+        if insecure:
+            # Always to stderr — a TLS-off warning that only shows up with
+            # --debug would defeat the point.
+            sys.stderr.write(
+                "WARNING: TLS certificate verification is disabled "
+                "(insecure=true). MITM attacks on this connection are "
+                "undetectable.\n"
+            )
+            return False
+
+        if cacert_path:
+            path = Path(cacert_path).expanduser()
+            if not path.is_file():
+                raise ConfigurationError(
+                    f"cacert path is not a readable file: {cacert_path}"
+                )
+            return str(path)
+
+        return True
 
     # ── Auth-type detection ──────────────────────────────────────────────────
 
@@ -267,7 +308,13 @@ class OrcaClient:
         return bool(self._token)
 
     def _save_token_cache(self) -> None:
-        """Persist the current token to disk."""
+        """Persist the current token to disk atomically.
+
+        Writes to a sibling tempfile and ``os.replace`` into place so a
+        concurrent ``orca`` invocation reading the cache never observes a
+        truncated half-write. The tempfile inherits the 0600 mode *before*
+        the rename — no window where the final path exists world-readable.
+        """
         expires_at = self._token_data.get("expires_at", "")
         data = {
             "cache_key": self._cache_key,
@@ -277,8 +324,20 @@ class OrcaClient:
             "token_data": self._token_data,
         }
         TOKEN_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        TOKEN_CACHE_PATH.write_text(yaml.dump(data, default_flow_style=False))
-        TOKEN_CACHE_PATH.chmod(stat.S_IRUSR | stat.S_IWUSR)  # 0600
+        tmp_fd, tmp_path = tempfile.mkstemp(
+            prefix=".token_cache.", suffix=".tmp", dir=str(TOKEN_CACHE_PATH.parent)
+        )
+        try:
+            os.chmod(tmp_path, stat.S_IRUSR | stat.S_IWUSR)  # 0600 before write
+            with os.fdopen(tmp_fd, "w") as f:
+                yaml.dump(data, f, default_flow_style=False)
+            os.replace(tmp_path, TOKEN_CACHE_PATH)
+        except Exception:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+            raise
 
     def _clear_token_cache(self) -> None:
         """Delete the on-disk token cache (called on 401)."""
