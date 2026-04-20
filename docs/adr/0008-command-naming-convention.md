@@ -133,3 +133,11 @@ Update this list when a module's hyphenated commands are migrated.
   `metadata`, `migration`, `tag`, `volume`); `attach-interface` and
   `live-migrate` reduced to deprecated façades that warn and
   forward. Three permanent exceptions remain (see above).
+- 2026-04-20 — `volume`: 54 commands moved into 9 sub-groups and 3
+  sub-sub-groups (`attachment`, `backup`, `group`, `group snapshot`,
+  `group type`, `message`, `qos`, `service`, `snapshot`, `transfer`,
+  `type`, `type access`). `revert-to-snapshot` becomes
+  `volume snapshot revert`. `set-bootable` / `set-readonly` fold
+  into `volume set --bootable` / `--read-only` with the two old
+  commands kept as deprecated façades. Whitelist for `volume` is
+  empty — no permanent exceptions.
