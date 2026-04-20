@@ -72,22 +72,10 @@ LEGACY_HYPHENATED_SUBCOMMANDS: dict[str, set[str]] = {
         "resource-type-create", "resource-type-delete",
         "resource-type-list", "resource-type-show",
     },
-    "network": {
-        "agent-delete", "agent-list", "agent-set", "agent-show",
-        "auto-allocated-topology-delete", "auto-allocated-topology-show",
-        "port-create", "port-delete", "port-list", "port-show",
-        "port-unset", "port-update",
-        "rbac-create", "rbac-delete", "rbac-list", "rbac-show", "rbac-update",
-        "router-add-interface", "router-add-route",
-        "router-create", "router-delete", "router-list",
-        "router-remove-interface", "router-remove-route",
-        "router-set-gateway", "router-show", "router-unset-gateway",
-        "router-update",
-        "segment-create", "segment-delete", "segment-list",
-        "segment-set", "segment-show",
-        "subnet-create", "subnet-delete", "subnet-list",
-        "subnet-show", "subnet-update",
-    },
+    # "network" entry removed — every former hyphenated subcommand is now
+    # nested under a sub-group (agent, port, rbac, segment, subnet,
+    # auto-allocated-topology, router) or sub-sub-group (router add/remove
+    # for interface/route, router set/unset for gateway).
     "object": {
         "account-set", "account-unset",
         "container-create", "container-delete", "container-list",
@@ -178,12 +166,18 @@ LEGACY_HYPHENATED_SUBCOMMANDS: dict[str, set[str]] = {
 
 
 def _live_hyphenated_subcommands() -> dict[str, set[str]]:
-    """Walk the cli tree and return {top-group: {hyphenated-sub-names}}.
+    """Walk the cli tree and return {top-group: {hyphenated-leaf-names}}.
 
-    Deprecated aliases (those marked ``deprecated=True``, registered via
-    ``add_command_with_alias``) are excluded — they are tracked
-    elsewhere as part of the alias-and-deprecate plan, not as fresh
-    debt.
+    Two classes of hyphenated names are excluded by design:
+
+    - Deprecated aliases (``deprecated=True``, registered via
+      ``add_command_with_alias``) — tracked separately as part of the
+      alias-and-deprecate plan, not as fresh debt.
+    - Sub-groups whose own name is a compound noun (e.g.
+      ``auto-allocated-topology``) — ADR-0008 explicitly allows
+      compound nouns to keep their hyphen because they read as one
+      word. The convention only forbids ``verb-noun`` glue on *leaf*
+      commands.
     """
     out: dict[str, set[str]] = {}
     for top_name in cli.list_commands(None):
@@ -192,7 +186,9 @@ def _live_hyphenated_subcommands() -> dict[str, set[str]]:
             continue
         hy = {
             s for s, cmd in top.commands.items()
-            if "-" in s and not getattr(cmd, "deprecated", False)
+            if "-" in s
+            and not getattr(cmd, "deprecated", False)
+            and not isinstance(cmd, click.Group)
         }
         if hy:
             out[top_name] = hy

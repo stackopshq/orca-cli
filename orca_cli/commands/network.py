@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import click
 
+from orca_cli.core.aliases import add_command_with_alias
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
@@ -22,6 +23,64 @@ def _net_base(client) -> str:
 def network(ctx: click.Context) -> None:
     """Manage networks, subnets, ports & routers."""
     pass
+
+
+# ── nested sub-groups (ADR-0008 — openstackclient-style naming) ───────────
+
+
+@network.group("agent")
+def network_agent() -> None:
+    """Manage Neutron agents (admin)."""
+
+
+@network.group("auto-allocated-topology")
+def network_auto_allocated_topology() -> None:
+    """Manage the project's auto-allocated topology."""
+
+
+@network.group("port")
+def network_port() -> None:
+    """Manage Neutron ports."""
+
+
+@network.group("rbac")
+def network_rbac() -> None:
+    """Manage RBAC policies on networks/qos/subnetpools/etc."""
+
+
+@network.group("router")
+def network_router() -> None:
+    """Manage Neutron routers."""
+
+
+@network_router.group("add")
+def network_router_add() -> None:
+    """Attach a sub-resource to a router (interface, route)."""
+
+
+@network_router.group("remove")
+def network_router_remove() -> None:
+    """Detach a sub-resource from a router."""
+
+
+@network_router.group("set")
+def network_router_set() -> None:
+    """Set a router-level attribute (gateway)."""
+
+
+@network_router.group("unset")
+def network_router_unset() -> None:
+    """Clear a router-level attribute (gateway)."""
+
+
+@network.group("segment")
+def network_segment() -> None:
+    """Manage network segments."""
+
+
+@network.group("subnet")
+def network_subnet() -> None:
+    """Manage Neutron subnets."""
 
 
 @network.command("list")
@@ -121,7 +180,7 @@ def network_delete(ctx: click.Context, network_id: str, yes: bool) -> None:
 #  Subnets
 # ══════════════════════════════════════════════════════════════════════════
 
-@network.command("subnet-list")
+@network_subnet.command("list")
 @output_options
 @click.pass_context
 def subnet_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
@@ -147,7 +206,7 @@ def subnet_list(ctx: click.Context, output_format: str, columns: tuple[str, ...]
     )
 
 
-@network.command("subnet-show")
+@network_subnet.command("show")
 @click.argument("subnet_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -165,7 +224,7 @@ def subnet_show(ctx: click.Context, subnet_id: str, output_format: str, columns:
     print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
 
 
-@network.command("subnet-create")
+@network_subnet.command("create")
 @click.argument("name")
 @click.option("--network-id", required=True, help="Parent network ID.")
 @click.option("--cidr", required=True, help="CIDR (e.g. 10.0.0.0/24).")
@@ -195,7 +254,7 @@ def subnet_create(ctx: click.Context, name: str, network_id: str, cidr: str,
     console.print(f"[green]Subnet '{sub.get('name')}' ({sub.get('id')}) created — {cidr}.[/green]")
 
 
-@network.command("subnet-delete")
+@network_subnet.command("delete")
 @click.argument("subnet_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -212,7 +271,7 @@ def subnet_delete(ctx: click.Context, subnet_id: str, yes: bool) -> None:
 #  Ports
 # ══════════════════════════════════════════════════════════════════════════
 
-@network.command("port-list")
+@network_port.command("list")
 @click.option("--network-id", default=None, help="Filter by network ID.")
 @output_options
 @click.pass_context
@@ -244,7 +303,7 @@ def port_list(ctx: click.Context, network_id: str | None, output_format: str, co
     )
 
 
-@network.command("port-show")
+@network_port.command("show")
 @click.argument("port_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -263,7 +322,7 @@ def port_show(ctx: click.Context, port_id: str, output_format: str, columns: tup
     print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
 
 
-@network.command("port-create")
+@network_port.command("create")
 @click.option("--network-id", required=True, help="Network ID.")
 @click.option("--name", default=None, help="Port name.")
 @click.option("--fixed-ip", default=None, help="Fixed IP address.")
@@ -283,7 +342,7 @@ def port_create(ctx: click.Context, network_id: str, name: str | None, fixed_ip:
     console.print(f"[green]Port {port.get('id')} created — {ips}.[/green]")
 
 
-@network.command("port-update")
+@network_port.command("update")
 @click.argument("port_id", callback=validate_id)
 @click.option("--name", default=None, help="New name.")
 @click.option("--admin-state/--no-admin-state", default=None, help="Admin state.")
@@ -303,7 +362,7 @@ def port_update(ctx: click.Context, port_id: str, name: str | None, admin_state:
     console.print(f"[green]Port {port_id} updated.[/green]")
 
 
-@network.command("port-delete")
+@network_port.command("delete")
 @click.argument("port_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -320,7 +379,7 @@ def port_delete(ctx: click.Context, port_id: str, yes: bool) -> None:
 #  Routers
 # ══════════════════════════════════════════════════════════════════════════
 
-@network.command("router-list")
+@network_router.command("list")
 @output_options
 @click.pass_context
 def router_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
@@ -346,7 +405,7 @@ def router_list(ctx: click.Context, output_format: str, columns: tuple[str, ...]
     )
 
 
-@network.command("router-show")
+@network_router.command("show")
 @click.argument("router_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -364,7 +423,7 @@ def router_show(ctx: click.Context, router_id: str, output_format: str, columns:
     print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
 
 
-@network.command("router-create")
+@network_router.command("create")
 @click.argument("name")
 @click.option("--external-network", default=None, help="External network ID for gateway.")
 @click.pass_context
@@ -380,7 +439,7 @@ def router_create(ctx: click.Context, name: str, external_network: str | None) -
     console.print(f"[green]Router '{r.get('name')}' ({r.get('id')}) created.[/green]")
 
 
-@network.command("router-update")
+@network_router.command("update")
 @click.argument("router_id", callback=validate_id)
 @click.option("--name", default=None, help="New name.")
 @click.option("--external-network", default=None, help="New external gateway network ID.")
@@ -400,7 +459,7 @@ def router_update(ctx: click.Context, router_id: str, name: str | None, external
     console.print(f"[green]Router {router_id} updated.[/green]")
 
 
-@network.command("router-delete")
+@network_router.command("delete")
 @click.argument("router_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -413,7 +472,7 @@ def router_delete(ctx: click.Context, router_id: str, yes: bool) -> None:
     console.print(f"[green]Router {router_id} deleted.[/green]")
 
 
-@network.command("router-add-interface")
+@network_router_add.command("interface")
 @click.argument("router_id", callback=validate_id)
 @click.option("--subnet-id", required=True, help="Subnet to attach.")
 @click.pass_context
@@ -425,7 +484,7 @@ def router_add_interface(ctx: click.Context, router_id: str, subnet_id: str) -> 
     console.print(f"[green]Subnet {subnet_id} added to router {router_id}.[/green]")
 
 
-@network.command("router-remove-interface")
+@network_router_remove.command("interface")
 @click.argument("router_id", callback=validate_id)
 @click.option("--subnet-id", required=True, help="Subnet to detach.")
 @click.pass_context
@@ -748,7 +807,7 @@ def net_trace(ctx: click.Context, server_id: str) -> None:
 #  subnet-update
 # ══════════════════════════════════════════════════════════════════════════
 
-@network.command("subnet-update")
+@network_subnet.command("update")
 @click.argument("subnet_id", callback=validate_id)
 @click.option("--name", default=None, help="New name.")
 @click.option("--description", default=None, help="New description.")
@@ -782,7 +841,7 @@ def network_subnet_update(ctx: click.Context, subnet_id: str, name: str | None,
 #  network agent-*
 # ══════════════════════════════════════════════════════════════════════════
 
-@network.command("agent-list")
+@network_agent.command("list")
 @click.option("--host", default=None, help="Filter by host.")
 @click.option("--agent-type", default=None, help="Filter by agent type.")
 @output_options
@@ -817,7 +876,7 @@ def network_agent_list(ctx: click.Context, host: str | None, agent_type: str | N
     )
 
 
-@network.command("agent-show")
+@network_agent.command("show")
 @click.argument("agent_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -836,7 +895,7 @@ def network_agent_show(ctx: click.Context, agent_id: str,
     )
 
 
-@network.command("agent-set")
+@network_agent.command("set")
 @click.argument("agent_id", callback=validate_id)
 @click.option("--enable/--disable", default=None, help="Enable or disable the agent.")
 @click.option("--description", default=None, help="New description.")
@@ -857,7 +916,7 @@ def network_agent_set(ctx: click.Context, agent_id: str, enable: bool | None,
     console.print(f"[green]Agent {agent_id} updated.[/green]")
 
 
-@network.command("agent-delete")
+@network_agent.command("delete")
 @click.argument("agent_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -874,7 +933,7 @@ def network_agent_delete(ctx: click.Context, agent_id: str, yes: bool) -> None:
 #  network rbac-*
 # ══════════════════════════════════════════════════════════════════════════
 
-@network.command("rbac-list")
+@network_rbac.command("list")
 @click.option("--object-type", default=None,
               type=click.Choice(["network", "qos_policy", "security_group",
                                  "address_group", "address_scope", "subnetpool"]),
@@ -907,7 +966,7 @@ def network_rbac_list(ctx: click.Context, object_type: str | None,
     )
 
 
-@network.command("rbac-show")
+@network_rbac.command("show")
 @click.argument("rbac_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -925,7 +984,7 @@ def network_rbac_show(ctx: click.Context, rbac_id: str,
     )
 
 
-@network.command("rbac-create")
+@network_rbac.command("create")
 @click.option("--object-type", required=True,
               type=click.Choice(["network", "qos_policy", "security_group",
                                  "address_group", "address_scope", "subnetpool"]),
@@ -962,7 +1021,7 @@ def network_rbac_create(ctx: click.Context, object_type: str, object_id: str,
     console.print(f"[green]RBAC policy created: {p.get('id', '?')}[/green]")
 
 
-@network.command("rbac-delete")
+@network_rbac.command("delete")
 @click.argument("rbac_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -975,7 +1034,7 @@ def network_rbac_delete(ctx: click.Context, rbac_id: str, yes: bool) -> None:
     console.print(f"[green]RBAC policy {rbac_id} deleted.[/green]")
 
 
-@network.command("rbac-update")
+@network_rbac.command("update")
 @click.argument("rbac_id", callback=validate_id)
 @click.option("--target-project", required=True,
               help="New target project ID (use '*' for all projects).")
@@ -1001,7 +1060,7 @@ def network_rbac_update(ctx: click.Context, rbac_id: str, target_project: str) -
 # ══════════════════════════════════════════════════════════════════════════
 
 
-@network.command("port-unset")
+@network_port.command("unset")
 @click.argument("port_id", callback=validate_id)
 @click.option("--security-group", "security_groups", multiple=True,
               help="Security group ID to remove (repeatable).")
@@ -1055,7 +1114,7 @@ def network_port_unset(ctx: click.Context, port_id: str,
 # ══════════════════════════════════════════════════════════════════════════
 
 
-@network.command("router-set-gateway")
+@network_router_set.command("gateway")
 @click.argument("router_id", callback=validate_id)
 @click.option("--external-network", "network_id", required=True,
               help="External network ID to use as gateway.")
@@ -1082,7 +1141,7 @@ def network_router_set_gateway(ctx: click.Context, router_id: str,
     console.print(f"[green]Gateway set on router {router_id} → network {network_id}.[/green]")
 
 
-@network.command("router-unset-gateway")
+@network_router_unset.command("gateway")
 @click.argument("router_id", callback=validate_id)
 @click.pass_context
 def network_router_unset_gateway(ctx: click.Context, router_id: str) -> None:
@@ -1105,7 +1164,7 @@ def network_router_unset_gateway(ctx: click.Context, router_id: str) -> None:
 # ══════════════════════════════════════════════════════════════════════════
 
 
-@network.command("router-add-route")
+@network_router_add.command("route")
 @click.argument("router_id", callback=validate_id)
 @click.option("--destination", required=True, metavar="CIDR",
               help="Destination network (e.g. 10.1.0.0/24).")
@@ -1130,7 +1189,7 @@ def network_router_add_route(ctx: click.Context, router_id: str,
     )
 
 
-@network.command("router-remove-route")
+@network_router_remove.command("route")
 @click.argument("router_id", callback=validate_id)
 @click.option("--destination", required=True, metavar="CIDR",
               help="Destination network to remove.")
@@ -1159,7 +1218,7 @@ def network_router_remove_route(ctx: click.Context, router_id: str,
 #  Network Segments (Neutron segments extension)
 # ══════════════════════════════════════════════════════════════════════════════
 
-@network.command("segment-list")
+@network_segment.command("list")
 @click.option("--network-id", default=None, help="Filter by network ID.")
 @output_options
 @click.pass_context
@@ -1185,7 +1244,7 @@ def network_segment_list(ctx, network_id, output_format, columns, fit_width, max
     )
 
 
-@network.command("segment-show")
+@network_segment.command("show")
 @click.argument("segment_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -1202,7 +1261,7 @@ def network_segment_show(ctx, segment_id, output_format, columns, fit_width, max
     )
 
 
-@network.command("segment-create")
+@network_segment.command("create")
 @click.argument("name")
 @click.option("--network-id", required=True, help="Network ID this segment belongs to.")
 @click.option("--network-type", required=True,
@@ -1229,7 +1288,7 @@ def network_segment_create(ctx, name, network_id, network_type, physical_network
     console.print(f"[green]Segment '{s.get('name')}' ({s.get('id')}) created.[/green]")
 
 
-@network.command("segment-set")
+@network_segment.command("set")
 @click.argument("segment_id", callback=validate_id)
 @click.option("--name", default=None, help="New name.")
 @click.option("--description", default=None, help="New description.")
@@ -1249,7 +1308,7 @@ def network_segment_set(ctx, segment_id, name, description):
     console.print(f"[green]Segment {segment_id} updated.[/green]")
 
 
-@network.command("segment-delete")
+@network_segment.command("delete")
 @click.argument("segment_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -1266,7 +1325,7 @@ def network_segment_delete(ctx, segment_id, yes):
 #  Auto-allocated topology (Neutron auto-allocation extension)
 # ══════════════════════════════════════════════════════════════════════════════
 
-@network.command("auto-allocated-topology-show")
+@network_auto_allocated_topology.command("show")
 @click.option("--project-id", default=None, help="Project ID (default: current project).")
 @click.option("--check-resources", is_flag=True,
               help="Validate resources without creating topology.")
@@ -1296,7 +1355,7 @@ def network_auto_allocated_topology_show(ctx, project_id, check_resources,
     )
 
 
-@network.command("auto-allocated-topology-delete")
+@network_auto_allocated_topology.command("delete")
 @click.option("--project-id", default=None, help="Project ID (default: current project).")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -1308,3 +1367,65 @@ def network_auto_allocated_topology_delete(ctx, project_id, yes):
     scope = project_id or "null"
     client.delete(f"{_net_base(client)}/auto-allocated-topology/{scope}")
     console.print("[green]Auto-allocated topology deleted.[/green]")
+
+
+# ── Deprecated aliases (ADR-0008) ─────────────────────────────────────────
+
+for _legacy, _primary, _path in [
+    ("agent-delete",       network_agent.commands["delete"],  "network agent delete"),
+    ("agent-list",         network_agent.commands["list"],    "network agent list"),
+    ("agent-set",          network_agent.commands["set"],     "network agent set"),
+    ("agent-show",         network_agent.commands["show"],    "network agent show"),
+    ("auto-allocated-topology-delete",
+        network_auto_allocated_topology.commands["delete"],
+        "network auto-allocated-topology delete"),
+    ("auto-allocated-topology-show",
+        network_auto_allocated_topology.commands["show"],
+        "network auto-allocated-topology show"),
+    ("port-create",        network_port.commands["create"],   "network port create"),
+    ("port-delete",        network_port.commands["delete"],   "network port delete"),
+    ("port-list",          network_port.commands["list"],     "network port list"),
+    ("port-show",          network_port.commands["show"],     "network port show"),
+    ("port-unset",         network_port.commands["unset"],    "network port unset"),
+    ("port-update",        network_port.commands["update"],   "network port update"),
+    ("rbac-create",        network_rbac.commands["create"],   "network rbac create"),
+    ("rbac-delete",        network_rbac.commands["delete"],   "network rbac delete"),
+    ("rbac-list",          network_rbac.commands["list"],     "network rbac list"),
+    ("rbac-show",          network_rbac.commands["show"],     "network rbac show"),
+    ("rbac-update",        network_rbac.commands["update"],   "network rbac update"),
+    ("router-create",      network_router.commands["create"], "network router create"),
+    ("router-delete",      network_router.commands["delete"], "network router delete"),
+    ("router-list",        network_router.commands["list"],   "network router list"),
+    ("router-show",        network_router.commands["show"],   "network router show"),
+    ("router-update",      network_router.commands["update"], "network router update"),
+    ("router-add-interface",
+        network_router_add.commands["interface"],
+        "network router add interface"),
+    ("router-add-route",
+        network_router_add.commands["route"],
+        "network router add route"),
+    ("router-remove-interface",
+        network_router_remove.commands["interface"],
+        "network router remove interface"),
+    ("router-remove-route",
+        network_router_remove.commands["route"],
+        "network router remove route"),
+    ("router-set-gateway",
+        network_router_set.commands["gateway"],
+        "network router set gateway"),
+    ("router-unset-gateway",
+        network_router_unset.commands["gateway"],
+        "network router unset gateway"),
+    ("segment-create",     network_segment.commands["create"], "network segment create"),
+    ("segment-delete",     network_segment.commands["delete"], "network segment delete"),
+    ("segment-list",       network_segment.commands["list"],   "network segment list"),
+    ("segment-set",        network_segment.commands["set"],    "network segment set"),
+    ("segment-show",       network_segment.commands["show"],   "network segment show"),
+    ("subnet-create",      network_subnet.commands["create"],  "network subnet create"),
+    ("subnet-delete",      network_subnet.commands["delete"],  "network subnet delete"),
+    ("subnet-list",        network_subnet.commands["list"],    "network subnet list"),
+    ("subnet-show",        network_subnet.commands["show"],    "network subnet show"),
+    ("subnet-update",      network_subnet.commands["update"],  "network subnet update"),
+]:
+    add_command_with_alias(network, _primary, legacy_name=_legacy, primary_path=_path)
+del _legacy, _primary, _path
