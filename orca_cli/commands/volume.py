@@ -5,6 +5,7 @@ from __future__ import annotations
 import click
 
 from orca_cli.core import cache
+from orca_cli.core.aliases import add_command_with_alias
 from orca_cli.core.completions import complete_volumes
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
@@ -24,6 +25,69 @@ def _vol_action(ctx: click.Context, volume_id: str, action: dict, label: str) ->
 def volume(ctx: click.Context) -> None:
     """Manage block storage volumes & snapshots."""
     pass
+
+
+# ── nested sub-groups (ADR-0008 — openstackclient-style naming) ───────────
+
+
+@volume.group("attachment")
+def volume_attachment() -> None:
+    """Manage volume attachments (low-level)."""
+
+
+@volume.group("backup")
+def volume_backup() -> None:
+    """Manage Cinder backups."""
+
+
+@volume.group("group")
+def volume_group() -> None:
+    """Manage consistency / generic volume groups."""
+
+
+@volume_group.group("snapshot")
+def volume_group_snapshot() -> None:
+    """Group snapshots — atomic snapshots across a group of volumes."""
+
+
+@volume_group.group("type")
+def volume_group_type() -> None:
+    """Group types."""
+
+
+@volume.group("message")
+def volume_message() -> None:
+    """User-facing Cinder messages (failures, info)."""
+
+
+@volume.group("qos")
+def volume_qos() -> None:
+    """QoS specifications."""
+
+
+@volume.group("service")
+def volume_service() -> None:
+    """Cinder backend services (admin)."""
+
+
+@volume.group("snapshot")
+def volume_snapshot() -> None:
+    """Manage volume snapshots."""
+
+
+@volume.group("transfer")
+def volume_transfer() -> None:
+    """Volume transfers between projects."""
+
+
+@volume.group("type")
+def volume_type() -> None:
+    """Volume types."""
+
+
+@volume_type.group("access")
+def volume_type_access() -> None:
+    """Project-level access to a volume type."""
 
 
 # ── list ──────────────────────────────────────────────────────────────────
@@ -241,26 +305,40 @@ def volume_retype(ctx: click.Context, volume_id: str, new_type: str, migration_p
 
 # ── set-bootable ──────────────────────────────────────────────────────────
 
-@volume.command("set-bootable")
+@volume.command("set-bootable", deprecated=True)
 @click.argument("volume_id", callback=validate_id)
 @click.option("--bootable/--no-bootable", default=True, show_default=True,
               help="Mark volume as bootable or non-bootable.")
 @click.pass_context
 def volume_set_bootable(ctx: click.Context, volume_id: str, bootable: bool) -> None:
-    """Set or unset bootable flag on a volume."""
-    _vol_action(ctx, volume_id, {"os-set_bootable": {"bootable": bootable}}, f"Set bootable={str(bootable).lower()}")
+    """Set bootable flag (deprecated — use 'volume set --bootable')."""
+    flag = "--bootable" if bootable else "--no-bootable"
+    click.secho(
+        f"warning: 'volume set-bootable' is deprecated; use "
+        f"'orca volume set {volume_id} {flag}' instead.",
+        fg="yellow", err=True,
+    )
+    _vol_action(ctx, volume_id, {"os-set_bootable": {"bootable": bootable}},
+                f"Set bootable={str(bootable).lower()}")
 
 
 # ── set-readonly ──────────────────────────────────────────────────────────
 
-@volume.command("set-readonly")
+@volume.command("set-readonly", deprecated=True)
 @click.argument("volume_id", callback=validate_id)
 @click.option("--readonly/--no-readonly", default=True, show_default=True,
               help="Mark volume as read-only or read-write.")
 @click.pass_context
 def volume_set_readonly(ctx: click.Context, volume_id: str, readonly: bool) -> None:
-    """Set or unset read-only flag on a volume."""
-    _vol_action(ctx, volume_id, {"os-update_readonly_flag": {"readonly": readonly}}, f"Set readonly={str(readonly).lower()}")
+    """Set read-only flag (deprecated — use 'volume set --read-only')."""
+    flag = "--read-only" if readonly else "--no-read-only"
+    click.secho(
+        f"warning: 'volume set-readonly' is deprecated; use "
+        f"'orca volume set {volume_id} {flag}' instead.",
+        fg="yellow", err=True,
+    )
+    _vol_action(ctx, volume_id, {"os-update_readonly_flag": {"readonly": readonly}},
+                f"Set readonly={str(readonly).lower()}")
 
 
 # ── delete ────────────────────────────────────────────────────────────────
@@ -311,7 +389,7 @@ def volume_delete(ctx: click.Context, volume_id: str, yes: bool, dry_run: bool, 
 #  Snapshots
 # ══════════════════════════════════════════════════════════════════════════
 
-@volume.command("snapshot-list")
+@volume_snapshot.command("list")
 @output_options
 @click.pass_context
 def snapshot_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
@@ -339,7 +417,7 @@ def snapshot_list(ctx: click.Context, output_format: str, columns: tuple[str, ..
     )
 
 
-@volume.command("snapshot-show")
+@volume_snapshot.command("show")
 @click.argument("snapshot_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -361,7 +439,7 @@ def snapshot_show(ctx: click.Context, snapshot_id: str, output_format: str, colu
     print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
 
 
-@volume.command("snapshot-create")
+@volume_snapshot.command("create")
 @click.argument("volume_id_or_name")
 @click.option("--name", required=True, help="Snapshot name.")
 @click.option("--description", default=None, help="Snapshot description.")
@@ -396,7 +474,7 @@ def snapshot_create(ctx: click.Context, volume_id_or_name: str, name: str, descr
     console.print(f"[green]Snapshot '{snap.get('name')}' ({snap.get('id')}) created from {volume_id}.[/green]")
 
 
-@volume.command("snapshot-delete")
+@volume_snapshot.command("delete")
 @click.argument("snapshot_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -584,7 +662,7 @@ def volume_tree(ctx: click.Context, filter_vol: str | None) -> None:  # noqa: C9
 #  Cinder Native Backups
 # ══════════════════════════════════════════════════════════════════════════
 
-@volume.command("backup-list")
+@volume_backup.command("list")
 @click.option("--all-projects", is_flag=True, help="List backups from all projects (admin).")
 @output_options
 @click.pass_context
@@ -616,7 +694,7 @@ def volume_backup_list(ctx: click.Context, all_projects: bool, output_format: st
     )
 
 
-@volume.command("backup-show")
+@volume_backup.command("show")
 @click.argument("backup_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -648,7 +726,7 @@ def volume_backup_show(ctx: click.Context, backup_id: str, output_format: str,
     )
 
 
-@volume.command("backup-create")
+@volume_backup.command("create")
 @click.argument("volume_id", callback=validate_id)
 @click.option("--name", default=None, help="Backup name.")
 @click.option("--description", default=None, help="Backup description.")
@@ -704,7 +782,7 @@ def volume_backup_create(ctx: click.Context, volume_id: str, name: str | None,
         )
 
 
-@volume.command("backup-delete")
+@volume_backup.command("delete")
 @click.argument("backup_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.option("--force", is_flag=True, help="Force deletion even if backup is not available.")
@@ -721,7 +799,7 @@ def volume_backup_delete(ctx: click.Context, backup_id: str, yes: bool, force: b
     console.print(f"[green]Backup {backup_id} deleted.[/green]")
 
 
-@volume.command("backup-restore")
+@volume_backup.command("restore")
 @click.argument("backup_id", callback=validate_id)
 @click.option("--volume-id", "volume_id", default=None,
               help="Restore to an existing volume ID (must be same size).")
@@ -775,15 +853,22 @@ def volume_backup_restore(ctx: click.Context, backup_id: str, volume_id: str | N
               help="Metadata key=value pair (repeatable).")
 @click.option("--name", default=None, help="New name.")
 @click.option("--description", default=None, help="New description.")
+@click.option("--bootable/--no-bootable", "bootable", default=None,
+              help="Mark volume as bootable or non-bootable.")
+@click.option("--read-only/--no-read-only", "read_only", default=None,
+              help="Mark volume as read-only or read-write.")
 @click.pass_context
 def volume_set(ctx: click.Context, volume_id: str, properties: tuple[str, ...],
-               name: str | None, description: str | None) -> None:
-    """Set volume properties or metadata.
+               name: str | None, description: str | None,
+               bootable: bool | None, read_only: bool | None) -> None:
+    """Set volume properties, metadata, or flags.
 
     \b
     Examples:
       orca volume set <id> --name new-name
       orca volume set <id> --property env=prod --property team=infra
+      orca volume set <id> --bootable
+      orca volume set <id> --read-only
     """
     client = ctx.find_object(OrcaContext).ensure_client()
     body: dict = {}
@@ -802,6 +887,12 @@ def volume_set(ctx: click.Context, volume_id: str, properties: tuple[str, ...],
             meta[k] = v
         client.post(f"{client.volume_url}/volumes/{volume_id}/metadata",
                     json={"metadata": meta})
+    if bootable is not None:
+        _vol_action(ctx, volume_id, {"os-set_bootable": {"bootable": bootable}},
+                    f"Set bootable={str(bootable).lower()}")
+    if read_only is not None:
+        _vol_action(ctx, volume_id, {"os-update_readonly_flag": {"readonly": read_only}},
+                    f"Set readonly={str(read_only).lower()}")
     if not body and not properties:
         console.print("[yellow]Nothing to set. Use --name, --description, or --property.[/yellow]")
         return
@@ -828,7 +919,7 @@ def volume_unset(ctx: click.Context, volume_id: str, properties: tuple[str, ...]
 #  Snapshot update
 # ══════════════════════════════════════════════════════════════════════════
 
-@volume.command("snapshot-set")
+@volume_snapshot.command("set")
 @click.argument("snapshot_id", callback=validate_id)
 @click.option("--name", default=None, help="New name.")
 @click.option("--description", default=None, help="New description.")
@@ -865,7 +956,7 @@ def snapshot_set(ctx: click.Context, snapshot_id: str, name: str | None,
 #  Volume Types
 # ══════════════════════════════════════════════════════════════════════════
 
-@volume.command("type-list")
+@volume_type.command("list")
 @click.option("--default", "show_default", is_flag=True, help="Show the default type only.")
 @output_options
 @click.pass_context
@@ -893,7 +984,7 @@ def volume_type_list(ctx: click.Context, show_default: bool,
     )
 
 
-@volume.command("type-show")
+@volume_type.command("show")
 @click.argument("type_id")
 @output_options
 @click.pass_context
@@ -912,7 +1003,7 @@ def volume_type_show(ctx: click.Context, type_id: str,
                  max_width=max_width, noindent=noindent, columns=columns)
 
 
-@volume.command("type-create")
+@volume_type.command("create")
 @click.argument("name")
 @click.option("--description", default=None, help="Description.")
 @click.option("--public/--private", "is_public", default=True, show_default=True,
@@ -940,7 +1031,7 @@ def volume_type_create(ctx: click.Context, name: str, description: str | None,
     console.print(f"[green]Volume type '{name}' created: {t.get('id', '?')}[/green]")
 
 
-@volume.command("type-set")
+@volume_type.command("set")
 @click.argument("type_id")
 @click.option("--name", default=None, help="New name.")
 @click.option("--description", default=None, help="New description.")
@@ -973,7 +1064,7 @@ def volume_type_set(ctx: click.Context, type_id: str, name: str | None,
     console.print(f"[green]Volume type {type_id} updated.[/green]")
 
 
-@volume.command("type-delete")
+@volume_type.command("delete")
 @click.argument("type_id")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -986,7 +1077,7 @@ def volume_type_delete(ctx: click.Context, type_id: str, yes: bool) -> None:
     console.print(f"[green]Volume type {type_id} deleted.[/green]")
 
 
-@volume.command("type-access-list")
+@volume_type_access.command("list")
 @click.argument("type_id")
 @output_options
 @click.pass_context
@@ -1011,7 +1102,7 @@ def volume_type_access_list(ctx: click.Context, type_id: str,
     )
 
 
-@volume.command("type-access-add")
+@volume_type_access.command("add")
 @click.argument("type_id")
 @click.argument("project_id", callback=validate_id)
 @click.pass_context
@@ -1023,7 +1114,7 @@ def volume_type_access_add(ctx: click.Context, type_id: str, project_id: str) ->
     console.print(f"[green]Project {project_id} granted access to type {type_id}.[/green]")
 
 
-@volume.command("type-access-remove")
+@volume_type_access.command("remove")
 @click.argument("type_id")
 @click.argument("project_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
@@ -1043,7 +1134,7 @@ def volume_type_access_remove(ctx: click.Context, type_id: str, project_id: str,
 #  Volume Transfers
 # ══════════════════════════════════════════════════════════════════════════
 
-@volume.command("transfer-create")
+@volume_transfer.command("create")
 @click.argument("volume_id", callback=validate_id)
 @click.option("--name", default=None, help="Transfer name.")
 @click.pass_context
@@ -1060,7 +1151,7 @@ def volume_transfer_create(ctx: click.Context, volume_id: str, name: str | None)
     console.print("  [yellow]Save the auth key — it will not be shown again.[/yellow]")
 
 
-@volume.command("transfer-list")
+@volume_transfer.command("list")
 @click.option("--all-projects", is_flag=True, help="List transfers from all projects (admin).")
 @output_options
 @click.pass_context
@@ -1087,7 +1178,7 @@ def volume_transfer_list(ctx: click.Context, all_projects: bool,
     )
 
 
-@volume.command("transfer-show")
+@volume_transfer.command("show")
 @click.argument("transfer_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -1105,7 +1196,7 @@ def volume_transfer_show(ctx: click.Context, transfer_id: str,
     )
 
 
-@volume.command("transfer-accept")
+@volume_transfer.command("accept")
 @click.argument("transfer_id", callback=validate_id)
 @click.argument("auth_key")
 @click.pass_context
@@ -1117,7 +1208,7 @@ def volume_transfer_accept(ctx: click.Context, transfer_id: str, auth_key: str) 
     console.print(f"[green]Transfer {transfer_id} accepted.[/green]")
 
 
-@volume.command("transfer-delete")
+@volume_transfer.command("delete")
 @click.argument("transfer_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -1134,7 +1225,7 @@ def volume_transfer_delete(ctx: click.Context, transfer_id: str, yes: bool) -> N
 #  Volume QoS Specs
 # ══════════════════════════════════════════════════════════════════════════
 
-@volume.command("qos-list")
+@volume_qos.command("list")
 @output_options
 @click.pass_context
 def volume_qos_list(ctx: click.Context, output_format: str, columns: tuple[str, ...],
@@ -1157,7 +1248,7 @@ def volume_qos_list(ctx: click.Context, output_format: str, columns: tuple[str, 
     )
 
 
-@volume.command("qos-show")
+@volume_qos.command("show")
 @click.argument("qos_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -1178,7 +1269,7 @@ def volume_qos_show(ctx: click.Context, qos_id: str,
                  max_width=max_width, noindent=noindent, columns=columns)
 
 
-@volume.command("qos-create")
+@volume_qos.command("create")
 @click.argument("name")
 @click.option("--consumer", type=click.Choice(["front-end", "back-end", "both"]),
               default="both", show_default=True, help="Consumer of the QoS.")
@@ -1209,7 +1300,7 @@ def volume_qos_create(ctx: click.Context, name: str, consumer: str,
     console.print(f"[green]QoS spec '{name}' created: {s.get('id', '?')}[/green]")
 
 
-@volume.command("qos-set")
+@volume_qos.command("set")
 @click.argument("qos_id", callback=validate_id)
 @click.option("--property", "properties", multiple=True, metavar="KEY=VALUE",
               help="QoS spec key=value to add or update (repeatable).")
@@ -1230,7 +1321,7 @@ def volume_qos_set(ctx: click.Context, qos_id: str, properties: tuple[str, ...])
     console.print(f"[green]QoS spec {qos_id} updated.[/green]")
 
 
-@volume.command("qos-delete")
+@volume_qos.command("delete")
 @click.argument("qos_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.option("--force", is_flag=True, help="Delete even if associated with a volume type.")
@@ -1246,7 +1337,7 @@ def volume_qos_delete(ctx: click.Context, qos_id: str, yes: bool, force: bool) -
     console.print(f"[green]QoS spec {qos_id} deleted.[/green]")
 
 
-@volume.command("qos-associate")
+@volume_qos.command("associate")
 @click.argument("qos_id", callback=validate_id)
 @click.argument("type_id")
 @click.pass_context
@@ -1258,7 +1349,7 @@ def volume_qos_associate(ctx: click.Context, qos_id: str, type_id: str) -> None:
     console.print(f"[green]QoS spec {qos_id} associated with type {type_id}.[/green]")
 
 
-@volume.command("qos-disassociate")
+@volume_qos.command("disassociate")
 @click.argument("qos_id", callback=validate_id)
 @click.argument("type_id")
 @click.option("--all", "disassociate_all", is_flag=True,
@@ -1280,7 +1371,7 @@ def volume_qos_disassociate(ctx: click.Context, qos_id: str, type_id: str,
 #  Volume Service (Cinder service management)
 # ══════════════════════════════════════════════════════════════════════════
 
-@volume.command("service-list")
+@volume_service.command("list")
 @click.option("--host", default=None, help="Filter by host.")
 @click.option("--binary", default=None, help="Filter by binary (e.g. cinder-volume).")
 @output_options
@@ -1315,7 +1406,7 @@ def volume_service_list(ctx: click.Context, host: str | None, binary: str | None
     )
 
 
-@volume.command("service-set")
+@volume_service.command("set")
 @click.argument("host")
 @click.argument("binary")
 @click.option("--enable", "action", flag_value="enable", help="Enable the service.")
@@ -1371,7 +1462,7 @@ def volume_migrate(ctx: click.Context, volume_id: str, host: str,
     }, f"Migrate to {host}")
 
 
-@volume.command("revert-to-snapshot")
+@volume_snapshot.command("revert")
 @click.argument("volume_id", callback=validate_id)
 @click.argument("snapshot_id", callback=validate_id)
 @click.pass_context
@@ -1413,7 +1504,7 @@ def volume_summary(ctx: click.Context, output_format: str, columns: tuple[str, .
 # ══════════════════════════════════════════════════════════════════════════
 
 
-@volume.command("message-list")
+@volume_message.command("list")
 @click.option("--resource-id", default=None, help="Filter by resource UUID.")
 @click.option("--resource-type", default=None,
               type=click.Choice(["VOLUME", "SNAPSHOT", "BACKUP", "GROUP"], case_sensitive=False),
@@ -1450,7 +1541,7 @@ def volume_message_list(ctx: click.Context, resource_id: str | None,
     )
 
 
-@volume.command("message-show")
+@volume_message.command("show")
 @click.argument("message_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -1467,7 +1558,7 @@ def volume_message_show(ctx: click.Context, message_id: str,
                  max_width=max_width, noindent=noindent, columns=columns)
 
 
-@volume.command("message-delete")
+@volume_message.command("delete")
 @click.argument("message_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -1485,7 +1576,7 @@ def volume_message_delete(ctx: click.Context, message_id: str, yes: bool) -> Non
 # ══════════════════════════════════════════════════════════════════════════
 
 
-@volume.command("attachment-list")
+@volume_attachment.command("list")
 @click.option("--volume-id", "vol_filter", default=None,
               help="Filter by volume ID.")
 @output_options
@@ -1515,7 +1606,7 @@ def volume_attachment_list(ctx: click.Context, vol_filter: str | None,
     )
 
 
-@volume.command("attachment-show")
+@volume_attachment.command("show")
 @click.argument("attachment_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -1534,7 +1625,7 @@ def volume_attachment_show(ctx: click.Context, attachment_id: str,
                  max_width=max_width, noindent=noindent, columns=columns)
 
 
-@volume.command("attachment-delete")
+@volume_attachment.command("delete")
 @click.argument("attachment_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -1547,7 +1638,7 @@ def volume_attachment_delete(ctx: click.Context, attachment_id: str, yes: bool) 
     console.print(f"[green]Attachment {attachment_id} deleted.[/green]")
 
 
-@volume.command("attachment-create")
+@volume_attachment.command("create")
 @click.argument("volume_id", callback=validate_id)
 @click.argument("instance_id", callback=validate_id)
 @click.option("--mode", "attach_mode",
@@ -1591,7 +1682,7 @@ def volume_attachment_create(ctx: click.Context, volume_id: str, instance_id: st
     )
 
 
-@volume.command("attachment-set")
+@volume_attachment.command("set")
 @click.argument("attachment_id", callback=validate_id)
 @click.option("--connector", "connector_json", required=True, metavar="JSON",
               help="Updated connector info as JSON.")
@@ -1623,7 +1714,7 @@ def volume_attachment_set(ctx: click.Context, attachment_id: str, connector_json
         console.print(f"[green]Attachment {attachment_id} updated.[/green]")
 
 
-@volume.command("attachment-complete")
+@volume_attachment.command("complete")
 @click.argument("attachment_id", callback=validate_id)
 @click.pass_context
 def volume_attachment_complete(ctx: click.Context, attachment_id: str) -> None:
@@ -1641,7 +1732,7 @@ def volume_attachment_complete(ctx: click.Context, attachment_id: str) -> None:
 # ══════════════════════════════════════════════════════════════════════════
 
 
-@volume.command("group-list")
+@volume_group.command("list")
 @output_options
 @click.pass_context
 def volume_group_list(ctx: click.Context, output_format: str, columns: tuple[str, ...],
@@ -1667,7 +1758,7 @@ def volume_group_list(ctx: click.Context, output_format: str, columns: tuple[str
     )
 
 
-@volume.command("group-show")
+@volume_group.command("show")
 @click.argument("group_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -1685,7 +1776,7 @@ def volume_group_show(ctx: click.Context, group_id: str,
                  max_width=max_width, noindent=noindent, columns=columns)
 
 
-@volume.command("group-create")
+@volume_group.command("create")
 @click.argument("name", default=None, required=False)
 @click.option("--group-type", required=True, help="Group type ID.")
 @click.option("--volume-type", "volume_types", multiple=True, required=True,
@@ -1719,7 +1810,7 @@ def volume_group_create(ctx: click.Context, name: str | None,
     console.print(f"[green]Group '{g.get('name', name)}' ({g.get('id')}) created.[/green]")
 
 
-@volume.command("group-update")
+@volume_group.command("update")
 @click.argument("group_id", callback=validate_id)
 @click.option("--name", default=None, help="New name.")
 @click.option("--description", default=None, help="New description.")
@@ -1757,7 +1848,7 @@ def volume_group_update(ctx: click.Context, group_id: str, name: str | None,
     console.print(f"[green]Group {group_id} updated.[/green]")
 
 
-@volume.command("group-delete")
+@volume_group.command("delete")
 @click.argument("group_id", callback=validate_id)
 @click.option("--delete-volumes", is_flag=True, default=False,
               help="Also delete all volumes in the group.")
@@ -1786,7 +1877,7 @@ def volume_group_delete(ctx: click.Context, group_id: str,
 #  volume group-snapshot (Cinder v3)
 # ══════════════════════════════════════════════════════════════════════════
 
-@volume.command("group-snapshot-list")
+@volume_group_snapshot.command("list")
 @output_options
 @click.pass_context
 def volume_group_snapshot_list(ctx: click.Context, output_format: str,
@@ -1811,7 +1902,7 @@ def volume_group_snapshot_list(ctx: click.Context, output_format: str,
     )
 
 
-@volume.command("group-snapshot-show")
+@volume_group_snapshot.command("show")
 @click.argument("group_snapshot_id", callback=validate_id)
 @output_options
 @click.pass_context
@@ -1832,7 +1923,7 @@ def volume_group_snapshot_show(ctx: click.Context, group_snapshot_id: str,
     )
 
 
-@volume.command("group-snapshot-create")
+@volume_group_snapshot.command("create")
 @click.argument("group_id", callback=validate_id)
 @click.option("--name", default=None, help="Snapshot name.")
 @click.option("--description", default=None, help="Snapshot description.")
@@ -1854,7 +1945,7 @@ def volume_group_snapshot_create(ctx: click.Context, group_id: str,
     )
 
 
-@volume.command("group-snapshot-delete")
+@volume_group_snapshot.command("delete")
 @click.argument("group_snapshot_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -1872,7 +1963,7 @@ def volume_group_snapshot_delete(ctx: click.Context, group_snapshot_id: str,
 #  volume group-type (Cinder v3)
 # ══════════════════════════════════════════════════════════════════════════
 
-@volume.command("group-type-list")
+@volume_group_type.command("list")
 @output_options
 @click.pass_context
 def volume_group_type_list(ctx: click.Context, output_format: str,
@@ -1896,7 +1987,7 @@ def volume_group_type_list(ctx: click.Context, output_format: str,
     )
 
 
-@volume.command("group-type-show")
+@volume_group_type.command("show")
 @click.argument("group_type_id")
 @output_options
 @click.pass_context
@@ -1916,7 +2007,7 @@ def volume_group_type_show(ctx: click.Context, group_type_id: str,
     )
 
 
-@volume.command("group-type-create")
+@volume_group_type.command("create")
 @click.argument("name")
 @click.option("--description", default=None, help="Group type description.")
 @click.option("--public/--private", default=True, help="Public or private group type.")
@@ -1934,7 +2025,7 @@ def volume_group_type_create(ctx: click.Context, name: str,
     console.print(f"[green]Group type '{gt.get('name')}' ({gt.get('id')}) created.[/green]")
 
 
-@volume.command("group-type-set")
+@volume_group_type.command("set")
 @click.argument("group_type_id")
 @click.option("--name", default=None, help="New name.")
 @click.option("--description", default=None, help="New description.")
@@ -1972,7 +2063,7 @@ def volume_group_type_set(ctx: click.Context, group_type_id: str,
     console.print(f"[green]Group type {group_type_id} updated.[/green]")
 
 
-@volume.command("group-type-unset")
+@volume_group_type.command("unset")
 @click.argument("group_type_id")
 @click.option("--property", "properties", multiple=True, metavar="KEY",
               help="Group spec key to remove (repeatable).")
@@ -1991,7 +2082,7 @@ def volume_group_type_unset(ctx: click.Context, group_type_id: str,
     console.print(f"[green]Group type {group_type_id} properties removed.[/green]")
 
 
-@volume.command("group-type-delete")
+@volume_group_type.command("delete")
 @click.argument("group_type_id")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
@@ -2002,3 +2093,72 @@ def volume_group_type_delete(ctx: click.Context, group_type_id: str, yes: bool) 
     client = ctx.find_object(OrcaContext).ensure_client()
     client.delete(f"{client.volume_url}/group_types/{group_type_id}")
     console.print(f"[green]Group type {group_type_id} deleted.[/green]")
+
+
+# ── Deprecated aliases (ADR-0008) ─────────────────────────────────────────
+#
+# Each former hyphenated subcommand is re-exposed under its old name
+# so existing scripts keep working. Marked ``deprecated`` in --help and
+# emit a stderr warning. Targeted for removal in v2.0.
+
+for _legacy, _primary, _path in [
+    ("snapshot-list",         volume_snapshot.commands["list"],     "volume snapshot list"),
+    ("snapshot-show",         volume_snapshot.commands["show"],     "volume snapshot show"),
+    ("snapshot-create",       volume_snapshot.commands["create"],   "volume snapshot create"),
+    ("snapshot-delete",       volume_snapshot.commands["delete"],   "volume snapshot delete"),
+    ("snapshot-set",          volume_snapshot.commands["set"],      "volume snapshot set"),
+    ("backup-list",           volume_backup.commands["list"],       "volume backup list"),
+    ("backup-show",           volume_backup.commands["show"],       "volume backup show"),
+    ("backup-create",         volume_backup.commands["create"],     "volume backup create"),
+    ("backup-delete",         volume_backup.commands["delete"],     "volume backup delete"),
+    ("backup-restore",        volume_backup.commands["restore"],    "volume backup restore"),
+    ("type-list",             volume_type.commands["list"],         "volume type list"),
+    ("type-show",             volume_type.commands["show"],         "volume type show"),
+    ("type-create",           volume_type.commands["create"],       "volume type create"),
+    ("type-set",              volume_type.commands["set"],          "volume type set"),
+    ("type-delete",           volume_type.commands["delete"],       "volume type delete"),
+    ("type-access-list",      volume_type_access.commands["list"],  "volume type access list"),
+    ("type-access-add",       volume_type_access.commands["add"],   "volume type access add"),
+    ("type-access-remove",    volume_type_access.commands["remove"], "volume type access remove"),
+    ("transfer-create",       volume_transfer.commands["create"],   "volume transfer create"),
+    ("transfer-list",         volume_transfer.commands["list"],     "volume transfer list"),
+    ("transfer-show",         volume_transfer.commands["show"],     "volume transfer show"),
+    ("transfer-accept",       volume_transfer.commands["accept"],   "volume transfer accept"),
+    ("transfer-delete",       volume_transfer.commands["delete"],   "volume transfer delete"),
+    ("qos-list",              volume_qos.commands["list"],          "volume qos list"),
+    ("qos-show",              volume_qos.commands["show"],          "volume qos show"),
+    ("qos-create",            volume_qos.commands["create"],        "volume qos create"),
+    ("qos-set",               volume_qos.commands["set"],           "volume qos set"),
+    ("qos-delete",            volume_qos.commands["delete"],        "volume qos delete"),
+    ("qos-associate",         volume_qos.commands["associate"],     "volume qos associate"),
+    ("qos-disassociate",      volume_qos.commands["disassociate"],  "volume qos disassociate"),
+    ("service-list",          volume_service.commands["list"],      "volume service list"),
+    ("service-set",           volume_service.commands["set"],       "volume service set"),
+    ("message-list",          volume_message.commands["list"],      "volume message list"),
+    ("message-show",          volume_message.commands["show"],      "volume message show"),
+    ("message-delete",        volume_message.commands["delete"],    "volume message delete"),
+    ("attachment-list",       volume_attachment.commands["list"],     "volume attachment list"),
+    ("attachment-show",       volume_attachment.commands["show"],     "volume attachment show"),
+    ("attachment-delete",     volume_attachment.commands["delete"],   "volume attachment delete"),
+    ("attachment-create",     volume_attachment.commands["create"],   "volume attachment create"),
+    ("attachment-set",        volume_attachment.commands["set"],      "volume attachment set"),
+    ("attachment-complete",   volume_attachment.commands["complete"], "volume attachment complete"),
+    ("group-list",            volume_group.commands["list"],        "volume group list"),
+    ("group-show",            volume_group.commands["show"],        "volume group show"),
+    ("group-create",          volume_group.commands["create"],      "volume group create"),
+    ("group-update",          volume_group.commands["update"],      "volume group update"),
+    ("group-delete",          volume_group.commands["delete"],      "volume group delete"),
+    ("group-snapshot-list",   volume_group_snapshot.commands["list"],   "volume group snapshot list"),
+    ("group-snapshot-show",   volume_group_snapshot.commands["show"],   "volume group snapshot show"),
+    ("group-snapshot-create", volume_group_snapshot.commands["create"], "volume group snapshot create"),
+    ("group-snapshot-delete", volume_group_snapshot.commands["delete"], "volume group snapshot delete"),
+    ("group-type-list",       volume_group_type.commands["list"],   "volume group type list"),
+    ("group-type-show",       volume_group_type.commands["show"],   "volume group type show"),
+    ("group-type-create",     volume_group_type.commands["create"], "volume group type create"),
+    ("group-type-set",        volume_group_type.commands["set"],    "volume group type set"),
+    ("group-type-unset",      volume_group_type.commands["unset"],  "volume group type unset"),
+    ("group-type-delete",     volume_group_type.commands["delete"], "volume group type delete"),
+    ("revert-to-snapshot",    volume_snapshot.commands["revert"],   "volume snapshot revert"),
+]:
+    add_command_with_alias(volume, _primary, legacy_name=_legacy, primary_path=_path)
+del _legacy, _primary, _path
