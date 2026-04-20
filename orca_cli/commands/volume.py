@@ -645,12 +645,9 @@ def volume_backup_list(ctx: click.Context, all_projects: bool, output_format: st
                        columns: tuple[str, ...], fit_width: bool,
                        max_width: int | None, noindent: bool) -> None:
     """List Cinder volume backups."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    params = {}
-    if all_projects:
-        params["all_tenants"] = 1
-    data = client.get(f"{client.volume_url}/backups/detail", params=params)
-    backups = data.get("backups", [])
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    params = {"all_tenants": 1} if all_projects else None
+    backups = service.find_backups(params=params)
     print_list(
         backups,
         [
@@ -677,9 +674,7 @@ def volume_backup_show(ctx: click.Context, backup_id: str, output_format: str,
                        columns: tuple[str, ...], fit_width: bool,
                        max_width: int | None, noindent: bool) -> None:
     """Show details of a volume backup."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{client.volume_url}/backups/{backup_id}")
-    b = data.get("backup", data)
+    b = VolumeService(ctx.find_object(OrcaContext).ensure_client()).get_backup(backup_id)
     print_detail(
         [
             ("ID", b.get("id", "")),
@@ -726,6 +721,7 @@ def volume_backup_create(ctx: click.Context, volume_id: str, name: str | None,
       orca volume backup-create <volume-id> --force  # while attached
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    service = VolumeService(client)
 
     body: dict = {"volume_id": volume_id}
     if name:
@@ -741,8 +737,7 @@ def volume_backup_create(ctx: click.Context, volume_id: str, name: str | None,
     if snapshot_id:
         body["snapshot_id"] = snapshot_id
 
-    data = client.post(f"{client.volume_url}/backups", json={"backup": body})
-    bk = data.get("backup", data)
+    bk = service.create_backup(body)
     bk_id = bk.get("id", "?")
     console.print(f"[green]Backup '{bk.get('name', bk_id)}' ({bk_id}) creation started.[/green]")
 
@@ -766,11 +761,7 @@ def volume_backup_delete(ctx: click.Context, backup_id: str, yes: bool, force: b
     """Delete a volume backup."""
     if not yes:
         click.confirm(f"Delete backup {backup_id}?", abort=True)
-    client = ctx.find_object(OrcaContext).ensure_client()
-    params = {}
-    if force:
-        params["force"] = True
-    client.delete(f"{client.volume_url}/backups/{backup_id}", params=params if params else None)
+    VolumeService(ctx.find_object(OrcaContext).ensure_client()).delete_backup(backup_id, force=force)
     console.print(f"[green]Backup {backup_id} deleted.[/green]")
 
 
@@ -793,17 +784,14 @@ def volume_backup_restore(ctx: click.Context, backup_id: str, volume_id: str | N
       orca volume backup-restore <backup-id> --name restored-vol --wait
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    service = VolumeService(client)
     body: dict = {}
     if volume_id:
         body["volume_id"] = volume_id
     if name:
         body["name"] = name
 
-    data = client.post(
-        f"{client.volume_url}/backups/{backup_id}/restore",
-        json={"restore": body},
-    )
-    restore = data.get("restore", data)
+    restore = service.restore_backup(backup_id, body)
     vol_id = restore.get("volume_id", "?")
     console.print(f"[green]Backup {backup_id} restore started → Volume {vol_id}.[/green]")
 
@@ -845,14 +833,14 @@ def volume_set(ctx: click.Context, volume_id: str, properties: tuple[str, ...],
       orca volume set <id> --bootable
       orca volume set <id> --read-only
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {}
     if name is not None:
         body["name"] = name
     if description is not None:
         body["description"] = description
     if body:
-        client.put(f"{client.volume_url}/volumes/{volume_id}", json={"volume": body})
+        service.update(volume_id, body)
     if properties:
         meta: dict = {}
         for prop in properties:
@@ -860,8 +848,7 @@ def volume_set(ctx: click.Context, volume_id: str, properties: tuple[str, ...],
                 raise click.UsageError(f"Invalid property format '{prop}', expected KEY=VALUE.")
             k, v = prop.split("=", 1)
             meta[k] = v
-        client.post(f"{client.volume_url}/volumes/{volume_id}/metadata",
-                    json={"metadata": meta})
+        service.set_metadata(volume_id, meta)
     if bootable is not None:
         _vol_action(ctx, volume_id, {"os-set_bootable": {"bootable": bootable}},
                     f"Set bootable={str(bootable).lower()}")
@@ -886,7 +873,7 @@ def volume_unset(ctx: click.Context, volume_id: str, properties: tuple[str, ...]
         return
     client = ctx.find_object(OrcaContext).ensure_client()
     for key in properties:
-        client.delete(f"{client.volume_url}/volumes/{volume_id}/metadata/{key}")
+        client.delete(f"{client.volume_url}/volumes/{volume_id}/metadata/{key}")  # one-off; service has no per-key helper yet
     console.print(f"[green]Metadata removed from volume {volume_id}.[/green]")
 
 
@@ -905,13 +892,14 @@ def snapshot_set(ctx: click.Context, snapshot_id: str, name: str | None,
                  description: str | None, properties: tuple[str, ...]) -> None:
     """Update a snapshot's name, description, or metadata."""
     client = ctx.find_object(OrcaContext).ensure_client()
+    service = VolumeService(client)
     body: dict = {}
     if name is not None:
         body["name"] = name
     if description is not None:
         body["description"] = description
     if body:
-        client.put(f"{client.volume_url}/snapshots/{snapshot_id}", json={"snapshot": body})
+        client.put(f"{client.volume_url}/snapshots/{snapshot_id}", json={"snapshot": body})  # snapshot PUT not yet in service
     if properties:
         meta: dict = {}
         for prop in properties:
@@ -919,8 +907,7 @@ def snapshot_set(ctx: click.Context, snapshot_id: str, name: str | None,
                 raise click.UsageError(f"Invalid property format '{prop}', expected KEY=VALUE.")
             k, v = prop.split("=", 1)
             meta[k] = v
-        client.post(f"{client.volume_url}/snapshots/{snapshot_id}/metadata",
-                    json={"metadata": meta})
+        service.update_snapshot_metadata(snapshot_id, meta)
     if not body and not properties:
         console.print("[yellow]Nothing to update.[/yellow]")
         return
@@ -939,11 +926,8 @@ def volume_type_list(ctx: click.Context, show_default: bool,
                      output_format: str, columns: tuple[str, ...],
                      fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List volume types."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    if show_default:
-        types = [client.get(f"{client.volume_url}/types/default").get("volume_type", {})]
-    else:
-        types = client.get(f"{client.volume_url}/types").get("volume_types", [])
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    types = [service.get_default_type()] if show_default else service.find_types()
     print_list(
         types,
         [
@@ -968,7 +952,7 @@ def volume_type_show(ctx: click.Context, type_id: str,
                      fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """Show volume type details."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    t = client.get(f"{client.volume_url}/types/{type_id}").get("volume_type", {})
+    t = VolumeService(client).get_type(type_id)
     extra = t.get("extra_specs") or {}
     fields = [(k, str(t.get(k, "") or "")) for k in
               ["id", "name", "description", "is_public"]]
@@ -989,11 +973,11 @@ def volume_type_show(ctx: click.Context, type_id: str,
 def volume_type_create(ctx: click.Context, name: str, description: str | None,
                        is_public: bool, properties: tuple[str, ...]) -> None:
     """Create a volume type."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {"name": name, "os-volume-type-access:is_public": is_public}
     if description:
         body["description"] = description
-    t = client.post(f"{client.volume_url}/types", json={"volume_type": body}).get("volume_type", {})
+    t = service.create_type(body)
     if properties:
         specs: dict = {}
         for prop in properties:
@@ -1001,8 +985,7 @@ def volume_type_create(ctx: click.Context, name: str, description: str | None,
                 raise click.UsageError(f"Invalid format '{prop}', expected KEY=VALUE.")
             k, v = prop.split("=", 1)
             specs[k] = v
-        client.post(f"{client.volume_url}/types/{t['id']}/extra_specs",
-                    json={"extra_specs": specs})
+        service.set_type_extra_specs(t["id"], specs)
     console.print(f"[green]Volume type '{name}' created: {t.get('id', '?')}[/green]")
 
 
@@ -1016,14 +999,14 @@ def volume_type_create(ctx: click.Context, name: str, description: str | None,
 def volume_type_set(ctx: click.Context, type_id: str, name: str | None,
                     description: str | None, properties: tuple[str, ...]) -> None:
     """Update a volume type."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {}
     if name is not None:
         body["name"] = name
     if description is not None:
         body["description"] = description
     if body:
-        client.put(f"{client.volume_url}/types/{type_id}", json={"volume_type": body})
+        service.update_type(type_id, body)
     if properties:
         specs: dict = {}
         for prop in properties:
@@ -1031,8 +1014,7 @@ def volume_type_set(ctx: click.Context, type_id: str, name: str | None,
                 raise click.UsageError(f"Invalid format '{prop}', expected KEY=VALUE.")
             k, v = prop.split("=", 1)
             specs[k] = v
-        client.post(f"{client.volume_url}/types/{type_id}/extra_specs",
-                    json={"extra_specs": specs})
+        service.set_type_extra_specs(type_id, specs)
     if not body and not properties:
         console.print("[yellow]Nothing to update.[/yellow]")
         return
@@ -1047,8 +1029,7 @@ def volume_type_delete(ctx: click.Context, type_id: str, yes: bool) -> None:
     """Delete a volume type."""
     if not yes:
         click.confirm(f"Delete volume type {type_id}?", abort=True)
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{client.volume_url}/types/{type_id}")
+    VolumeService(ctx.find_object(OrcaContext).ensure_client()).delete_type(type_id)
     console.print(f"[green]Volume type {type_id} deleted.[/green]")
 
 
@@ -1060,10 +1041,7 @@ def volume_type_access_list(ctx: click.Context, type_id: str,
                              output_format: str, columns: tuple[str, ...],
                              fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List projects that have access to a private volume type."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    accesses = client.get(
-        f"{client.volume_url}/types/{type_id}/os-volume-type-access"
-    ).get("volume_type_access", [])
+    accesses = VolumeService(ctx.find_object(OrcaContext).ensure_client()).list_type_access(type_id)
     print_list(
         accesses,
         [
@@ -1083,9 +1061,7 @@ def volume_type_access_list(ctx: click.Context, type_id: str,
 @click.pass_context
 def volume_type_access_add(ctx: click.Context, type_id: str, project_id: str) -> None:
     """Grant a project access to a private volume type."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.post(f"{client.volume_url}/types/{type_id}/action",
-                json={"addProjectAccess": {"project": project_id}})
+    VolumeService(ctx.find_object(OrcaContext).ensure_client()).add_type_access(type_id, project_id)
     console.print(f"[green]Project {project_id} granted access to type {type_id}.[/green]")
 
 
@@ -1099,9 +1075,7 @@ def volume_type_access_remove(ctx: click.Context, type_id: str, project_id: str,
     """Revoke a project's access to a private volume type."""
     if not yes:
         click.confirm(f"Remove project {project_id} from type {type_id}?", abort=True)
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.post(f"{client.volume_url}/types/{type_id}/action",
-                json={"removeProjectAccess": {"project": project_id}})
+    VolumeService(ctx.find_object(OrcaContext).ensure_client()).remove_type_access(type_id, project_id)
     console.print(f"[green]Project {project_id} access to type {type_id} revoked.[/green]")
 
 

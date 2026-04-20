@@ -111,8 +111,9 @@ class VolumeService:
         self._client.delete(f"{self._base}/snapshots/{snapshot_id}")
 
     def update_snapshot_metadata(self, snapshot_id: str, kv: dict[str, str]) -> dict:
-        data = self._client.put(f"{self._base}/snapshots/{snapshot_id}/metadata",
-                                json={"metadata": kv})
+        # Cinder uses POST for metadata merge (matches the volume metadata API).
+        data = self._client.post(f"{self._base}/snapshots/{snapshot_id}/metadata",
+                                 json={"metadata": kv})
         return data.get("metadata", {}) if data else {}
 
     # ── backups ────────────────────────────────────────────────────────
