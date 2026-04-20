@@ -4,6 +4,40 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] — 2026-04-20
+
+### Security
+
+- **Visible warning when TLS verification is off.** Running with
+  `insecure=true` now emits an explicit stderr warning on every
+  invocation. Previously the flag was silent — the risk was invisible.
+- **Validate the `cacert` path at startup.** A profile that points at a
+  missing or unreadable CA bundle now fails with `ConfigurationError`
+  (mentioning the path) instead of surfacing a cryptic TLS handshake
+  error on the first request.
+- **Pin `pypa/gh-action-pypi-publish` to an immutable commit SHA**
+  (`cef22109…`, v1.14.0) rather than the mutable `release/v1` tag. The
+  publish job has `id-token: write`, so an upstream action compromise
+  could otherwise inject code into the release pipeline.
+
+### Fixed
+
+- **Token cache no longer subject to torn writes.** `_save_token_cache`
+  writes to a sibling tempfile with mode 0600, then `os.replace`s it
+  into place atomically. Two concurrent `orca` invocations racing on a
+  re-authentication can no longer leave the cache half-written for the
+  next reader.
+
+### CI
+
+- `ci.yml` caches pip and `.venv` (keyed on `pyproject.toml`), adds a
+  `build` job that runs `poetry build` + publishes the dist artifacts,
+  and a `security` job that runs `gitleaks` and `pip-audit` against the
+  installed runtime deps.
+- `deploy-docs.yml` is gated on the CI workflow succeeding on `main`
+  (via `workflow_run` + `conclusion == 'success'`) so a failing build
+  can no longer ship stale documentation.
+
 ## [1.3.0] — 2026-04-20
 
 ### Added
