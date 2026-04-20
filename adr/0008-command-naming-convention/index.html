@@ -3746,6 +3746,14 @@ comment in the test whitelist explaining why.</p>
   <code>metadata</code>, <code>migration</code>, <code>tag</code>, <code>volume</code>); <code>attach-interface</code> and
   <code>live-migrate</code> reduced to deprecated façades that warn and
   forward. Three permanent exceptions remain (see above).</li>
+<li>2026-04-20 — <code>volume</code>: 54 commands moved into 9 sub-groups and 3
+  sub-sub-groups (<code>attachment</code>, <code>backup</code>, <code>group</code>, <code>group snapshot</code>,
+  <code>group type</code>, <code>message</code>, <code>qos</code>, <code>service</code>, <code>snapshot</code>, <code>transfer</code>,
+  <code>type</code>, <code>type access</code>). <code>revert-to-snapshot</code> becomes
+  <code>volume snapshot revert</code>. <code>set-bootable</code> / <code>set-readonly</code> fold
+  into <code>volume set --bootable</code> / <code>--read-only</code> with the two old
+  commands kept as deprecated façades. Whitelist for <code>volume</code> is
+  empty — no permanent exceptions.</li>
 </ul>
 
 
