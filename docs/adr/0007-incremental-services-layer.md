@@ -73,6 +73,11 @@ The criteria for *not* introducing a service for a given resource:
 When migrating a resource, leave a one-line entry below so future ADR
 readers can see how far along the work is.
 
-- 2026-04-20 — `server`: ServerService + Server TypedDict, four commands
-  migrated (`list`, `show`, `delete`, `reboot`). Remaining 30+ server
-  commands still call `OrcaClient` directly.
+- 2026-04-20 — `server`: ServerService + Server TypedDict introduced.
+  All 59 server subcommands now go through the service for compute API
+  calls. Five `client.*` calls remain in `commands/server.py`: four
+  cross-service (Glance image lookup, Cinder volume lookup, Cinder
+  snapshot create, used by `ssh user-detection` / `clone` / `snapshot`)
+  to migrate when ImageService and VolumeService land, plus one bulk
+  `PUT /servers/{id}/tags` call (the service exposes per-tag add/delete
+  operations only).

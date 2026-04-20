@@ -5,7 +5,7 @@ from __future__ import annotations
 import fnmatch
 import os
 import time
-from typing import Any
+from typing import Any, Mapping
 
 import click
 
@@ -350,10 +350,7 @@ def server_create(
     if sg_list:
         body["security_groups"] = [{"name": sg} for sg in sg_list]
 
-    url = f"{client.compute_url}/servers"
-    data = client.post(url, json={"server": body})
-
-    srv = data.get("server", data)
+    srv = ServerService(client).create(body)
     srv_id = srv.get("id", "?")
     admin_pass = srv.get("adminPass", "")
 
@@ -424,9 +421,8 @@ def server_delete(ctx: click.Context, server_id: str, yes: bool, dry_run: bool, 
 # ── start / stop / reboot ─────────────────────────────────────────────────
 
 def _server_action(ctx: click.Context, server_id: str, action: dict, label: str) -> None:
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/action"
-    client.post(url, json=action)
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    service.action(server_id, action)
     console.print(f"[green]{label} request sent for {server_id}.[/green]")
 
 
@@ -535,21 +531,11 @@ def server_unlock(ctx: click.Context, server_id: str) -> None:
 @click.pass_context
 def server_rescue(ctx: click.Context, server_id: str, image: str | None, admin_pass: str | None) -> None:
     """Put a server in rescue mode."""
-    body: dict = {}
-    if image:
-        body["rescue_image_ref"] = image
-    if admin_pass:
-        body["adminPass"] = admin_pass
-
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/action"
-    data = client.post(url, json={"rescue": body if body else None})
-
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    data = service.rescue(server_id, image=image, admin_pass=admin_pass)
+    console.print(f"[green]Rescue mode enabled for {server_id}.[/green]")
     if data and data.get("adminPass"):
-        console.print(f"[green]Rescue mode enabled for {server_id}.[/green]")
         console.print(f"  [cyan]Rescue password:[/cyan] {data['adminPass']}")
-    else:
-        console.print(f"[green]Rescue mode enabled for {server_id}.[/green]")
 
 
 @server.command("unrescue")
@@ -630,17 +616,8 @@ def server_rebuild(ctx: click.Context, server_id: str, image: str, new_name: str
     if not yes:
         click.confirm(f"Rebuild server {server_id}? This will reinstall the OS.", abort=True)
 
-    body: dict = {"imageRef": image}
-    if new_name:
-        body["name"] = new_name
-    if admin_pass:
-        body["adminPass"] = admin_pass
-
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/action"
-    data = client.post(url, json={"rebuild": body})
-
-    srv = data.get("server", data) if data else {}
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    srv = service.rebuild(server_id, image, name=new_name, admin_pass=admin_pass)
     console.print(f"[green]Rebuild started for {server_id}.[/green]")
     if srv.get("adminPass"):
         console.print(f"  [cyan]New password:[/cyan] {srv['adminPass']}")
@@ -654,9 +631,7 @@ def server_rebuild(ctx: click.Context, server_id: str, image: str, new_name: str
 @click.pass_context
 def server_rename(ctx: click.Context, server_id: str, new_name: str) -> None:
     """Rename a server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}"
-    client.put(url, json={"server": {"name": new_name}})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).rename(server_id, new_name)
     console.print(f"[green]Server {server_id} renamed to '{new_name}'.[/green]")
 
 
@@ -668,9 +643,7 @@ def server_rename(ctx: click.Context, server_id: str, new_name: str) -> None:
 @click.pass_context
 def server_create_image(ctx: click.Context, server_id: str, image_name: str) -> None:
     """Create a snapshot image from a server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/action"
-    client.post(url, json={"createImage": {"name": image_name}})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).create_image(server_id, image_name)
     console.print(f"[green]Image '{image_name}' creation started from {server_id}.[/green]")
     console.print("[dim]Use 'orca image list' to track progress.[/dim]")
 
@@ -690,14 +663,8 @@ def server_attach_volume(ctx: click.Context, server_id: str, volume_id: str, dev
       orca server attach-volume <server-id> <volume-id>
       orca server attach-volume <server-id> <volume-id> --device /dev/vdc
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/os-volume_attachments"
-    body: dict = {"volumeId": volume_id}
-    if device:
-        body["device"] = device
-    data = client.post(url, json={"volumeAttachment": body})
-
-    att = data.get("volumeAttachment", data) if data else {}
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    att = service.attach_volume(server_id, volume_id, device=device)
     dev = att.get("device", "auto")
     console.print(f"[green]Volume {volume_id} attached to {server_id} as {dev}.[/green]")
 
@@ -708,9 +675,7 @@ def server_attach_volume(ctx: click.Context, server_id: str, volume_id: str, dev
 @click.pass_context
 def server_detach_volume(ctx: click.Context, server_id: str, volume_id: str) -> None:
     """Detach a volume from a server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/os-volume_attachments/{volume_id}"
-    client.delete(url)
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).detach_volume(server_id, volume_id)
     console.print(f"[green]Volume {volume_id} detached from {server_id}.[/green]")
 
 
@@ -720,11 +685,8 @@ def server_detach_volume(ctx: click.Context, server_id: str, volume_id: str) -> 
 @click.pass_context
 def server_list_volumes(ctx: click.Context, server_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List volumes attached to a server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/os-volume_attachments"
-    data = client.get(url)
-
-    attachments = data.get("volumeAttachments", [])
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    attachments = service.list_volume_attachments(server_id)
 
     column_defs = [
         ("Volume ID", "volumeId", {"style": "cyan", "no_wrap": True}),
@@ -762,18 +724,10 @@ def server_attach_interface(ctx: click.Context, server_id: str, port_id: str | N
     if not port_id and not net_id:
         raise click.ClickException("Provide --port-id or --net-id.")
 
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/os-interface"
-    body: dict = {}
-    if port_id:
-        body["port_id"] = port_id
-    elif net_id:
-        body["net_id"] = net_id
-        if fixed_ip:
-            body["fixed_ips"] = [{"ip_address": fixed_ip}]
-
-    data = client.post(url, json={"interfaceAttachment": body})
-    att = data.get("interfaceAttachment", data) if data else {}
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    fixed_ips = [{"ip_address": fixed_ip}] if (net_id and fixed_ip) else None
+    att = service.attach_interface(server_id, port_id=port_id, net_id=net_id,
+                                   fixed_ips=fixed_ips)
     ips = ", ".join(ip.get("ip_address", "") for ip in att.get("fixed_ips", []))
     console.print(f"[green]Interface attached to {server_id} — port {att.get('port_id', '')} ({ips}).[/green]")
 
@@ -784,9 +738,7 @@ def server_attach_interface(ctx: click.Context, server_id: str, port_id: str | N
 @click.pass_context
 def server_detach_interface(ctx: click.Context, server_id: str, port_id: str) -> None:
     """Detach a network interface (port) from a server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/os-interface/{port_id}"
-    client.delete(url)
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).detach_interface(server_id, port_id)
     console.print(f"[green]Interface {port_id} detached from {server_id}.[/green]")
 
 
@@ -796,11 +748,8 @@ def server_detach_interface(ctx: click.Context, server_id: str, port_id: str) ->
 @click.pass_context
 def server_list_interfaces(ctx: click.Context, server_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List network interfaces attached to a server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/os-interface"
-    data = client.get(url)
-
-    attachments = data.get("interfaceAttachments", [])
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    attachments = service.list_interfaces(server_id)
 
     def _fixed_ips(att: dict) -> str:
         return ", ".join(ip.get("ip_address", "") for ip in att.get("fixed_ips", []))
@@ -853,11 +802,8 @@ def server_password(ctx: click.Context, server_id: str, private_key_path: str | 
     import subprocess
     from pathlib import Path
 
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/os-server-password"
-    data = client.get(url)
-
-    encrypted_b64 = data.get("password", "")
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    encrypted_b64 = service.get_password(server_id)
 
     if not encrypted_b64:
         console.print("[yellow]No password set for this server (metadata empty).[/yellow]")
@@ -941,18 +887,8 @@ def server_console_log(ctx: click.Context, server_id: str, length: int) -> None:
       orca server console-log <server-id> --lines 100
       orca server console-log <server-id> --lines 0   # all output
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/action"
-
-    body: dict = {"os-getConsoleOutput": {}}
-    if length > 0:
-        body["os-getConsoleOutput"]["length"] = length
-
-    data = client.post(url, json=body)
-
-    output = ""
-    if data:
-        output = data.get("output", "")
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    output = service.get_console_log(server_id, length=length if length > 0 else None)
 
     if not output:
         console.print("[yellow]No console output available yet.[/yellow]")
@@ -986,7 +922,7 @@ def server_console_url(ctx: click.Context, server_id: str, console_type: str,
       orca server console-url <server-id> --type spice-html5
       orca server console-url <server-id> --open
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
 
     protocol_map = {
         "novnc":      ("vnc",    "novnc"),
@@ -996,14 +932,8 @@ def server_console_url(ctx: click.Context, server_id: str, console_type: str,
         "serial":     ("serial", "serial"),
     }
     protocol, remote_type = protocol_map[console_type]
-
-    url = f"{client.compute_url}/servers/{server_id}/remote-consoles"
-    data = client.post(url, json={
-        "remote_console": {"protocol": protocol, "type": remote_type}
-    })
-
-    console_data = data.get("remote_console", data)
-    console_url = console_data.get("url", "")
+    console_url = service.get_console_url(server_id, protocol=protocol,
+                                          console_type=remote_type)
 
     if not console_url:
         console.print("[yellow]No console URL returned.[/yellow]")
@@ -1043,7 +973,7 @@ _DISTRO_USER: dict[str, str] = {
 }
 
 
-def _pick_ssh_ip(srv: dict, prefer_fixed: bool = False) -> str | None:
+def _pick_ssh_ip(srv: Mapping[str, Any], prefer_fixed: bool = False) -> str | None:
     """Pick the best IP. Floating wins unless prefer_fixed is set."""
     floating = None
     fixed = None
@@ -1058,7 +988,7 @@ def _pick_ssh_ip(srv: dict, prefer_fixed: bool = False) -> str | None:
     return floating or fixed
 
 
-def _detect_ssh_user(client, srv: dict) -> str | None:
+def _detect_ssh_user(client, srv: Mapping[str, Any]) -> str | None:
     """Read image metadata, map os_distro → cloud-init default user.
 
     For boot-from-volume servers Nova returns ``"image": ""`` (or a dict
@@ -1158,14 +1088,13 @@ def server_ssh(ctx: click.Context, server_id: str, remote_args: tuple,
       orca server ssh web-1 --dry-run            # print command, don't exec
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    service = ServerService(client)
 
     # Resolve server — try by ID, fallback to name search
     try:
-        data = client.get(f"{client.compute_url}/servers/{server_id}")
-        srv = data.get("server", data)
+        srv = service.get(server_id)
     except Exception:
-        data = client.get(f"{client.compute_url}/servers/detail", params={"name": server_id})
-        matches = data.get("servers", [])
+        matches = service.find(params={"name": server_id})
         if not matches:
             raise click.ClickException(f"Server '{server_id}' not found.") from None
         if len(matches) > 1:
@@ -1227,23 +1156,21 @@ def server_snapshot(ctx: click.Context, server_id: str, name: str | None) -> Non
       orca server snapshot <server-id> --name "before-upgrade"
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    service = ServerService(client)
 
-    # Get server info
-    srv_data = client.get(f"{client.compute_url}/servers/{server_id}")
-    srv = srv_data.get("server", srv_data)
+    srv = service.get(server_id)
     srv_name = srv.get("name", server_id)
     prefix = name or srv_name
 
     # 1. Create server image snapshot
     image_name = f"{prefix}-image"
     console.print(f"[bold]Creating server image snapshot:[/bold] {image_name}")
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"createImage": {"name": image_name}})
+    service.create_image(server_id, image_name)
     console.print(f"  [green]✓[/green] Image '{image_name}' creation started.")
 
-    # 2. Snapshot attached volumes
-    vol_data = client.get(f"{client.compute_url}/servers/{server_id}/os-volume_attachments")
-    attachments = vol_data.get("volumeAttachments", [])
+    # 2. Snapshot attached volumes (Cinder cross-service — kept on client
+    #    until a VolumeService is introduced)
+    attachments = service.list_volume_attachments(server_id)
 
     if not attachments:
         console.print("  [dim]No attached volumes to snapshot.[/dim]")
@@ -1283,14 +1210,13 @@ def server_wait(ctx: click.Context, server_id: str, target_status: str, timeout:
       orca server wait <id> --status ACTIVE
       orca server wait <id> --status SHUTOFF --timeout 120
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
     target = target_status.upper()
     start = time.monotonic()
 
     with console.status(f"[bold cyan]Waiting for {server_id} → {target}…[/bold cyan]") as spinner:
         while True:
-            data = client.get(f"{client.compute_url}/servers/{server_id}")
-            srv = data.get("server", data)
+            srv = service.get(server_id)
             current = srv.get("status", "UNKNOWN").upper()
 
             if current == target:
@@ -1337,9 +1263,8 @@ def server_bulk(ctx: click.Context, action: str, name_pattern: str | None,
     if not name_pattern and not status_filter and not select_all:
         raise click.ClickException("Provide --name, --status, or --all to select servers.")
 
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{client.compute_url}/servers/detail", params={"limit": 1000})
-    servers = data.get("servers", [])
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    servers = service.find(limit=1000)
 
     # Filter
     matched = []
@@ -1363,22 +1288,19 @@ def server_bulk(ctx: click.Context, action: str, name_pattern: str | None,
     if not yes:
         click.confirm(f"Proceed with {action.upper()} on {len(matched)} server(s)?", abort=True)
 
-    action_map: dict[str, dict[str, Any]] = {
-        "start": {"os-start": None},
-        "stop": {"os-stop": None},
-        "reboot": {"reboot": {"type": "SOFT"}},
-    }
-
     success = 0
     for s in matched:
         sid = s["id"]
         sname = s.get("name", sid)
         try:
             if action == "delete":
-                client.delete(f"{client.compute_url}/servers/{sid}")
-            else:
-                client.post(f"{client.compute_url}/servers/{sid}/action",
-                            json=action_map[action])
+                service.delete(sid)
+            elif action == "start":
+                service.start(sid)
+            elif action == "stop":
+                service.stop(sid)
+            elif action == "reboot":
+                service.reboot(sid)
             console.print(f"  [green]✓[/green] {sname} ({sid})")
             success += 1
         except Exception as e:
@@ -1406,10 +1328,10 @@ def server_clone(ctx: click.Context, server_id: str, name: str, disk_size: int |
       orca server clone <id> --name web-02 --disk-size 50
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    service = ServerService(client)
 
     # Fetch source server
-    data = client.get(f"{client.compute_url}/servers/{server_id}")
-    src = data.get("server", data)
+    src = service.get(server_id)
     src_name = src.get("name", server_id)
 
     # Flavor
@@ -1426,8 +1348,7 @@ def server_clone(ctx: click.Context, server_id: str, name: str, disk_size: int |
     # If booted from volume, get the image from the volume
     src_disk = disk_size
     if not image_id or not src_disk:
-        vol_data = client.get(f"{client.compute_url}/servers/{server_id}/os-volume_attachments")
-        attachments = vol_data.get("volumeAttachments", [])
+        attachments = service.list_volume_attachments(server_id)
         boot_att = None
         for a in attachments:
             # Boot volume is usually /dev/vda or /dev/sda
@@ -1457,10 +1378,7 @@ def server_clone(ctx: click.Context, server_id: str, name: str, disk_size: int |
 
     # Network — IDs come from the interface API; addresses dict only has names
     networks: list = []
-
-    # Get ports to find network IDs
-    ifaces = client.get(f"{client.compute_url}/servers/{server_id}/os-interface")
-    for att in ifaces.get("interfaceAttachments", []):
+    for att in service.list_interfaces(server_id):
         net_id = att.get("net_id", "")
         if net_id and net_id not in [n["uuid"] for n in networks]:
             networks.append({"uuid": net_id})
@@ -1502,8 +1420,7 @@ def server_clone(ctx: click.Context, server_id: str, name: str, disk_size: int |
     console.print(f"  Nets:    {len(networks)}")
     console.print()
 
-    result = client.post(f"{client.compute_url}/servers", json={"server": body})
-    new_srv = result.get("server", result)
+    new_srv = service.create(body)
     new_id = new_srv.get("id", "?")
 
     console.print(f"[bold green]Server '{name}' ({new_id}) creation started.[/bold green]")
@@ -1528,10 +1445,10 @@ def server_diff(ctx: click.Context, server_a: str, server_b: str) -> None:
     """
     from rich.table import Table
 
-    client = ctx.find_object(OrcaContext).ensure_client()
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
 
-    data_a = client.get(f"{client.compute_url}/servers/{server_a}").get("server", {})
-    data_b = client.get(f"{client.compute_url}/servers/{server_b}").get("server", {})
+    data_a = service.get(server_a)
+    data_b = service.get(server_b)
 
     def _flavor_str(srv: dict) -> str:
         f = srv.get("flavor", {})
@@ -1638,16 +1555,13 @@ def server_port_forward(
       orca server port-forward <id> 5432:localhost:5432 -b     # background
     """
 
-    client = ctx.find_object(OrcaContext).ensure_client()
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
 
     # Resolve server
     try:
-        data = client.get(f"{client.compute_url}/servers/{server_id}")
-        srv = data.get("server", data)
+        srv = service.get(server_id)
     except Exception:
-        data = client.get(f"{client.compute_url}/servers/detail",
-                          params={"name": server_id})
-        matches = data.get("servers", [])
+        matches = service.find(params={"name": server_id})
         if not matches:
             raise click.ClickException(f"Server '{server_id}' not found.") from None
         if len(matches) > 1:
@@ -1720,12 +1634,7 @@ def server_port_forward(
 @click.pass_context
 def server_migrate(ctx: click.Context, server_id: str, host: str | None) -> None:
     """Cold-migrate a server to another host."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    body: dict = {}
-    if host:
-        body["host"] = host
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"migrate": body or None})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).migrate(server_id, host)
     console.print(f"[green]Migration of server {server_id} started.[/green]")
     console.print("[dim]Use 'orca server show' to track progress.[/dim]")
 
@@ -1739,13 +1648,9 @@ def server_migrate(ctx: click.Context, server_id: str, host: str | None) -> None
 def server_live_migrate(ctx: click.Context, server_id: str, host: str | None,
                         block_migration: bool) -> None:
     """Live-migrate a server without downtime."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    body: dict = {
-        "host": host,
-        "block_migration": block_migration,
-    }
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"os-migrateLive": body})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).live_migrate(
+        server_id, host=host, block_migration=block_migration,
+    )
     console.print(f"[green]Live migration of server {server_id} started.[/green]")
     console.print("[dim]Use 'orca server show' to track progress.[/dim]")
 
@@ -1761,9 +1666,7 @@ def server_live_migrate(ctx: click.Context, server_id: str, host: str | None,
 @click.pass_context
 def server_add_security_group(ctx: click.Context, server_id: str, security_group: str) -> None:
     """Add a security group to a running server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"addSecurityGroup": {"name": security_group}})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).add_security_group(server_id, security_group)
     console.print(f"[green]Security group '{security_group}' added to server {server_id}.[/green]")
 
 
@@ -1773,9 +1676,7 @@ def server_add_security_group(ctx: click.Context, server_id: str, security_group
 @click.pass_context
 def server_remove_security_group(ctx: click.Context, server_id: str, security_group: str) -> None:
     """Remove a security group from a running server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"removeSecurityGroup": {"name": security_group}})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).remove_security_group(server_id, security_group)
     console.print(f"[green]Security group '{security_group}' removed from server {server_id}.[/green]")
 
 
@@ -1805,11 +1706,11 @@ def server_set(ctx: click.Context, server_id: str, name: str | None,
       orca server set <id> --admin-password s3cr3t
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    service = ServerService(client)
     did_something = False
 
     if name:
-        client.put(f"{client.compute_url}/servers/{server_id}",
-                   json={"server": {"name": name}})
+        service.rename(server_id, name)
         console.print(f"[green]Server {server_id} renamed to '{name}'.[/green]")
         did_something = True
 
@@ -1820,20 +1721,21 @@ def server_set(ctx: click.Context, server_id: str, name: str | None,
                 raise click.UsageError(f"Invalid format '{prop}', expected KEY=VALUE.")
             k, v = prop.split("=", 1)
             meta[k] = v
-        client.post(f"{client.compute_url}/servers/{server_id}/metadata",
-                    json={"metadata": meta})
+        service.set_metadata(server_id, meta)
         console.print(f"[green]Metadata updated on server {server_id}.[/green]")
         did_something = True
 
     if tags:
+        # PUT /tags replaces the whole tag set; service exposes
+        # add/delete per-tag, so call the client directly here for the
+        # bulk-replace semantics.
         client.put(f"{client.compute_url}/servers/{server_id}/tags",
                    json={"tags": list(tags)})
         console.print(f"[green]Tags set on server {server_id}: {', '.join(tags)}[/green]")
         did_something = True
 
     if admin_password:
-        client.post(f"{client.compute_url}/servers/{server_id}/action",
-                    json={"changePassword": {"adminPass": admin_password}})
+        service.action(server_id, {"changePassword": {"adminPass": admin_password}})
         console.print(f"[green]Admin password changed for server {server_id}.[/green]")
         did_something = True
 
@@ -1851,9 +1753,7 @@ def server_set(ctx: click.Context, server_id: str, name: str | None,
 @click.pass_context
 def server_metadata_list(ctx: click.Context, server_id: str) -> None:
     """Show all metadata key/value pairs for a server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{client.compute_url}/servers/{server_id}/metadata")
-    meta = data.get("metadata", {})
+    meta = ServerService(ctx.find_object(OrcaContext).ensure_client()).list_metadata(server_id)
     if not meta:
         console.print("[yellow]No metadata set.[/yellow]")
         return
@@ -1873,9 +1773,7 @@ def server_metadata_list(ctx: click.Context, server_id: str) -> None:
 @click.pass_context
 def server_tag_list(ctx: click.Context, server_id: str) -> None:
     """List tags on a server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{client.compute_url}/servers/{server_id}/tags")
-    tags = data.get("tags", [])
+    tags = ServerService(ctx.find_object(OrcaContext).ensure_client()).list_tags(server_id)
     if not tags:
         console.print("[yellow]No tags set.[/yellow]")
     else:
@@ -1896,10 +1794,7 @@ def server_migration_list(ctx: click.Context, server_id: str,
                           output_format: str, columns: tuple[str, ...],
                           fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List migrations for a server."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    migrations = client.get(
-        f"{client.compute_url}/servers/{server_id}/migrations"
-    ).get("migrations", [])
+    migrations = ServerService(ctx.find_object(OrcaContext).ensure_client()).list_migrations(server_id)
 
     print_list(
         migrations,
@@ -1928,10 +1823,7 @@ def server_migration_show(ctx: click.Context, server_id: str, migration_id: str,
                           output_format: str, columns: tuple[str, ...],
                           fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """Show details of a specific migration."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    m = client.get(
-        f"{client.compute_url}/servers/{server_id}/migrations/{migration_id}"
-    ).get("migration", {})
+    m = ServerService(ctx.find_object(OrcaContext).ensure_client()).get_migration(server_id, migration_id)
 
     print_detail(
         [(k, str(m.get(k, "") or "")) for k in [
@@ -1952,10 +1844,7 @@ def server_migration_show(ctx: click.Context, server_id: str, migration_id: str,
 @click.pass_context
 def server_migration_abort(ctx: click.Context, server_id: str, migration_id: str) -> None:
     """Abort an in-progress live migration."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(
-        f"{client.compute_url}/servers/{server_id}/migrations/{migration_id}"
-    )
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).abort_migration(server_id, migration_id)
     console.print(f"Migration [bold]{migration_id}[/bold] aborted.")
 
 
@@ -1965,11 +1854,7 @@ def server_migration_abort(ctx: click.Context, server_id: str, migration_id: str
 @click.pass_context
 def server_migration_force_complete(ctx: click.Context, server_id: str, migration_id: str) -> None:
     """Force an in-progress live migration to complete."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.post(
-        f"{client.compute_url}/servers/{server_id}/migrations/{migration_id}/action",
-        json={"force_complete": None},
-    )
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).force_complete_migration(server_id, migration_id)
     console.print(f"Migration [bold]{migration_id}[/bold] forced to complete.")
 
 
@@ -1997,14 +1882,10 @@ def server_evacuate(ctx: click.Context, server_id: str, host: str | None,
       orca server evacuate <id> --host compute02
       orca server evacuate <id> --on-shared-storage
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    body: dict = {"onSharedStorage": on_shared_storage}
-    if host:
-        body["host"] = host
-    if admin_pass:
-        body["adminPass"] = admin_pass
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"evacuate": body})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).evacuate(
+        server_id, host=host, admin_pass=admin_pass,
+        on_shared_storage=on_shared_storage,
+    )
     console.print(f"[green]Server {server_id} evacuation started.[/green]")
     console.print("[dim]Use 'orca server show' to track status.[/dim]")
 
@@ -2018,9 +1899,7 @@ def server_dump_create(ctx: click.Context, server_id: str) -> None:
     Sends an NMI to the server which causes the guest OS to generate
     a crash dump. The server must be ACTIVE.
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"trigger_crash_dump": None})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).dump_create(server_id)
     console.print(f"[green]Crash dump triggered on server {server_id}.[/green]")
 
 
@@ -2033,9 +1912,7 @@ def server_restore(ctx: click.Context, server_id: str) -> None:
     Only valid when Nova is configured with soft-delete
     (reclaim_instance_interval > 0) and the server status is SOFT_DELETED.
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"restore": None})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).restore(server_id)
     console.print(f"[green]Server {server_id} restored.[/green]")
 
 
@@ -2055,9 +1932,7 @@ def server_add_fixed_ip(ctx: click.Context, server_id: str, network_id: str) -> 
     Example:
       orca server add-fixed-ip <server-id> <network-id>
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"addFixedIp": {"networkId": network_id}})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).add_fixed_ip(server_id, network_id)
     console.print(f"[green]Fixed IP from network {network_id} added to server {server_id}.[/green]")
 
 
@@ -2072,9 +1947,7 @@ def server_remove_fixed_ip(ctx: click.Context, server_id: str, ip_address: str) 
     Example:
       orca server remove-fixed-ip <server-id> 10.0.0.5
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.post(f"{client.compute_url}/servers/{server_id}/action",
-                json={"removeFixedIp": {"address": ip_address}})
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).remove_fixed_ip(server_id, ip_address)
     console.print(f"[green]Fixed IP {ip_address} removed from server {server_id}.[/green]")
 
 
@@ -2094,12 +1967,8 @@ def server_add_port(ctx: click.Context, server_id: str, port_id: str) -> None:
     Example:
       orca server add-port <server-id> <port-id>
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.post(
-        f"{client.compute_url}/servers/{server_id}/os-interface",
-        json={"interfaceAttachment": {"port_id": port_id}},
-    )
-    att = data.get("interfaceAttachment", data) if data else {}
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    att = service.attach_interface(server_id, port_id=port_id)
     ips = ", ".join(ip.get("ip_address", "") for ip in att.get("fixed_ips", []))
     console.print(f"[green]Port {port_id} attached to server {server_id} ({ips}).[/green]")
 
@@ -2115,8 +1984,7 @@ def server_remove_port(ctx: click.Context, server_id: str, port_id: str) -> None
     Example:
       orca server remove-port <server-id> <port-id>
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{client.compute_url}/servers/{server_id}/os-interface/{port_id}")
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).detach_interface(server_id, port_id)
     console.print(f"[green]Port {port_id} removed from server {server_id}.[/green]")
 
 
@@ -2131,12 +1999,8 @@ def server_add_network(ctx: click.Context, server_id: str, network_id: str) -> N
     Example:
       orca server add-network <server-id> <network-id>
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.post(
-        f"{client.compute_url}/servers/{server_id}/os-interface",
-        json={"interfaceAttachment": {"net_id": network_id}},
-    )
-    att = data.get("interfaceAttachment", data) if data else {}
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    att = service.attach_interface(server_id, net_id=network_id)
     ips = ", ".join(ip.get("ip_address", "") for ip in att.get("fixed_ips", []))
     console.print(
         f"[green]Network {network_id} attached to server {server_id} "
@@ -2157,10 +2021,9 @@ def server_remove_network(ctx: click.Context, server_id: str, network_id: str) -
     Example:
       orca server remove-network <server-id> <network-id>
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{client.compute_url}/servers/{server_id}/os-interface")
-    interfaces = data.get("interfaceAttachments", [])
-    matching = [i for i in interfaces if i.get("net_id") == network_id]
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
+    matching = [i for i in service.list_interfaces(server_id)
+                if i.get("net_id") == network_id]
 
     if not matching:
         console.print(f"[yellow]No interfaces found for network {network_id} on server {server_id}.[/yellow]")
@@ -2168,7 +2031,7 @@ def server_remove_network(ctx: click.Context, server_id: str, network_id: str) -
 
     for iface in matching:
         port_id = iface["port_id"]
-        client.delete(f"{client.compute_url}/servers/{server_id}/os-interface/{port_id}")
+        service.detach_interface(server_id, port_id)
         console.print(f"  Removed port {port_id}")
 
     console.print(
@@ -2197,16 +2060,16 @@ def server_unset(ctx: click.Context, server_id: str,
       orca server unset <id> --property env --property team
       orca server unset <id> --tag web --tag frontend
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    service = ServerService(ctx.find_object(OrcaContext).ensure_client())
     did_something = False
 
     for key in properties:
-        client.delete(f"{client.compute_url}/servers/{server_id}/metadata/{key}")
+        service.delete_metadata_key(server_id, key)
         console.print(f"  Removed metadata key: {key}")
         did_something = True
 
     for tag in tags:
-        client.delete(f"{client.compute_url}/servers/{server_id}/tags/{tag}")
+        service.delete_tag(server_id, tag)
         console.print(f"  Removed tag: {tag}")
         did_something = True
 

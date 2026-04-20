@@ -54,6 +54,8 @@ Server = TypedDict(
         "OS-DCF:diskConfig": str,
         "OS-SRV-USG:launched_at": str,
         "OS-SRV-USG:terminated_at": str,
+        "adminPass": str,  # only set on create / rebuild responses
+        "fault": dict,     # set when status == ERROR
     },
     total=False,
 )
