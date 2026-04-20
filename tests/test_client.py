@@ -1119,6 +1119,70 @@ class TestForbiddenAndHtmlResponses:
         assert OrcaClient._is_html_response(resp) is True
 
 
+class TestRequestIdPropagation:
+    """OpenStack request-id headers must reach the user via APIError."""
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_api_error_includes_request_id(self, mock_httpx_cls):
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        err = _resp(500, {"error": "boom"}, headers={"x-openstack-request-id": "req-uuid-xyz"})
+        http.get.side_effect = [err] * 3  # exhaust retries
+        mock_httpx_cls.return_value = http
+
+        with patch("orca_cli.core.client.time.sleep"):
+            client = OrcaClient(BASE_CFG)
+            with pytest.raises(APIError) as exc_info:
+                client.get("https://nova.example.com/servers")
+
+        assert exc_info.value.request_id == "req-uuid-xyz"
+        assert "req-uuid-xyz" in str(exc_info.value)
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_nova_compute_request_id_fallback(self, mock_httpx_cls):
+        """Nova echoes the id as x-compute-request-id; we still pick it up."""
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        err = _resp(404, {"error": "no"}, headers={"x-compute-request-id": "req-nova-abc"})
+        http.get.side_effect = [err] * 3
+        mock_httpx_cls.return_value = http
+
+        with patch("orca_cli.core.client.time.sleep"):
+            client = OrcaClient(BASE_CFG)
+            with pytest.raises(APIError) as exc_info:
+                client.get("https://nova.example.com/servers")
+        assert exc_info.value.request_id == "req-nova-abc"
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_permission_denied_includes_request_id(self, mock_httpx_cls):
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        http.get.return_value = _resp(
+            403, {"error": "denied"},
+            headers={"x-openstack-request-id": "req-403"},
+        )
+        mock_httpx_cls.return_value = http
+
+        client = OrcaClient(BASE_CFG)
+        with pytest.raises(PermissionDeniedError) as exc_info:
+            client.get("https://nova.example.com/servers")
+        assert "req-403" in str(exc_info.value)
+
+    @patch("orca_cli.core.client.httpx.Client")
+    def test_missing_header_leaves_request_id_empty(self, mock_httpx_cls):
+        http = MagicMock()
+        http.post.return_value = _make_auth_response()
+        http.get.side_effect = [_resp(500, {"error": "no headers"}, headers={})] * 3
+        mock_httpx_cls.return_value = http
+
+        with patch("orca_cli.core.client.time.sleep"):
+            client = OrcaClient(BASE_CFG)
+            with pytest.raises(APIError) as exc_info:
+                client.get("https://nova.example.com/servers")
+        assert exc_info.value.request_id == ""
+        assert "request-id" not in str(exc_info.value)
+
+
 class TestHandleResponseNonJson:
     """When the error body isn't JSON, fall back to raw text (truncated)."""
 

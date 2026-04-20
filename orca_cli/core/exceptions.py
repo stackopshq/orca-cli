@@ -47,12 +47,19 @@ _HTTP_FRIENDLY = {
 class APIError(OrcaCLIError):
     """Raised when the OpenStack API returns an unexpected error."""
 
-    def __init__(self, status_code: int, detail: str = "") -> None:
+    def __init__(self, status_code: int, detail: str = "",
+                 request_id: str = "") -> None:
         self.status_code = status_code
+        self.request_id = request_id
         label = _HTTP_FRIENDLY.get(status_code, f"HTTP {status_code}")
         msg = f"{label} ({status_code})"
         if detail:
             msg += f": {detail}"
+        if request_id:
+            # Surfacing the OpenStack request-id lets an operator correlate
+            # the failure with their own back-end logs when a user files a
+            # support ticket.
+            msg += f" [request-id: {request_id}]"
         super().__init__(msg)
 
 

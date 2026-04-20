@@ -30,6 +30,16 @@ class TestAPIError:
         err = APIError(400, "bad field 'foo'")
         assert "bad field 'foo'" in err.message
 
+    def test_request_id_appended_when_provided(self):
+        err = APIError(500, "boom", request_id="req-abc-123")
+        assert "req-abc-123" in err.message
+        assert err.request_id == "req-abc-123"
+
+    def test_request_id_omitted_when_blank(self):
+        err = APIError(500, "boom")
+        assert "request-id" not in err.message
+        assert err.request_id == ""
+
 
 class TestAuthenticationError:
 

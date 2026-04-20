@@ -519,9 +519,22 @@ class OrcaClient:
         preview = response.text[:200].lstrip().lower()
         return preview.startswith("<!doctype html") or preview.startswith("<html")
 
+    @staticmethod
+    def _extract_request_id(response: httpx.Response) -> str:
+        """Return the OpenStack request-id from response headers, if any.
+
+        Services expose this under ``x-openstack-request-id`` (Keystone,
+        Glance, Cinder, Neutron…) with Nova additionally echoing it as
+        ``x-compute-request-id``. Case-insensitive by httpx conventions.
+        """
+        return (response.headers.get("x-openstack-request-id")
+                or response.headers.get("x-compute-request-id")
+                or "")
+
     def _handle_response(self, response: httpx.Response) -> Any:
         if response.status_code == 401:
             raise AuthenticationError()
+        request_id = self._extract_request_id(response)
         if response.status_code == 403:
             detail = ""
             try:
@@ -535,6 +548,8 @@ class OrcaClient:
             )
             if detail:
                 msg += f" — {detail}"
+            if request_id:
+                msg += f" [request-id: {request_id}]"
             raise PermissionDeniedError(msg)
         if not response.is_success:
             if self._is_html_response(response):
@@ -542,6 +557,7 @@ class OrcaClient:
                     response.status_code,
                     "Service returned an HTML error page — the endpoint is advertised "
                     "in the catalogue but not actually exposed on this cloud.",
+                    request_id=request_id,
                 )
             detail = ""
             try:
@@ -549,7 +565,7 @@ class OrcaClient:
                 detail = self._extract_error_message(body)
             except Exception:
                 detail = response.text[:300]
-            raise APIError(response.status_code, detail)
+            raise APIError(response.status_code, detail, request_id=request_id)
         if response.status_code == 204 or not response.content:
             return None
         return response.json()
