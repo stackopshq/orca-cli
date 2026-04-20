@@ -102,9 +102,34 @@ The full inventory by module (top 10):
 - **Negative / trade-off**: the migration is multi-week and won't be
   finished in one session. Tracked here as it progresses.
 
+## Permanent exceptions
+
+Some hyphenated names are kept on purpose because the convention
+either does not fit them or would force gymnastics that hurt
+ergonomics more than they help. Each one is documented inline in
+`tests/test_naming_convention.py` so the choice survives a future
+re-read.
+
+- `server confirm-resize`, `server revert-resize` — `resize` is both
+  an action (`server resize <id> --flavor ...`) and would need to be
+  a sub-group to host `confirm`/`revert`. Click can do this with
+  `invoke_without_command=True` but the resulting `--help` mixes
+  arguments and sub-commands awkwardly. The hyphenated form is clear
+  enough; not worth the acrobatics.
+- `server port-forward` — orca-exclusive (no openstack equivalent).
+  Compound verb that reads naturally; nesting it under a sub-group
+  (`server tunnel forward`) would gain nothing since there are no
+  sibling commands.
+
+Adding to this list requires a deliberate choice and an inline
+comment in the test whitelist explaining why.
+
 ## Migration tracking
 
 Update this list when a module's hyphenated commands are migrated.
 
-- *(none yet — `server` migration started below ADR-0007 will be the
-  first to apply this convention as part of its remaining work)*
+- 2026-04-20 — `server`: 23 commands moved to nested sub-groups
+  (`add`, `remove`, `console`, `dump`, `image`, `interface`,
+  `metadata`, `migration`, `tag`, `volume`); `attach-interface` and
+  `live-migrate` reduced to deprecated façades that warn and
+  forward. Three permanent exceptions remain (see above).
