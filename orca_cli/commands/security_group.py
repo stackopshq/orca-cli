@@ -7,6 +7,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_list
 from orca_cli.core.validators import validate_id
+from orca_cli.services.network import NetworkService
 
 
 @click.group("security-group")
@@ -21,12 +22,10 @@ def security_group(ctx: click.Context) -> None:
 @click.pass_context
 def sg_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List security groups."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/security-groups"
-    data = client.get(url)
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
 
     print_list(
-        data.get("security_groups", []),
+        svc.find_security_groups(),
         [
             ("ID", "id", {"style": "cyan", "no_wrap": True}),
             ("Name", "name", {"style": "bold"}),
@@ -46,11 +45,8 @@ def sg_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fi
 @click.pass_context
 def sg_show(ctx: click.Context, group_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """Show security group details and rules."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/security-groups/{group_id}"
-    data = client.get(url)
-
-    sg = data.get("security_group", data)
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    sg = svc.get_security_group(group_id)
 
     if output_format == "table":
         console.print(f"\n[bold]{sg.get('name', group_id)}[/bold]  ({sg.get('id', '')})")
@@ -87,10 +83,8 @@ def sg_show(ctx: click.Context, group_id: str, output_format: str, columns: tupl
 @click.pass_context
 def sg_create(ctx: click.Context, name: str, description: str) -> None:
     """Create a security group."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/security-groups"
-    data = client.post(url, json={"security_group": {"name": name, "description": description}})
-    sg = data.get("security_group", data)
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    sg = svc.create_security_group({"name": name, "description": description})
     console.print(f"[green]Security group '{sg.get('name')}' ({sg.get('id')}) created.[/green]")
 
 
@@ -109,9 +103,8 @@ def sg_update(ctx: click.Context, group_id: str, name: str | None, description: 
     if not body:
         console.print("[yellow]Nothing to update.[/yellow]")
         return
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/security-groups/{group_id}"
-    client.put(url, json={"security_group": body})
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_security_group(group_id, body)
     console.print(f"[green]Security group {group_id} updated.[/green]")
 
 
@@ -123,9 +116,8 @@ def sg_delete(ctx: click.Context, group_id: str, yes: bool) -> None:
     """Delete a security group."""
     if not yes:
         click.confirm(f"Delete security group {group_id}?", abort=True)
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/security-groups/{group_id}"
-    client.delete(url)
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.delete_security_group(group_id)
     console.print(f"[green]Security group {group_id} deleted.[/green]")
 
 
@@ -149,7 +141,7 @@ def sg_rule_add(ctx: click.Context, group_id: str, direction: str, protocol: str
       orca security-group rule-add <id> --direction ingress --protocol tcp --port-min 22
       orca security-group rule-add <id> --direction ingress --protocol tcp --port-min 80 --port-max 443 --remote-ip 0.0.0.0/0
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {
         "security_group_id": group_id,
         "direction": direction,
@@ -165,9 +157,7 @@ def sg_rule_add(ctx: click.Context, group_id: str, direction: str, protocol: str
     if remote_group:
         body["remote_group_id"] = remote_group
 
-    url = f"{client.network_url}/v2.0/security-group-rules"
-    data = client.post(url, json={"security_group_rule": body})
-    rule = data.get("security_group_rule", data)
+    rule = svc.create_security_group_rule(body)
     console.print(f"[green]Rule {rule.get('id')} added to {group_id}.[/green]")
 
 
@@ -184,20 +174,16 @@ def sg_clone(ctx: click.Context, source_id: str, new_name: str, description: str
       orca security-group clone <source-id> my-new-sg
       orca security-group clone <source-id> prod-sg --description "Production rules"
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    base_url = f"{client.network_url}/v2.0"
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
 
     # Fetch source group
-    src_data = client.get(f"{base_url}/security-groups/{source_id}")
-    src = src_data.get("security_group", src_data)
+    src = svc.get_security_group(source_id)
     src_name = src.get("name", source_id)
 
     desc = description if description is not None else f"Clone of {src_name}"
 
     # Create new group
-    new_data = client.post(f"{base_url}/security-groups",
-                           json={"security_group": {"name": new_name, "description": desc}})
-    new_sg = new_data.get("security_group", new_data)
+    new_sg = svc.create_security_group({"name": new_name, "description": desc})
     new_id = new_sg.get("id", "")
 
     console.print(f"[green]Created security group '{new_name}' ({new_id}).[/green]")
@@ -227,8 +213,7 @@ def sg_clone(ctx: click.Context, source_id: str, new_name: str, description: str
                 body["remote_group_id"] = rule["remote_group_id"]
 
         try:
-            client.post(f"{base_url}/security-group-rules",
-                        json={"security_group_rule": body})
+            svc.create_security_group_rule(body)
             copied += 1
         except Exception:
             # Skip rules that conflict with auto-created defaults
@@ -245,9 +230,8 @@ def sg_rule_delete(ctx: click.Context, rule_id: str, yes: bool) -> None:
     """Delete a security group rule."""
     if not yes:
         click.confirm(f"Delete rule {rule_id}?", abort=True)
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/security-group-rules/{rule_id}"
-    client.delete(url)
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.delete_security_group_rule(rule_id)
     console.print(f"[green]Rule {rule_id} deleted.[/green]")
 
 
@@ -272,12 +256,11 @@ def sg_cleanup(ctx: click.Context, do_delete: bool, yes: bool) -> None:
       orca security-group cleanup --delete     # interactive delete
       orca security-group cleanup --delete -y  # auto-delete all
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    base = f"{client.network_url}/v2.0"
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
 
     with console.status("[bold]Scanning security groups and ports..."):
-        sgs = client.get(f"{base}/security-groups").get("security_groups", [])
-        ports = client.get(f"{base}/ports").get("ports", [])
+        sgs = svc.find_security_groups()
+        ports = svc.find_ports()
 
     # Collect all SG IDs actually in use by any port
     used_sg_ids: set[str] = set()
@@ -326,7 +309,7 @@ def sg_cleanup(ctx: click.Context, do_delete: bool, yes: bool) -> None:
     errors = 0
     for sg in orphans:
         try:
-            client.delete(f"{base}/security-groups/{sg['id']}")
+            svc.delete_security_group(sg["id"])
             console.print(f"  [green]Deleted[/green] {sg.get('name', '')} ({sg['id']})")
             deleted += 1
         except Exception as exc:

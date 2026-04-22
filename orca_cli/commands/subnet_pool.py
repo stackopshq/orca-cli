@@ -7,6 +7,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
+from orca_cli.services.network import NetworkService
 
 
 @click.group("subnet-pool")
@@ -24,14 +25,13 @@ def subnet_pool() -> None:
 def subnet_pool_list(ctx, shared, is_default,
                      output_format, columns, fit_width, max_width, noindent):
     """List subnet pools."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    params = {}
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    params: dict = {}
     if shared:
         params["shared"] = True
     if is_default:
         params["is_default"] = True
-    pools = client.get(f"{client.network_url}/v2.0/subnetpools",
-                       params=params).get("subnetpools", [])
+    pools = svc.find_subnet_pools(params=params or None)
     print_list(
         pools,
         [
@@ -58,8 +58,8 @@ def subnet_pool_list(ctx, shared, is_default,
 def subnet_pool_show(ctx, pool_id,
                      output_format, columns, fit_width, max_width, noindent):
     """Show subnet pool details."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    p = client.get(f"{client.network_url}/v2.0/subnetpools/{pool_id}").get("subnetpool", {})
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    p = svc.get_subnet_pool(pool_id)
     fields = [(k, str(p.get(k, "") or "")) for k in
               ["id", "name", "default_prefixlen", "min_prefixlen", "max_prefixlen",
                "shared", "is_default", "ip_version", "description"]]
@@ -94,7 +94,7 @@ def subnet_pool_create(ctx, name, prefixes, default_prefixlen, min_prefixlen,
         --pool-prefix 10.0.0.0/8 \\
         --default-prefix-length 24
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {"name": name, "prefixes": list(prefixes), "shared": shared,
                   "is_default": is_default}
     if default_prefixlen is not None:
@@ -105,8 +105,7 @@ def subnet_pool_create(ctx, name, prefixes, default_prefixlen, min_prefixlen,
         body["max_prefixlen"] = max_prefixlen
     if description:
         body["description"] = description
-    p = client.post(f"{client.network_url}/v2.0/subnetpools",
-                    json={"subnetpool": body}).get("subnetpool", {})
+    p = svc.create_subnet_pool(body)
     console.print(f"[green]Subnet pool '{name}' created: {p.get('id', '?')}[/green]")
 
 
@@ -124,7 +123,7 @@ def subnet_pool_create(ctx, name, prefixes, default_prefixlen, min_prefixlen,
 def subnet_pool_set(ctx, pool_id, name, description, default_prefixlen,
                     prefixes, is_default):
     """Update a subnet pool."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {}
     if name is not None:
         body["name"] = name
@@ -134,17 +133,14 @@ def subnet_pool_set(ctx, pool_id, name, description, default_prefixlen,
         body["default_prefixlen"] = default_prefixlen
     if prefixes:
         # Fetch existing and merge
-        existing = client.get(
-            f"{client.network_url}/v2.0/subnetpools/{pool_id}"
-        ).get("subnetpool", {}).get("prefixes", [])
+        existing = svc.get_subnet_pool(pool_id).get("prefixes", [])
         body["prefixes"] = list(set(existing) | set(prefixes))
     if is_default is not None:
         body["is_default"] = is_default
     if not body:
         console.print("[yellow]Nothing to update.[/yellow]")
         return
-    client.put(f"{client.network_url}/v2.0/subnetpools/{pool_id}",
-               json={"subnetpool": body})
+    svc.update_subnet_pool(pool_id, body)
     console.print(f"[green]Subnet pool {pool_id} updated.[/green]")
 
 
@@ -154,8 +150,8 @@ def subnet_pool_set(ctx, pool_id, name, description, default_prefixlen,
 @click.pass_context
 def subnet_pool_delete(ctx, pool_id, yes):
     """Delete a subnet pool."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     if not yes:
         click.confirm(f"Delete subnet pool {pool_id}?", abort=True)
-    client.delete(f"{client.network_url}/v2.0/subnetpools/{pool_id}")
+    svc.delete_subnet_pool(pool_id)
     console.print(f"[green]Subnet pool {pool_id} deleted.[/green]")

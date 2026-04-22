@@ -7,6 +7,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
+from orca_cli.services.network import NetworkService
 
 
 @click.group("floating-ip")
@@ -21,12 +22,10 @@ def floating_ip(ctx: click.Context) -> None:
 @click.pass_context
 def fip_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List floating IPs."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/floatingips"
-    data = client.get(url)
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
 
     print_list(
-        data.get("floatingips", []),
+        svc.find_floating_ips(),
         [
             ("ID", "id", {"style": "cyan", "no_wrap": True}),
             ("Floating IP", "floating_ip_address", {"style": "bold"}),
@@ -46,11 +45,8 @@ def fip_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], f
 @click.pass_context
 def fip_create(ctx: click.Context, network_id: str) -> None:
     """Allocate a floating IP from an external network."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/floatingips"
-    data = client.post(url, json={"floatingip": {"floating_network_id": network_id}})
-
-    fip = data.get("floatingip", data)
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    fip = svc.create_floating_ip({"floating_network_id": network_id})
     console.print(f"[green]Floating IP {fip.get('floating_ip_address')} allocated ({fip.get('id')}).[/green]")
 
 
@@ -63,9 +59,8 @@ def fip_delete(ctx: click.Context, floating_ip_id: str, yes: bool) -> None:
     if not yes:
         click.confirm(f"Release floating IP {floating_ip_id}?", abort=True)
 
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/floatingips/{floating_ip_id}"
-    client.delete(url)
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.delete_floating_ip(floating_ip_id)
     console.print(f"[green]Floating IP {floating_ip_id} released.[/green]")
 
 
@@ -75,10 +70,8 @@ def fip_delete(ctx: click.Context, floating_ip_id: str, yes: bool) -> None:
 @click.pass_context
 def fip_show(ctx: click.Context, floating_ip_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """Show floating IP details."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/floatingips/{floating_ip_id}"
-    data = client.get(url)
-    fip = data.get("floatingip", data)
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    fip = svc.get_floating_ip(floating_ip_id)
 
     fields = [(key, str(fip.get(key, "") or "")) for key in
               ["id", "floating_ip_address", "fixed_ip_address", "floating_network_id",
@@ -99,13 +92,12 @@ def fip_associate(ctx: click.Context, floating_ip_id: str, port_id: str, fixed_i
     Examples:
       orca floating-ip associate <fip-id> --port-id <port-id>
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {"port_id": port_id}
     if fixed_ip:
         body["fixed_ip_address"] = fixed_ip
 
-    url = f"{client.network_url}/v2.0/floatingips/{floating_ip_id}"
-    client.put(url, json={"floatingip": body})
+    svc.update_floating_ip(floating_ip_id, body)
     console.print(f"[green]Floating IP {floating_ip_id} associated with port {port_id}.[/green]")
 
 
@@ -114,9 +106,8 @@ def fip_associate(ctx: click.Context, floating_ip_id: str, port_id: str, fixed_i
 @click.pass_context
 def fip_disassociate(ctx: click.Context, floating_ip_id: str) -> None:
     """Disassociate a floating IP from its port."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/floatingips/{floating_ip_id}"
-    client.put(url, json={"floatingip": {"port_id": None}})
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_floating_ip(floating_ip_id, {"port_id": None})
     console.print(f"[green]Floating IP {floating_ip_id} disassociated.[/green]")
 
 
@@ -161,9 +152,8 @@ def fip_set(ctx: click.Context, floating_ip_id: str, port_id: str | None,
         console.print("[yellow]Nothing to update.[/yellow]")
         return
 
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.put(f"{client.network_url}/v2.0/floatingips/{floating_ip_id}",
-               json={"floatingip": body})
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_floating_ip(floating_ip_id, body)
     console.print(f"[green]Floating IP {floating_ip_id} updated.[/green]")
 
 
@@ -192,9 +182,8 @@ def fip_unset(ctx: click.Context, floating_ip_id: str, port: bool, qos_policy: b
         console.print("[yellow]Nothing to unset.[/yellow]")
         return
 
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.put(f"{client.network_url}/v2.0/floatingips/{floating_ip_id}",
-               json={"floatingip": body})
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_floating_ip(floating_ip_id, body)
     console.print(f"[green]Floating IP {floating_ip_id} updated.[/green]")
 
 
@@ -222,11 +211,10 @@ def fip_bulk_release(ctx: click.Context, target_status: str, unassociated: bool,
       orca floating-ip bulk-release -u              # release all unassociated
       orca floating-ip bulk-release -u -y           # auto-confirm
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.network_url}/v2.0/floatingips"
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
 
     with console.status("[bold]Fetching floating IPs..."):
-        fips = client.get(url).get("floatingips", [])
+        fips = svc.find_floating_ips()
 
     # Filter targets
     targets = []
@@ -273,7 +261,7 @@ def fip_bulk_release(ctx: click.Context, target_status: str, unassociated: bool,
         fip_id = fip.get("id", "?")
         fip_addr = fip.get("floating_ip_address", "?")
         try:
-            client.delete(f"{url}/{fip_id}")
+            svc.delete_floating_ip(fip_id)
             console.print(f"  [green]Released[/green] {fip_addr} ({fip_id})")
             released += 1
         except Exception as exc:

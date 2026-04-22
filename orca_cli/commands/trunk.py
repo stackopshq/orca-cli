@@ -7,8 +7,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
-
-_TRUNK_BASE = "/v2.0/trunks"
+from orca_cli.services.network import NetworkService
 
 
 @click.group("trunk")
@@ -22,10 +21,9 @@ def trunk() -> None:
 @click.pass_context
 def trunk_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List trunks."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    trunks = client.get(f"{client.network_url}{_TRUNK_BASE}").get("trunks", [])
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     print_list(
-        trunks,
+        svc.find_trunks(),
         [
             ("ID", "id", {"style": "cyan", "no_wrap": True}),
             ("Name", "name", {"style": "bold"}),
@@ -46,8 +44,8 @@ def trunk_list(ctx, output_format, columns, fit_width, max_width, noindent):
 @click.pass_context
 def trunk_show(ctx, trunk_id, output_format, columns, fit_width, max_width, noindent):
     """Show trunk details."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    t = client.get(f"{client.network_url}{_TRUNK_BASE}/{trunk_id}").get("trunk", {})
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    t = svc.get_trunk(trunk_id)
     fields = [(k, str(t.get(k, "") or "")) for k in
               ["id", "name", "port_id", "status", "admin_state_up",
                "description", "project_id"]]
@@ -67,14 +65,13 @@ def trunk_show(ctx, trunk_id, output_format, columns, fit_width, max_width, noin
 @click.pass_context
 def trunk_create(ctx, port_id, name, description, admin_state_up):
     """Create a trunk."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {"port_id": port_id, "admin_state_up": not admin_state_up}
     if name:
         body["name"] = name
     if description:
         body["description"] = description
-    t = client.post(f"{client.network_url}{_TRUNK_BASE}",
-                    json={"trunk": body}).get("trunk", {})
+    t = svc.create_trunk(body)
     console.print(f"[green]Trunk created: {t.get('id', '?')}[/green]")
 
 
@@ -87,7 +84,6 @@ def trunk_create(ctx, port_id, name, description, admin_state_up):
 @click.pass_context
 def trunk_set(ctx, trunk_id, name, description, admin_state_up):
     """Update a trunk."""
-    client = ctx.find_object(OrcaContext).ensure_client()
     body: dict = {}
     if name is not None:
         body["name"] = name
@@ -98,7 +94,8 @@ def trunk_set(ctx, trunk_id, name, description, admin_state_up):
     if not body:
         console.print("[yellow]Nothing to update.[/yellow]")
         return
-    client.put(f"{client.network_url}{_TRUNK_BASE}/{trunk_id}", json={"trunk": body})
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_trunk(trunk_id, body)
     console.print(f"[green]Trunk {trunk_id} updated.[/green]")
 
 
@@ -108,10 +105,10 @@ def trunk_set(ctx, trunk_id, name, description, admin_state_up):
 @click.pass_context
 def trunk_delete(ctx, trunk_id, yes):
     """Delete a trunk."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     if not yes:
         click.confirm(f"Delete trunk {trunk_id}?", abort=True)
-    client.delete(f"{client.network_url}{_TRUNK_BASE}/{trunk_id}")
+    svc.delete_trunk(trunk_id)
     console.print(f"[green]Trunk {trunk_id} deleted.[/green]")
 
 
@@ -123,12 +120,9 @@ def trunk_delete(ctx, trunk_id, yes):
 @click.pass_context
 def trunk_subport_list(ctx, trunk_id, output_format, columns, fit_width, max_width, noindent):
     """List sub-ports on a trunk."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    sub_ports = client.get(
-        f"{client.network_url}{_TRUNK_BASE}/{trunk_id}/get_subports"
-    ).get("sub_ports", [])
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     print_list(
-        sub_ports,
+        svc.get_trunk_subports(trunk_id),
         [
             ("Port ID", "port_id", {"style": "cyan", "no_wrap": True}),
             ("Seg Type", "segmentation_type"),
@@ -153,13 +147,12 @@ def trunk_subport_list(ctx, trunk_id, output_format, columns, fit_width, max_wid
 @click.pass_context
 def trunk_add_subport(ctx, trunk_id, port_id, segmentation_type, segmentation_id):
     """Add a sub-port to a trunk."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.put(
-        f"{client.network_url}{_TRUNK_BASE}/{trunk_id}/add_subports",
-        json={"sub_ports": [{"port_id": port_id,
-                              "segmentation_type": segmentation_type,
-                              "segmentation_id": segmentation_id}]},
-    )
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.add_trunk_subports(trunk_id, [{
+        "port_id": port_id,
+        "segmentation_type": segmentation_type,
+        "segmentation_id": segmentation_id,
+    }])
     console.print(f"[green]Sub-port {port_id} added to trunk {trunk_id}.[/green]")
 
 
@@ -171,11 +164,8 @@ def trunk_add_subport(ctx, trunk_id, port_id, segmentation_type, segmentation_id
 @click.pass_context
 def trunk_remove_subport(ctx, trunk_id, port_id, yes):
     """Remove a sub-port from a trunk."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     if not yes:
         click.confirm(f"Remove sub-port {port_id} from trunk {trunk_id}?", abort=True)
-    client.put(
-        f"{client.network_url}{_TRUNK_BASE}/{trunk_id}/remove_subports",
-        json={"sub_ports": [{"port_id": port_id}]},
-    )
+    svc.remove_trunk_subports(trunk_id, [{"port_id": port_id}])
     console.print(f"[green]Sub-port {port_id} removed from trunk {trunk_id}.[/green]")

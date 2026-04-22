@@ -7,8 +7,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
-
-_QOS_BASE = "/v2.0/qos/policies"
+from orca_cli.services.network import NetworkService
 
 _RULE_TYPES = {
     "bandwidth-limit":   "bandwidth_limit_rules",
@@ -32,12 +31,10 @@ def qos_policy() -> None:
 @click.pass_context
 def qos_policy_list(ctx, shared, output_format, columns, fit_width, max_width, noindent):
     """List QoS policies."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    params = {"shared": True} if shared else {}
-    policies = client.get(f"{client.network_url}{_QOS_BASE}",
-                          params=params).get("policies", [])
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    params = {"shared": True} if shared else None
     print_list(
-        policies,
+        svc.find_qos_policies(params=params),
         [
             ("ID", "id", {"style": "cyan", "no_wrap": True}),
             ("Name", "name", {"style": "bold"}),
@@ -58,8 +55,8 @@ def qos_policy_list(ctx, shared, output_format, columns, fit_width, max_width, n
 @click.pass_context
 def qos_policy_show(ctx, policy_id, output_format, columns, fit_width, max_width, noindent):
     """Show a QoS policy."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    p = client.get(f"{client.network_url}{_QOS_BASE}/{policy_id}").get("policy", {})
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    p = svc.get_qos_policy(policy_id)
     print_detail(
         [(k, str(p.get(k, "") or "")) for k in
          ["id", "name", "shared", "is_default", "description", "project_id"]],
@@ -77,12 +74,11 @@ def qos_policy_show(ctx, policy_id, output_format, columns, fit_width, max_width
 @click.pass_context
 def qos_policy_create(ctx, name, shared, is_default, description):
     """Create a QoS policy."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {"name": name, "shared": shared, "is_default": is_default}
     if description:
         body["description"] = description
-    p = client.post(f"{client.network_url}{_QOS_BASE}",
-                    json={"policy": body}).get("policy", {})
+    p = svc.create_qos_policy(body)
     console.print(f"[green]QoS policy '{name}' created: {p.get('id', '?')}[/green]")
 
 
@@ -96,7 +92,6 @@ def qos_policy_create(ctx, name, shared, is_default, description):
 @click.pass_context
 def qos_policy_set(ctx, policy_id, name, description, shared, is_default):
     """Update a QoS policy."""
-    client = ctx.find_object(OrcaContext).ensure_client()
     body: dict = {}
     if name is not None:
         body["name"] = name
@@ -109,7 +104,8 @@ def qos_policy_set(ctx, policy_id, name, description, shared, is_default):
     if not body:
         console.print("[yellow]Nothing to update.[/yellow]")
         return
-    client.put(f"{client.network_url}{_QOS_BASE}/{policy_id}", json={"policy": body})
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_qos_policy(policy_id, body)
     console.print(f"[green]QoS policy {policy_id} updated.[/green]")
 
 
@@ -119,10 +115,10 @@ def qos_policy_set(ctx, policy_id, name, description, shared, is_default):
 @click.pass_context
 def qos_policy_delete(ctx, policy_id, yes):
     """Delete a QoS policy."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     if not yes:
         click.confirm(f"Delete QoS policy {policy_id}?", abort=True)
-    client.delete(f"{client.network_url}{_QOS_BASE}/{policy_id}")
+    svc.delete_qos_policy(policy_id)
     console.print(f"[green]QoS policy {policy_id} deleted.[/green]")
 
 
@@ -139,11 +135,8 @@ def qos_policy_delete(ctx, policy_id, yes):
 def qos_rule_list(ctx, policy_id, rule_type,
                   output_format, columns, fit_width, max_width, noindent):
     """List QoS rules for a policy."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    endpoint = _RULE_TYPES[rule_type]
-    rules = client.get(
-        f"{client.network_url}{_QOS_BASE}/{policy_id}/{endpoint}"
-    ).get(endpoint, [])
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    rules = svc.find_qos_rules(policy_id, _RULE_TYPES[rule_type])
     print_list(
         rules,
         [
@@ -189,11 +182,9 @@ def qos_rule_create(ctx, policy_id, rule_type, max_kbps, max_burst_kbps,
       orca qos rule-create <policy-id> --type dscp-marking --dscp-mark 14
       orca qos rule-create <policy-id> --type minimum-bandwidth --min-kbps 500
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     endpoint = _RULE_TYPES[rule_type]
 
-    # Build rule body based on type
-    singular = endpoint.rstrip("s")  # e.g. bandwidth_limit_rules → bandwidth_limit_rule
     body: dict = {}
     if rule_type == "bandwidth-limit":
         if max_kbps is None:
@@ -212,10 +203,7 @@ def qos_rule_create(ctx, policy_id, rule_type, max_kbps, max_burst_kbps,
         body["min_kbps"] = min_kbps
         body["direction"] = direction
 
-    r = client.post(
-        f"{client.network_url}{_QOS_BASE}/{policy_id}/{endpoint}",
-        json={singular: body},
-    ).get(singular, {})
+    r = svc.create_qos_rule(policy_id, endpoint, body)
     console.print(f"[green]QoS {rule_type} rule created: {r.get('id', '?')}[/green]")
 
 
@@ -230,9 +218,8 @@ def qos_rule_create(ctx, policy_id, rule_type, max_kbps, max_burst_kbps,
 @click.pass_context
 def qos_rule_delete(ctx, policy_id, rule_id, rule_type, yes):
     """Delete a QoS rule."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     if not yes:
         click.confirm(f"Delete QoS {rule_type} rule {rule_id}?", abort=True)
-    endpoint = _RULE_TYPES[rule_type]
-    client.delete(f"{client.network_url}{_QOS_BASE}/{policy_id}/{endpoint}/{rule_id}")
+    svc.delete_qos_rule(policy_id, _RULE_TYPES[rule_type], rule_id)
     console.print(f"[green]QoS rule {rule_id} deleted.[/green]")
