@@ -105,6 +105,14 @@ readers can see how far along the work is.
   direct ``client.put`` in ``commands/server.py``), and routed the
   ``volume tree`` server-name lookup through ``ServerService.find``
   instead of a direct ``/servers/detail`` call.
+- 2026-04-22 — ``rating`` (CloudKitty): RatingService + RatingModule
+  / HashmapService / HashmapField / HashmapMapping / HashmapThreshold
+  / HashmapGroup / RatingSummary TypedDicts. Info (config + metrics),
+  summary + dataframes (v1/v2), quotes, rating modules (fetch-merge-
+  put on ``module set``), hashmap sub-API
+  (services/fields/mappings/thresholds/groups). Migrated
+  ``commands/rating.py`` — the ``_url()`` helper and the duplicated
+  hashmap prefix constant are gone.
 - 2026-04-22 — ``key-manager`` (Barbican): KeyManagerService + Secret
   / SecretContainer / Order / Acl TypedDicts. Secrets, secret ACLs,
   secret containers, orders. Migrated ``commands/secret.py`` (drops
