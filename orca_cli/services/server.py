@@ -308,3 +308,16 @@ class ServerService:
             f"{self._base}/{server_id}/migrations/{migration_id}/action",
             json={"force_complete": None},
         )
+
+    # ── instance actions (audit log of operations on a server) ─────────
+
+    def find_instance_actions(self, server_id: str) -> list[dict]:
+        data = self._client.get(f"{self._base}/{server_id}/os-instance-actions")
+        return data.get("instanceActions", [])
+
+    def get_instance_action(self, server_id: str,
+                            request_id: str) -> dict:
+        data = self._client.get(
+            f"{self._base}/{server_id}/os-instance-actions/{request_id}"
+        )
+        return data.get("instanceAction", data)
