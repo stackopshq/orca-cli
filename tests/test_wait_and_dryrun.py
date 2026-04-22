@@ -35,9 +35,10 @@ class TestCache:
     def test_expired_returns_none(self, tmp_path, monkeypatch):
         monkeypatch.setattr("orca_cli.core.cache._CACHE_DIR", tmp_path)
         items = [{"id": "abc", "name": "my-vm"}]
-        # Write with a timestamp 60 seconds in the past
+        # Write with a timestamp well past the TTL
         p = tmp_path / "default_servers.json"
-        p.write_text(json.dumps({"ts": time.time() - 60, "items": items}))
+        p.write_text(json.dumps({"ts": time.time() - (cache.CACHE_TTL + 60),
+                                 "items": items}))
         assert cache.load(None, "servers") is None
 
     def test_invalidate_removes_file(self, tmp_path, monkeypatch):

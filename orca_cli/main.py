@@ -118,20 +118,31 @@ def _complete_regions(ctx: click.Context, param: click.Parameter, incomplete: st
     """Shell completion for the global --region flag.
 
     Invoked by the shell, not exercised in pytest. Best-effort: all exceptions
-    swallow to empty — never crash the user's tab key. Results are cached for
-    30 seconds to avoid a Keystone round-trip on every Tab press.
+    swallow to empty — never crash the user's tab key. Results are cached
+    per-profile so users with several profiles don't see a mixed region
+    list.
     """
     try:
         from orca_cli.core import cache
 
-        cached = cache.load(None, "regions")
+        # Resolve the active profile so the cache file stays distinct across
+        # profiles (``~/.orca/cache/<profile>_regions.json``).
+        profile = None
+        c: click.Context | None = ctx
+        while c:
+            if "profile" in getattr(c, "params", {}) and c.params["profile"]:
+                profile = c.params["profile"]
+                break
+            c = c.parent
+
+        cached = cache.load(profile, "regions")
         if cached is not None:
             return sorted(r["id"] for r in cached if r["id"].startswith(incomplete))
 
         from orca_cli.core.client import OrcaClient
         from orca_cli.core.config import config_is_complete, load_config
 
-        config = load_config()
+        config = load_config(profile_name=profile)
         if not config_is_complete(config):
             return []
         client = OrcaClient(config)
@@ -142,7 +153,7 @@ def _complete_regions(ctx: click.Context, param: click.Parameter, incomplete: st
                 if region:
                     regions.add(region)
         client.close()
-        cache.save(None, "regions", [{"id": r} for r in sorted(regions)])
+        cache.save(profile, "regions", [{"id": r} for r in sorted(regions)])
         return sorted(r for r in regions if r.startswith(incomplete))
     except Exception:
         return []

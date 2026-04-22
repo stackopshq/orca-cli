@@ -1,4 +1,10 @@
-"""Resource completion cache — 30-second TTL JSON cache for shell completion."""
+"""Resource completion cache — per-profile JSON cache for shell completion.
+
+The TTL is long on purpose (5 minutes): completion data — server names,
+flavor IDs, region lists — changes slowly, and every cache miss pays for
+a Keystone auth round-trip plus the resource GET. Short TTLs made the
+tab key feel sluggish on live terminals where users type in bursts.
+"""
 
 from __future__ import annotations
 
@@ -6,7 +12,7 @@ import json
 import time
 from pathlib import Path
 
-CACHE_TTL = 30  # seconds
+CACHE_TTL = 300  # seconds — long enough to cover typical tab-complete sessions
 _CACHE_DIR = Path.home() / ".orca" / "cache"
 
 
