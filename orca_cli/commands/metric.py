@@ -7,11 +7,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
-
-
-def _gnocchi(client) -> str:
-    return client.metric_url
-
+from orca_cli.services.metric import MetricService
 
 # ══════════════════════════════════════════════════════════════════════════
 #  Top-level group
@@ -34,8 +30,8 @@ def metric(ctx: click.Context) -> None:
 def resource_type_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List resource types."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_gnocchi(client)}/v1/resource_type")
-    types = data if isinstance(data, list) else []
+    svc = MetricService(client)
+    types = svc.find_resource_types()
 
     print_list(
         types,
@@ -64,9 +60,9 @@ def resource_list(ctx: click.Context, resource_type: str, limit: int,
                   output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List resources."""
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = MetricService(client)
     params: dict = {"limit": limit}
-    data = client.get(f"{_gnocchi(client)}/v1/resource/{resource_type}", params=params)
-    resources = data if isinstance(data, list) else []
+    resources = svc.find_resources(resource_type, params=params)
 
     print_list(
         resources,
@@ -93,7 +89,8 @@ def resource_show(ctx: click.Context, resource_id: str, resource_type: str,
                   output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """Show resource details and its metrics."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_gnocchi(client)}/v1/resource/{resource_type}/{resource_id}")
+    svc = MetricService(client)
+    data = svc.get_resource(resource_type, resource_id)
 
     fields: list[tuple[str, str]] = []
     for key in ["id", "type", "original_resource_id", "project_id", "user_id",
@@ -122,11 +119,11 @@ def metric_list(ctx: click.Context, limit: int | None,
                 output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List metrics."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    params = {}
+    svc = MetricService(client)
+    params: dict = {}
     if limit:
         params["limit"] = limit
-    data = client.get(f"{_gnocchi(client)}/v1/metric", params=params)
-    metrics = data if isinstance(data, list) else []
+    metrics = svc.find_metrics(params=params or None)
 
     print_list(
         metrics,
@@ -156,7 +153,8 @@ def metric_show(ctx: click.Context, metric_id: str,
                 output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """Show metric details."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_gnocchi(client)}/v1/metric/{metric_id}")
+    svc = MetricService(client)
+    data = svc.get_metric(metric_id)
 
     fields: list[tuple[str, str]] = []
     for key in ["id", "name", "unit", "resource_id", "archive_policy_name", "created_by_user_id"]:
@@ -199,6 +197,7 @@ def metric_measures(ctx: click.Context, metric_id: str, start: str | None,
       orca metric measures <metric-id> --start 2026-04-01 --stop 2026-04-08 --granularity 3600
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = MetricService(client)
     params: dict = {"aggregation": aggregation}
     if start:
         params["start"] = start
@@ -209,7 +208,7 @@ def metric_measures(ctx: click.Context, metric_id: str, start: str | None,
     if limit:
         params["limit"] = limit
 
-    data = client.get(f"{_gnocchi(client)}/v1/metric/{metric_id}/measures", params=params)
+    data = svc.get_measures(metric_id, params=params)
     measures = data if isinstance(data, list) else []
 
     # Filter to valid measure entries only
@@ -239,8 +238,8 @@ def metric_measures(ctx: click.Context, metric_id: str, start: str | None,
 def archive_policy_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List archive policies."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_gnocchi(client)}/v1/archive_policy")
-    policies = data if isinstance(data, list) else []
+    svc = MetricService(client)
+    policies = svc.find_archive_policies()
 
     print_list(
         policies,
@@ -268,7 +267,8 @@ def archive_policy_list(ctx: click.Context, output_format: str, columns: tuple[s
 def metric_status(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """Show Gnocchi processing status."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_gnocchi(client)}/v1/status")
+    svc = MetricService(client)
+    data = svc.get_status()
     storage = data.get("storage", {})
 
     fields: list[tuple[str, str]] = [
@@ -294,12 +294,13 @@ def metric_create(ctx: click.Context, name: str, archive_policy_name: str | None
                   resource_id: str | None) -> None:
     """Create a Gnocchi metric."""
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = MetricService(client)
     body: dict = {"name": name}
     if archive_policy_name:
         body["archive_policy_name"] = archive_policy_name
     if resource_id:
         body["resource_id"] = resource_id
-    m = client.post(f"{_gnocchi(client)}/v1/metric", json=body)
+    m = svc.create_metric(body)
     console.print(f"[green]Metric '{name}' created: {m.get('id', '?')}[/green]")
 
 
@@ -312,7 +313,7 @@ def metric_delete(ctx: click.Context, metric_id: str, yes: bool) -> None:
     if not yes:
         click.confirm(f"Delete metric {metric_id}?", abort=True)
     client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_gnocchi(client)}/v1/metric/{metric_id}")
+    MetricService(client).delete_metric(metric_id)
     console.print(f"[green]Metric {metric_id} deleted.[/green]")
 
 
@@ -338,7 +339,7 @@ def metric_measures_add(ctx: click.Context, metric_id: str,
             raise click.UsageError(f"Invalid format '{m}', expected TIMESTAMP:VALUE.")
         ts, val = m.rsplit(":", 1)
         payload.append({"timestamp": ts, "value": float(val)})
-    client.post(f"{_gnocchi(client)}/v1/metric/{metric_id}/measures", json=payload)
+    MetricService(client).add_measures(metric_id, payload)
     console.print(f"[green]{len(payload)} measure(s) posted to metric {metric_id}.[/green]")
 
 
@@ -355,7 +356,7 @@ def archive_policy_show(ctx: click.Context, name: str, output_format: str,
                         max_width: int | None, noindent: bool) -> None:
     """Show an archive policy."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    p = client.get(f"{_gnocchi(client)}/v1/archive_policy/{name}")
+    p = MetricService(client).get_archive_policy(name)
     fields = [
         ("Name", str(p.get("name", ""))),
         ("Definition", str(p.get("definition", []))),
@@ -394,7 +395,7 @@ def archive_policy_create(ctx: click.Context, name: str,
     body: dict = {"name": name, "definition": defs}
     if agg_methods:
         body["aggregation_methods"] = list(agg_methods)
-    client.post(f"{_gnocchi(client)}/v1/archive_policy", json=body)
+    MetricService(client).create_archive_policy(body)
     console.print(f"[green]Archive policy '{name}' created.[/green]")
 
 
@@ -407,7 +408,7 @@ def archive_policy_delete(ctx: click.Context, name: str, yes: bool) -> None:
     if not yes:
         click.confirm(f"Delete archive policy '{name}'?", abort=True)
     client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_gnocchi(client)}/v1/archive_policy/{name}")
+    MetricService(client).delete_archive_policy(name)
     console.print(f"[green]Archive policy '{name}' deleted.[/green]")
 
 
@@ -424,7 +425,7 @@ def resource_type_show(ctx: click.Context, resource_type: str, output_format: st
                        max_width: int | None, noindent: bool) -> None:
     """Show a Gnocchi resource type."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    t = client.get(f"{_gnocchi(client)}/v1/resource_type/{resource_type}")
+    t = MetricService(client).get_resource_type(resource_type)
     fields = [
         ("Name", str(t.get("name", ""))),
         ("Attributes", str(t.get("attributes", {}))),
@@ -449,7 +450,7 @@ def resource_type_create(ctx: click.Context, name: str,
         k, t = a.split(":", 1)
         attrs[k] = {"type": t}
     body: dict = {"name": name, "attributes": attrs}
-    client.post(f"{_gnocchi(client)}/v1/resource_type", json=body)
+    MetricService(client).create_resource_type(body)
     console.print(f"[green]Resource type '{name}' created.[/green]")
 
 
@@ -462,5 +463,5 @@ def resource_type_delete(ctx: click.Context, resource_type: str, yes: bool) -> N
     if not yes:
         click.confirm(f"Delete resource type '{resource_type}'?", abort=True)
     client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_gnocchi(client)}/v1/resource_type/{resource_type}")
+    MetricService(client).delete_resource_type(resource_type)
     console.print(f"[green]Resource type '{resource_type}' deleted.[/green]")

@@ -11,6 +11,7 @@ from rich.tree import Tree
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
+from orca_cli.services.server import ServerService
 
 # ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -117,10 +118,7 @@ def event_list(
       orca event list <server-id> -f json
     """
     client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/os-instance-actions"
-    data = client.get(url)
-
-    actions = data.get("instanceActions", [])
+    actions = ServerService(client).find_instance_actions(server_id)
 
     def _action_styled(item: dict) -> str:
         return _colored_action(item.get("action", ""))
@@ -174,10 +172,7 @@ def event_show(
       orca event show <server-id> <request-id>
     """
     client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{client.compute_url}/servers/{server_id}/os-instance-actions/{request_id}"
-    data = client.get(url)
-
-    action = data.get("instanceAction", data)
+    action = ServerService(client).get_instance_action(server_id, request_id)
 
     fields = [
         ("Action", _colored_action(action.get("action", ""))),
@@ -251,12 +246,10 @@ def event_all(
       orca event all --action create
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = ServerService(client)
 
     with console.status("Fetching events..."):
-        servers_data = client.get(
-            f"{client.compute_url}/servers/detail", params={"limit": 1000},
-        )
-        servers = servers_data.get("servers", [])
+        servers = svc.find(limit=1000)
 
         server_map: dict[str, str] = {}
         for srv in servers:
@@ -265,10 +258,7 @@ def event_all(
         all_actions: list[dict] = []
         for srv in servers:
             srv_id = srv["id"]
-            data = client.get(
-                f"{client.compute_url}/servers/{srv_id}/os-instance-actions",
-            )
-            for act in data.get("instanceActions", []):
+            for act in svc.find_instance_actions(srv_id):
                 act["_server_name"] = server_map.get(srv_id, srv_id)
                 act["_server_id"] = srv_id
                 all_actions.append(act)
@@ -325,12 +315,10 @@ def event_timeline(ctx: click.Context, server_id: str) -> None:
       orca event timeline <server-id>
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = ServerService(client)
 
     # Fetch all actions
-    data = client.get(
-        f"{client.compute_url}/servers/{server_id}/os-instance-actions",
-    )
-    actions = data.get("instanceActions", [])
+    actions = svc.find_instance_actions(server_id)
 
     if not actions:
         console.print("[yellow]No instance actions found.[/yellow]")
@@ -354,10 +342,7 @@ def event_timeline(ctx: click.Context, server_id: str) -> None:
         )
 
         # Fetch sub-events for this action
-        detail_data = client.get(
-            f"{client.compute_url}/servers/{server_id}/os-instance-actions/{request_id}",
-        )
-        detail = detail_data.get("instanceAction", {})
+        detail = svc.get_instance_action(server_id, request_id)
         events = detail.get("events", [])
 
         if not events:

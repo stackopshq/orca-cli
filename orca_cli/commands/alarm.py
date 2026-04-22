@@ -9,10 +9,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
-
-
-def _url(client) -> str:
-    return client.alarming_url
+from orca_cli.services.alarm import AlarmService
 
 
 def _state_style(state: str) -> str:
@@ -50,7 +47,8 @@ def alarm_list(ctx, alarm_type, state, enabled, name, limit,
                output_format, columns, fit_width, max_width, noindent):
     """List alarms."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    params = {}
+    svc = AlarmService(client)
+    params: dict = {}
     if alarm_type:
         params["type"] = alarm_type
     if state:
@@ -61,9 +59,7 @@ def alarm_list(ctx, alarm_type, state, enabled, name, limit,
         params["name"] = name
     if limit:
         params["limit"] = limit
-    items = client.get(f"{_url(client)}/v2/alarms", params=params)
-    if not isinstance(items, list):
-        items = items.get("alarms", [])
+    items = svc.find(params=params or None)
     if not items:
         console.print("No alarms found.")
         return
@@ -87,7 +83,7 @@ def alarm_list(ctx, alarm_type, state, enabled, name, limit,
 def alarm_show(ctx, alarm_id, output_format, columns, fit_width, max_width, noindent):
     """Show an alarm."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_url(client)}/v2/alarms/{alarm_id}")
+    data = AlarmService(client).get(alarm_id)
     rule_key = f"{data.get('type', 'unknown')}_rule"
     rule = data.get(rule_key, data.get("composite_rule", {}))
     fields = [
@@ -161,7 +157,7 @@ def alarm_create(ctx, name, alarm_type, rule_json, description, severity, enable
         "ok_actions": list(ok_actions),
         "insufficient_data_actions": list(insufficient_data_actions),
     }
-    data = client.post(f"{_url(client)}/v2/alarms", json=body)
+    data = AlarmService(client).create(body)
     fields = [
         ("Alarm ID", data.get("alarm_id", "")),
         ("Name", data.get("name", "")),
@@ -194,6 +190,7 @@ def alarm_set(ctx, alarm_id, name, description, severity, enabled, repeat_action
               rule_json, alarm_actions, ok_actions, insufficient_data_actions):
     """Update an alarm."""
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = AlarmService(client)
     updates: dict = {}
     if name is not None:
         updates["name"] = name
@@ -222,7 +219,7 @@ def alarm_set(ctx, alarm_id, name, description, severity, enabled, repeat_action
         return
 
     # Aodh PUT wants the full alarm representation — fetch, merge, send.
-    current = client.get(f"{_url(client)}/v2/alarms/{alarm_id}")
+    current = svc.get(alarm_id)
     body = dict(current)
     body.update(updates)
     if rule_update is not None:
@@ -233,7 +230,7 @@ def alarm_set(ctx, alarm_id, name, description, severity, enabled, repeat_action
     for ro in ("alarm_id", "project_id", "user_id", "timestamp",
                "state_timestamp", "state_reason", "state_reason_data"):
         body.pop(ro, None)
-    client.put(f"{_url(client)}/v2/alarms/{alarm_id}", json=body)
+    svc.update(alarm_id, body)
     console.print(f"Alarm [bold]{alarm_id}[/bold] updated.")
 
 
@@ -246,7 +243,7 @@ def alarm_delete(ctx, alarm_id, yes):
     client = ctx.find_object(OrcaContext).ensure_client()
     if not yes:
         click.confirm(f"Delete alarm {alarm_id}?", abort=True)
-    client.delete(f"{_url(client)}/v2/alarms/{alarm_id}")
+    AlarmService(client).delete(alarm_id)
     console.print(f"Alarm [bold]{alarm_id}[/bold] deleted.")
 
 
@@ -260,7 +257,7 @@ def alarm_delete(ctx, alarm_id, yes):
 def alarm_state_get(ctx, alarm_id):
     """Get the current state of an alarm."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    state = client.get(f"{_url(client)}/v2/alarms/{alarm_id}/state")
+    state = AlarmService(client).get_state(alarm_id)
     # Aodh returns the state as a quoted JSON string, e.g. '"ok"'
     if isinstance(state, str):
         state = state.strip('"')
@@ -275,8 +272,7 @@ def alarm_state_get(ctx, alarm_id):
 def alarm_state_set(ctx, alarm_id, state):
     """Set the state of an alarm."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    client.put(f"{_url(client)}/v2/alarms/{alarm_id}/state",
-               json=state)
+    AlarmService(client).set_state(alarm_id, state)
     console.print(f"Alarm [bold]{alarm_id}[/bold] state set to [bold]{state}[/bold].")
 
 
@@ -292,12 +288,10 @@ def alarm_state_set(ctx, alarm_id, state):
 def alarm_history(ctx, alarm_id, limit, output_format, columns, fit_width, max_width, noindent):
     """Show the change history of an alarm."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    params = {}
+    params: dict = {}
     if limit:
         params["limit"] = limit
-    items = client.get(f"{_url(client)}/v2/alarms/{alarm_id}/history", params=params)
-    if not isinstance(items, list):
-        items = []
+    items = AlarmService(client).find_history(alarm_id, params=params or None)
     if not items:
         console.print("No history found.")
         return
@@ -321,7 +315,7 @@ def alarm_history(ctx, alarm_id, limit, output_format, columns, fit_width, max_w
 def alarm_capabilities(ctx):
     """Show Aodh API capabilities."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_url(client)}/v2/capabilities")
+    data = AlarmService(client).get_capabilities()
     console.print_json(json.dumps(data, indent=2))
 
 
@@ -341,5 +335,5 @@ def alarm_quota_set(ctx, project_id, alarm_quota):
         "project_id": project_id,
         "quotas": [{"resource": "alarms", "limit": alarm_quota}],
     }
-    client.post(f"{_url(client)}/v2/quotas", json=body)
+    AlarmService(client).update_quota(body)
     console.print(f"Quota for project [bold]{project_id}[/bold] set to [bold]{alarm_quota}[/bold] alarms.")
