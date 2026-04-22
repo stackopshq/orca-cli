@@ -3528,6 +3528,13 @@ readers can see how far along the work is.</p>
   direct <code>client.put</code> in <code>commands/server.py</code>), and routed the
   <code>volume tree</code> server-name lookup through <code>ServerService.find</code>
   instead of a direct <code>/servers/detail</code> call.</li>
+<li>2026-04-22 — <code>orchestration</code> (Heat): OrchestrationService + Stack /
+  StackResource / StackEvent / StackOutput TypedDicts. Migrated
+  <code>commands/stack.py</code> (stack CRUD + actions + abandon; resources,
+  events, outputs, templates, validate, resource types) and the
+  Heat callers in <code>commands/cleanup.py</code> (failed-stack discovery +
+  delete) and <code>commands/project.py</code> (project cleanup + _delete_one
+  stack branch).</li>
 <li>2026-04-22 — <code>identity</code> (Keystone v3): IdentityService + Project /
   User / Role (+ RoleAssignment / RoleInference) / Domain / Group /
   Credential / ApplicationCredential / Endpoint / EndpointGroup /
