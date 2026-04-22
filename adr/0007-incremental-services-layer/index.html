@@ -3528,6 +3528,12 @@ readers can see how far along the work is.</p>
   direct <code>client.put</code> in <code>commands/server.py</code>), and routed the
   <code>volume tree</code> server-name lookup through <code>ServerService.find</code>
   instead of a direct <code>/servers/detail</code> call.</li>
+<li>2026-04-22 — <code>container-infra</code> (Magnum): ContainerInfraService +
+  Cluster / ClusterTemplate / NodeGroup TypedDicts. Clusters (CRUD +
+  JSON Patch update with <code>application/json-patch+json</code> + upgrade
+  action), cluster templates (CRUD), node groups per-cluster (CRUD +
+  JSON Patch update). Migrated <code>commands/cluster.py</code> — the
+  <code>_magnum()</code> helper is gone.</li>
 <li>2026-04-22 — <code>telemetry</code> (Gnocchi metric + Aodh alarm + Nova
   instance-actions): MetricService, AlarmService, and new
   <code>find_instance_actions</code>/<code>get_instance_action</code> methods on
