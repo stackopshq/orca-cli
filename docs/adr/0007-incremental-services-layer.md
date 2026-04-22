@@ -105,6 +105,14 @@ readers can see how far along the work is.
   direct ``client.put`` in ``commands/server.py``), and routed the
   ``volume tree`` server-name lookup through ``ServerService.find``
   instead of a direct ``/servers/detail`` call.
+- 2026-04-22 — ``dns`` (Designate): DnsService + Zone / Recordset /
+  ZoneTransferRequest / Tld TypedDicts. Zones CRUD, recordsets CRUD
+  (per-zone + cross-zone), export/import tasks, transfer requests +
+  accepts, reverse-PTR floating-ip lookup, TLDs. Migrated
+  ``commands/zone.py``, ``commands/recordset.py`` (both drop local
+  ``_dns()`` helpers), plus the dns-zone branches in ``project.py``
+  cleanup + ``_delete_one``. Zone export/import that streams raw
+  text/dns bodies still uses ``client._http`` directly.
 - 2026-04-22 — ``object-store`` (Swift): ObjectStoreService +
   Container / ObjectEntry TypedDicts. Account/container/object CRUD,
   HEAD metadata reads, POST metadata writes (with full-name header
