@@ -12,6 +12,7 @@ from orca_cli.core.output import console, output_options, print_detail, print_li
 from orca_cli.services.dns import DnsService
 from orca_cli.services.identity import IdentityService
 from orca_cli.services.image import ImageService
+from orca_cli.services.key_manager import KeyManagerService
 from orca_cli.services.load_balancer import LoadBalancerService
 from orca_cli.services.network import NetworkService
 from orca_cli.services.object_store import ObjectStoreService
@@ -231,7 +232,7 @@ def _delete_one(client, rtype: str, rid: str, rname: str) -> bool:
         elif rtype == "image":
             ImageService(client).delete(rid)
         elif rtype == "secret":
-            client.delete(f"{client.key_manager_url}/v1/secrets/{rid}")
+            KeyManagerService(client).delete_secret(rid)
         elif rtype == "backup":
             client.delete(f"{client.volume_url}/backups/{rid}")
         elif rtype == "dns-zone":
@@ -435,9 +436,8 @@ def project_cleanup(ctx, target_project, dry_run, yes, created_before, skip_type
 
         if "secret" not in skip:
             try:
-                sec_data = client.get(f"{client.key_manager_url}/v1/secrets",
-                                      params=p_filter)
-                for s in sec_data.get("secrets", []):
+                secrets = KeyManagerService(client).find_secrets(params=p_filter)
+                for s in secrets:
                     if not _before_cutoff(s, cutoff):
                         continue
                     href = s.get("secret_ref", "")

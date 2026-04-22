@@ -7,10 +7,12 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
+from orca_cli.services.key_manager import KeyManagerService
 
 
-def _barbican(client) -> str:
-    return client.key_manager_url
+def _uuid_from_ref(ref: str) -> str:
+    """Extract the trailing UUID from a Barbican href (secret_ref / container_ref)."""
+    return ref.rsplit("/", 1)[-1] if ref else ""
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -34,21 +36,17 @@ def secret(ctx: click.Context) -> None:
 @click.pass_context
 def secret_list(ctx: click.Context, limit: int | None, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List secrets."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
     params: dict = {}
     if limit:
         params["limit"] = limit
-    data = client.get(f"{_barbican(client)}/v1/secrets", params=params)
-
-    def _uuid(s: dict) -> str:
-        ref = s.get("secret_ref", "")
-        return ref.rsplit("/", 1)[-1] if ref else ""
+    secrets = svc.find_secrets(params=params or None)
 
     print_list(
-        data.get("secrets", []),
+        secrets,
         [
             ("Name", lambda s: s.get("name", "") or "—", {"style": "bold"}),
-            ("Secret Ref", _uuid, {"style": "cyan"}),
+            ("Secret Ref", lambda s: _uuid_from_ref(s.get("secret_ref", "")), {"style": "cyan"}),
             ("Type", "secret_type"),
             ("Algorithm", lambda s: s.get("algorithm", "") or "—"),
             ("Status", "status", {"style": "green"}),
@@ -67,8 +65,8 @@ def secret_list(ctx: click.Context, limit: int | None, output_format: str, colum
 @click.pass_context
 def secret_show(ctx: click.Context, secret_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """Show secret metadata."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_barbican(client)}/v1/secrets/{secret_id}")
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_secret(secret_id)
 
     fields = [(key, str(data.get(key, "") or "")) for key in
               ["name", "secret_ref", "secret_type", "status", "algorithm",
@@ -102,7 +100,7 @@ def secret_create(ctx: click.Context, name: str, payload: str | None,
       orca secret create my-password --payload "s3cret" --secret-type passphrase
       orca secret create my-key --algorithm AES --bit-length 256 --secret-type symmetric
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {"name": name, "secret_type": secret_type}
     if payload:
         body["payload"] = payload
@@ -114,9 +112,9 @@ def secret_create(ctx: click.Context, name: str, payload: str | None,
     if expiration:
         body["expiration"] = expiration
 
-    data = client.post(f"{_barbican(client)}/v1/secrets", json=body)
+    data = svc.create_secret(body)
     ref = data.get("secret_ref", "") if data else ""
-    uuid = ref.rsplit("/", 1)[-1] if ref else ""
+    uuid = _uuid_from_ref(ref)
     console.print(f"[green]Secret '{name}' created ({uuid}).[/green]")
 
 
@@ -128,8 +126,8 @@ def secret_delete(ctx: click.Context, secret_id: str, yes: bool) -> None:
     """Delete a secret."""
     if not yes:
         click.confirm(f"Delete secret {secret_id}?", abort=True)
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_barbican(client)}/v1/secrets/{secret_id}")
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    svc.delete_secret(secret_id)
     console.print(f"[green]Secret {secret_id} deleted.[/green]")
 
 
@@ -139,7 +137,7 @@ def secret_delete(ctx: click.Context, secret_id: str, yes: bool) -> None:
 def secret_get_payload(ctx: click.Context, secret_id: str) -> None:
     """Retrieve secret payload."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    url = f"{_barbican(client)}/v1/secrets/{secret_id}/payload"
+    url = f"{client.key_manager_url}/v1/secrets/{secret_id}/payload"
     headers = {"X-Auth-Token": client._token or "", "Accept": "text/plain"}
     resp = client._http.get(url, headers=headers)
     if resp.status_code == 200:
@@ -157,18 +155,14 @@ def secret_get_payload(ctx: click.Context, secret_id: str) -> None:
 @click.pass_context
 def container_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List secret containers."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_barbican(client)}/v1/containers")
-
-    def _uuid(c: dict) -> str:
-        ref = c.get("container_ref", "")
-        return ref.rsplit("/", 1)[-1] if ref else ""
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    containers = svc.find_containers()
 
     print_list(
-        data.get("containers", []),
+        containers,
         [
             ("Name", lambda c: c.get("name", "") or "—", {"style": "bold"}),
-            ("Container Ref", _uuid, {"style": "cyan"}),
+            ("Container Ref", lambda c: _uuid_from_ref(c.get("container_ref", "")), {"style": "cyan"}),
             ("Type", "type"),
             ("Secrets", lambda c: str(len(c.get("secret_refs", []))), {"justify": "right"}),
             ("Created", lambda c: str(c.get("created", ""))[:19]),
@@ -186,8 +180,8 @@ def container_list(ctx: click.Context, output_format: str, columns: tuple[str, .
 @click.pass_context
 def container_show(ctx: click.Context, container_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """Show secret container details."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_barbican(client)}/v1/containers/{container_id}")
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_container(container_id)
 
     fields: list[tuple[str, str]] = [
         (key, str(data.get(key, "") or "")) for key in
@@ -212,8 +206,8 @@ def container_delete(ctx: click.Context, container_id: str, yes: bool) -> None:
     """Delete a secret container."""
     if not yes:
         click.confirm(f"Delete container {container_id}?", abort=True)
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_barbican(client)}/v1/containers/{container_id}")
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    svc.delete_container(container_id)
     console.print(f"[green]Container {container_id} deleted.[/green]")
 
 
@@ -236,7 +230,7 @@ def container_create(ctx: click.Context, name: str | None, container_type: str,
         --secret certificate=<secret-ref> \\
         --secret private_key=<secret-ref>
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
     refs = []
     for ref in secret_refs:
         if "=" not in ref:
@@ -246,8 +240,8 @@ def container_create(ctx: click.Context, name: str | None, container_type: str,
     body: dict = {"type": container_type, "secret_refs": refs}
     if name:
         body["name"] = name
-    c = client.post(f"{_barbican(client)}/v1/containers",
-                    json=body).get("container_ref", "?")
+    data = svc.create_container(body)
+    c = data.get("container_ref", "?") if data else "?"
     console.print(f"[green]Container created: {c}[/green]")
 
 
@@ -263,8 +257,8 @@ def secret_acl_get(ctx: click.Context, secret_id: str, output_format: str,
                    columns: tuple[str, ...], fit_width: bool,
                    max_width: int | None, noindent: bool) -> None:
     """Get the ACL for a secret."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    acl = client.get(f"{_barbican(client)}/v1/secrets/{secret_id}/acl")
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    acl = svc.get_secret_acl(secret_id)
     read_acl = acl.get("read", {})
     fields = [
         ("Project Access", str(read_acl.get("project-access", True))),
@@ -286,9 +280,9 @@ def secret_acl_get(ctx: click.Context, secret_id: str, output_format: str,
 def secret_acl_set(ctx: click.Context, secret_id: str, users: tuple[str, ...],
                    project_access: bool) -> None:
     """Set the ACL on a secret."""
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {"read": {"project-access": project_access, "users": list(users)}}
-    client.put(f"{_barbican(client)}/v1/secrets/{secret_id}/acl", json=body)
+    svc.update_secret_acl(secret_id, body)
     console.print(f"[green]ACL updated for secret {secret_id}.[/green]")
 
 
@@ -300,8 +294,8 @@ def secret_acl_delete(ctx: click.Context, secret_id: str, yes: bool) -> None:
     """Delete the ACL on a secret (revert to project-wide access)."""
     if not yes:
         click.confirm(f"Delete ACL for secret {secret_id}?", abort=True)
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_barbican(client)}/v1/secrets/{secret_id}/acl")
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    svc.delete_secret_acl(secret_id)
     console.print(f"[green]ACL deleted for secret {secret_id}.[/green]")
 
 
@@ -315,9 +309,8 @@ def secret_acl_delete(ctx: click.Context, secret_id: str, yes: bool) -> None:
 def secret_order_list(ctx: click.Context, output_format: str, columns: tuple[str, ...],
                       fit_width: bool, max_width: int | None, noindent: bool) -> None:
     """List secret orders."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_barbican(client)}/v1/orders")
-    orders = data.get("orders", [])
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    orders = svc.find_orders()
     print_list(
         orders,
         [
@@ -341,8 +334,8 @@ def secret_order_show(ctx: click.Context, order_id: str, output_format: str,
                       columns: tuple[str, ...], fit_width: bool,
                       max_width: int | None, noindent: bool) -> None:
     """Show an order's details."""
-    client = ctx.find_object(OrcaContext).ensure_client()
-    o = client.get(f"{_barbican(client)}/v1/orders/{order_id}")
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    o = svc.get_order(order_id)
     fields = [
         ("Order Ref", str(o.get("order_ref", ""))),
         ("Type", str(o.get("type", ""))),
@@ -375,7 +368,7 @@ def secret_order_create(ctx: click.Context, order_type: str, name: str | None,
       orca secret order-create --type key --algorithm aes --bit-length 256
       orca secret order-create --type asymmetric --algorithm rsa --bit-length 2048
     """
-    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
     meta: dict = {}
     if name:
         meta["name"] = name
@@ -386,7 +379,7 @@ def secret_order_create(ctx: click.Context, order_type: str, name: str | None,
     if mode:
         meta["mode"] = mode
     body: dict = {"type": order_type, "meta": meta}
-    o = client.post(f"{_barbican(client)}/v1/orders", json=body)
+    o = svc.create_order(body)
     console.print(f"[green]Order created: {o.get('order_ref', '?')}[/green]")
 
 
@@ -398,6 +391,6 @@ def secret_order_delete(ctx: click.Context, order_id: str, yes: bool) -> None:
     """Delete a secret order."""
     if not yes:
         click.confirm(f"Delete order {order_id}?", abort=True)
-    client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_barbican(client)}/v1/orders/{order_id}")
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    svc.delete_order(order_id)
     console.print(f"[green]Order {order_id} deleted.[/green]")
