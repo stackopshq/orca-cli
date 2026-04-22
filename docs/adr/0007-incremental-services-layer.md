@@ -105,6 +105,12 @@ readers can see how far along the work is.
   direct ``client.put`` in ``commands/server.py``), and routed the
   ``volume tree`` server-name lookup through ``ServerService.find``
   instead of a direct ``/servers/detail`` call.
+- 2026-04-22 — ``container-infra`` (Magnum): ContainerInfraService +
+  Cluster / ClusterTemplate / NodeGroup TypedDicts. Clusters (CRUD +
+  JSON Patch update with ``application/json-patch+json`` + upgrade
+  action), cluster templates (CRUD), node groups per-cluster (CRUD +
+  JSON Patch update). Migrated ``commands/cluster.py`` — the
+  ``_magnum()`` helper is gone.
 - 2026-04-22 — ``telemetry`` (Gnocchi metric + Aodh alarm + Nova
   instance-actions): MetricService, AlarmService, and new
   ``find_instance_actions``/``get_instance_action`` methods on
