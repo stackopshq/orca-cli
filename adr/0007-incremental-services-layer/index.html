@@ -3528,6 +3528,16 @@ readers can see how far along the work is.</p>
   direct <code>client.put</code> in <code>commands/server.py</code>), and routed the
   <code>volume tree</code> server-name lookup through <code>ServerService.find</code>
   instead of a direct <code>/servers/detail</code> call.</li>
+<li>2026-04-22 — <code>placement</code>: PlacementService + ResourceProvider /
+  Inventory / ProviderUsages / ResourceClass / Trait / Allocation /
+  AllocationCandidate TypedDicts. Resource providers (CRUD),
+  inventories, usages (per-provider + per-project), resource classes,
+  traits (global + per-provider), allocations per consumer, allocation
+  candidates, provider aggregates. Service owns the
+  <code>OpenStack-API-Version: placement 1.6</code> header. Migrated
+  <code>commands/placement.py</code> — the <code>_url()</code> and <code>_ph()</code> helpers
+  are gone. Single-inventory GET + bulk DELETE-all inventories keep
+  direct <code>client.*</code> calls (no service methods for them yet).</li>
 <li>2026-04-22 — <code>container-infra</code> (Magnum): ContainerInfraService +
   Cluster / ClusterTemplate / NodeGroup TypedDicts. Clusters (CRUD +
   JSON Patch update with <code>application/json-patch+json</code> + upgrade
