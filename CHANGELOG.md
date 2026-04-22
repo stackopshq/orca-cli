@@ -4,6 +4,26 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] — 2026-04-22
+
+### Fixed
+
+- **Shell tab-completion triggered a fresh Keystone auth every 30 s.**
+  The completion cache TTL was 30 seconds, so on an active terminal
+  where the user kept typing, most tab presses after the first 30 s
+  fell back to a cold fetch (auth + HTTP list). Extended the TTL to
+  5 minutes — completion data (server names, flavor IDs, region
+  lists) changes slowly and the old short TTL made the tab key feel
+  sluggish.
+- **Region completion mixed results across profiles.** The
+  ``--region`` completion callback cached every region list under
+  the same ``default_regions.json`` file regardless of
+  ``--profile`` / ``ORCA_PROFILE``, so a user with several profiles
+  pointing at different clouds saw the other cloud's regions. The
+  callback now resolves the active profile and caches per-profile
+  (``<profile>_regions.json``), matching the behaviour of the other
+  completion callbacks in ``orca_cli/core/completions.py``.
+
 ## [2.0.0] — 2026-04-22
 
 ### Changed
