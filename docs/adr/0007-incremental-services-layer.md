@@ -105,6 +105,12 @@ readers can see how far along the work is.
   direct ``client.put`` in ``commands/server.py``), and routed the
   ``volume tree`` server-name lookup through ``ServerService.find``
   instead of a direct ``/servers/detail`` call.
+- 2026-04-22 — ``quota`` (cross-service): no dedicated service; the
+  ``orca quota`` command routes each slice through its owning service
+  — ``ComputeService.get_limits`` (Nova), a new
+  ``VolumeService.get_limits`` (Cinder absolute limits), and new
+  ``NetworkService.find_quotas`` / ``get_quota`` (Neutron), with the
+  Neutron usage counts going through the existing ``find_*`` methods.
 - 2026-04-22 — ``placement``: PlacementService + ResourceProvider /
   Inventory / ProviderUsages / ResourceClass / Trait / Allocation /
   AllocationCandidate TypedDicts. Resource providers (CRUD),
