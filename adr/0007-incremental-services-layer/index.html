@@ -3528,6 +3528,27 @@ readers can see how far along the work is.</p>
   direct <code>client.put</code> in <code>commands/server.py</code>), and routed the
   <code>volume tree</code> server-name lookup through <code>ServerService.find</code>
   instead of a direct <code>/servers/detail</code> call.</li>
+<li>2026-04-22 — IdentityService extension: Keystone enforcement
+  limits. Added <code>find_registered_limits</code> / <code>get_registered_limit</code>
+  / <code>create_registered_limits</code> (batched POST) / <code>update_registered_limit</code>
+  / <code>delete_registered_limit</code> and their project-scoped twins
+  <code>find_limits</code> / <code>get_limit</code> / <code>create_limits</code> /
+  <code>update_limit</code> / <code>delete_limit</code>. TypedDicts: RegisteredLimit
+  and Limit. Migrated <code>commands/limit.py</code> — the last <code>_iam()</code>
+  helper in the Keystone set is gone.</li>
+<li>2026-04-22 — Final cross-service cleanup: routed every remaining
+  direct <code>client.get/post/put/delete</code> call that targeted a <code>*_url</code>
+  with an existing service wrapper through that service. Touched
+  <code>commands/watch.py</code>, <code>audit.py</code>, <code>ip_whois.py</code>, <code>cleanup.py</code>
+  (dropped the dead <code>_collect</code> helper), <code>project.py</code> (same),
+  <code>overview.py</code>, <code>export.py</code>, <code>find.py</code> (dropped the dead
+  <code>_safe_list</code> helper), <code>network.py</code> (topology + trace server
+  lookups). Only documented exceptions keep direct <code>client.*</code>:
+  health probes in <code>doctor.py</code>, Swift binary streaming + account
+  metadata POST in <code>object_store.py</code>, Designate text/dns import/
+  export in <code>zone.py</code>, Barbican text/plain payload GET in
+  <code>secret.py</code>, Placement single-inventory GET + bulk DELETE-all in
+  <code>placement.py</code>, and the auth flow in <code>auth.py</code>.</li>
 <li>2026-04-22 — <code>quota</code> (cross-service): no dedicated service; the
   <code>orca quota</code> command routes each slice through its owning service
   — <code>ComputeService.get_limits</code> (Nova), a new
