@@ -6,6 +6,7 @@ import click
 
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console
+from orca_cli.services.load_balancer import LoadBalancerService
 
 
 @click.group("ip")
@@ -94,7 +95,7 @@ def ip_whois(ctx: click.Context, address: str) -> None:
 
         # ── Load Balancers ───────────────────────────────────────────
         try:
-            lbs = client.get(f"{client.load_balancer_url}/v2/lbaas/loadbalancers").get("loadbalancers", [])
+            lbs = LoadBalancerService(client).find()
             for lb in lbs:
                 if lb.get("vip_address") == address:
                     results.append(("load-balancer", lb["id"], lb.get("name", ""),

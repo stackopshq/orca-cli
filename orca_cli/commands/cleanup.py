@@ -9,6 +9,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.exceptions import APIError
 from orca_cli.core.output import console
+from orca_cli.services.load_balancer import LoadBalancerService
 from orca_cli.services.network import NetworkService
 from orca_cli.services.orchestration import OrchestrationService
 
@@ -92,6 +93,7 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,  # noqa
     """
     client = ctx.find_object(OrcaContext).ensure_client()
     net_svc = NetworkService(client)
+    lb_svc = LoadBalancerService(client)
     skip = set(skip_types)
     issues: list[tuple[str, str, str, str]] = []  # (type, id, name, reason)
 
@@ -209,11 +211,7 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,  # noqa
 
         # ── Load balancers in ERROR ───────────────────────────────────────────
         if "loadbalancer" not in skip:
-            for lb in _collect(
-                client,
-                f"{client.load_balancer_url}/v2/lbaas/loadbalancers",
-                "loadbalancers",
-            ):
+            for lb in _safe(lb_svc.find_all):
                 if lb.get("provisioning_status") == "ERROR":
                     issues.append((
                         "loadbalancer", lb["id"], lb.get("name", ""),
@@ -266,9 +264,7 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,  # noqa
             elif rtype == "stack":
                 OrchestrationService(client).delete(rname, rid)
             elif rtype == "loadbalancer":
-                client.delete(
-                    f"{client.load_balancer_url}/v2/lbaas/loadbalancers/{rid}?cascade=true"
-                )
+                lb_svc.delete(rid, cascade=True)
             console.print(f"  [green]✓[/green] {label}")
             success += 1
         except APIError as exc:

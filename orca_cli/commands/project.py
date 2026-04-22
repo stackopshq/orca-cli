@@ -11,6 +11,7 @@ from orca_cli.core.exceptions import APIError
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.services.identity import IdentityService
 from orca_cli.services.image import ImageService
+from orca_cli.services.load_balancer import LoadBalancerService
 from orca_cli.services.network import NetworkService
 from orca_cli.services.orchestration import OrchestrationService
 
@@ -196,9 +197,7 @@ def _delete_one(client, rtype: str, rid: str, rname: str) -> bool:
         if rtype == "stack":
             OrchestrationService(client).delete(rname, rid)
         elif rtype == "loadbalancer":
-            client.delete(
-                f"{client.load_balancer_url}/v2/lbaas/loadbalancers/{rid}?cascade=true"
-            )
+            LoadBalancerService(client).delete(rid, cascade=True)
         elif rtype == "server":
             client.delete(f"{client.compute_url}/servers/{rid}")
         elif rtype == "floating-ip":
@@ -350,10 +349,11 @@ def project_cleanup(ctx, target_project, dry_run, yes, created_before, skip_type
             add("stack", heat_stacks, name_key="stack_name")
 
         if "loadbalancer" not in skip:
-            add("loadbalancer",
-                _collect(client,
-                         f"{client.load_balancer_url}/v2/lbaas/loadbalancers",
-                         "loadbalancers", params=p_filter))
+            try:
+                lbs = LoadBalancerService(client).find(params=p_filter)
+            except Exception:
+                lbs = []
+            add("loadbalancer", lbs)
 
         if "server" not in skip:
             add("server",
