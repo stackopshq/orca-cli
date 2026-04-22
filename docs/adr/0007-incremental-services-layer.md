@@ -105,6 +105,13 @@ readers can see how far along the work is.
   direct ``client.put`` in ``commands/server.py``), and routed the
   ``volume tree`` server-name lookup through ``ServerService.find``
   instead of a direct ``/servers/detail`` call.
+- 2026-04-22 — ``key-manager`` (Barbican): KeyManagerService + Secret
+  / SecretContainer / Order / Acl TypedDicts. Secrets, secret ACLs,
+  secret containers, orders. Migrated ``commands/secret.py`` (drops
+  ``_barbican()`` helper, consolidates ``secret_ref`` UUID extractor)
+  and the secret branch in ``project.py``. The raw text/plain
+  ``secret get-payload`` keeps its ``client._http`` call — the
+  service exposes JSON-bodied methods only.
 - 2026-04-22 — ``dns`` (Designate): DnsService + Zone / Recordset /
   ZoneTransferRequest / Tld TypedDicts. Zones CRUD, recordsets CRUD
   (per-zone + cross-zone), export/import tasks, transfer requests +
