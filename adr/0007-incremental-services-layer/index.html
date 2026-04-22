@@ -3528,6 +3528,25 @@ readers can see how far along the work is.</p>
   direct <code>client.put</code> in <code>commands/server.py</code>), and routed the
   <code>volume tree</code> server-name lookup through <code>ServerService.find</code>
   instead of a direct <code>/servers/detail</code> call.</li>
+<li>2026-04-22 — <code>identity</code> (Keystone v3): IdentityService + Project /
+  User / Role (+ RoleAssignment / RoleInference) / Domain / Group /
+  Credential / ApplicationCredential / Endpoint / EndpointGroup /
+  Service / Region / Policy / IdentityProvider / FederationProtocol /
+  Mapping / ServiceProvider / Trust / AccessRule TypedDicts.
+  Migrated 16 command modules: project, user, role (+ grants +
+  assignments + implied roles), domain, group (+ membership),
+  credential, application_credential, endpoint, endpoint_group
+  (+ project attachments), service, region, policy, federation
+  (identity-provider/protocol/mapping/service-provider, PUT upsert),
+  trust (immutable; no update method), token (revoke only; <code>issue</code>
+  stays on cached token state), access_rule (read-only per-user).
+  The service preserves the historical split between callers that
+  prepend <code>/v3</code> to <code>client.identity_url</code> and callers that use it
+  directly (credentials, endpoints, services, regions, OS-TRUST).
+  Cross-service Keystone lookups in <code>commands/project.py cleanup</code>
+  (project-by-name / project-by-id resolution) route through
+  IdentityService too. <code>commands/catalog.py</code> still reads
+  <code>client._catalog</code> from the auth token state — no HTTP call.</li>
 <li>2026-04-22 — <code>compute</code> (Nova, non-server): ComputeService + Flavor
   (+ FlavorAccess) / Keypair / Aggregate / Hypervisor (+ statistics) /
   AvailabilityZone / ComputeService / ServerGroup / TenantUsage /
