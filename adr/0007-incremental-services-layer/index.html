@@ -3528,6 +3528,14 @@ readers can see how far along the work is.</p>
   direct <code>client.put</code> in <code>commands/server.py</code>), and routed the
   <code>volume tree</code> server-name lookup through <code>ServerService.find</code>
   instead of a direct <code>/servers/detail</code> call.</li>
+<li>2026-04-22 — <code>dns</code> (Designate): DnsService + Zone / Recordset /
+  ZoneTransferRequest / Tld TypedDicts. Zones CRUD, recordsets CRUD
+  (per-zone + cross-zone), export/import tasks, transfer requests +
+  accepts, reverse-PTR floating-ip lookup, TLDs. Migrated
+  <code>commands/zone.py</code>, <code>commands/recordset.py</code> (both drop local
+  <code>_dns()</code> helpers), plus the dns-zone branches in <code>project.py</code>
+  cleanup + <code>_delete_one</code>. Zone export/import that streams raw
+  text/dns bodies still uses <code>client._http</code> directly.</li>
 <li>2026-04-22 — <code>object-store</code> (Swift): ObjectStoreService +
   Container / ObjectEntry TypedDicts. Account/container/object CRUD,
   HEAD metadata reads, POST metadata writes (with full-name header
