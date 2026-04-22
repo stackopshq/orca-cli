@@ -3528,6 +3528,16 @@ readers can see how far along the work is.</p>
   direct <code>client.put</code> in <code>commands/server.py</code>), and routed the
   <code>volume tree</code> server-name lookup through <code>ServerService.find</code>
   instead of a direct <code>/servers/detail</code> call.</li>
+<li>2026-04-22 — <code>telemetry</code> (Gnocchi metric + Aodh alarm + Nova
+  instance-actions): MetricService, AlarmService, and new
+  <code>find_instance_actions</code>/<code>get_instance_action</code> methods on
+  ServerService. Shared TypedDicts in <code>models/telemetry.py</code>
+  (GnocchiResource / GnocchiMetric / ArchivePolicy /
+  GnocchiResourceType / Alarm / AlarmHistoryEntry). Migrated
+  <code>commands/metric.py</code> (drops <code>_gnocchi()</code>),
+  <code>commands/alarm.py</code> (drops <code>_url()</code>, keeps fetch-merge-put
+  on <code>alarm set</code>), <code>commands/event.py</code> (drops direct
+  <code>client.compute_url</code>, routes through ServerService).</li>
 <li>2026-04-22 — <code>rating</code> (CloudKitty): RatingService + RatingModule
   / HashmapService / HashmapField / HashmapMapping / HashmapThreshold
   / HashmapGroup / RatingSummary TypedDicts. Info (config + metrics),
