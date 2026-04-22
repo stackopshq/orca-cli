@@ -3511,6 +3511,40 @@ readers can see how far along the work is.</p>
   not HTTP calls. Service covers volumes, snapshots, backups,
   attachments, types (+ access + extra-specs), QoS, transfers,
   messages, groups, group snapshots, group types, services.</li>
+<li>2026-04-22 — <code>image</code>: ImageService + Image / ImageMember / ImageTask
+  / ImageStore TypedDicts. All 24 <code>orca image</code> subcommands go through
+  the service (CRUD, upload/stage/download streaming, deactivate/
+  reactivate, tags, members/sharing, import API, cache admin, multi-
+  backend stores info, async tasks). Cross-service Glance lookups in
+  <code>commands/server.py</code> (SSH user detection), <code>commands/overview.py</code>,
+  <code>commands/export.py</code>, <code>commands/project.py</code> (purge + delete) and
+  <code>commands/find.py</code> (universal search) now route through
+  ImageService too. Only <code>commands/doctor.py</code> keeps a raw
+  <code>client.image_url</code> reference — it is an intentional health-probe
+  URL, not a business call.</li>
+<li>2026-04-22 — Residual cleanups on migrated resources: added
+  <code>ServerService.set_tags</code> / <code>delete_all_tags</code> to cover the bulk
+  <code>PUT /servers/{id}/tags</code> replacement (previously the only remaining
+  direct <code>client.put</code> in <code>commands/server.py</code>), and routed the
+  <code>volume tree</code> server-name lookup through <code>ServerService.find</code>
+  instead of a direct <code>/servers/detail</code> call.</li>
+<li>2026-04-22 — <code>network</code>: NetworkService + Network / Subnet / Port /
+  Router / FloatingIp / SecurityGroup (+ SecurityGroupRule) /
+  SubnetPool / Trunk (+ TrunkSubPort) / QosPolicy (+ QosRule) / Agent
+  / RbacPolicy / Segment / AutoAllocatedTopology TypedDicts. All six
+  Neutron command modules (<code>commands/network.py</code> with 50+ subcommands
+  — networks, subnets, ports, routers with add/remove/set/unset
+  subgroups, agents, RBAC, segments, auto-allocated-topology, plus
+  topology/trace diagnostics; <code>commands/floating_ip.py</code>,
+  <code>commands/security_group.py</code>, <code>commands/subnet_pool.py</code>,
+  <code>commands/trunk.py</code>, <code>commands/qos_policy.py</code>) now go through
+  the service. Cross-service Neutron fetches in <code>commands/overview.py</code>,
+  <code>commands/export.py</code>, <code>commands/cleanup.py</code>, <code>commands/find.py</code>
+  and <code>commands/project.py</code> (incl. the router interface detach loop
+  before delete) route through NetworkService too. Only non-Neutron
+  callers (Nova os-keypairs, Cinder, Heat, Octavia, Swift, Designate,
+  Barbican) keep direct <code>client.*</code> calls until their respective
+  services land.</li>
 </ul>
 
 
