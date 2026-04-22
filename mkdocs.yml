@@ -6,15 +6,17 @@ repo_name: stackopshq/orca-cli
 
 theme:
   name: material
+  logo: assets/logo.png
+  favicon: assets/favicon.png
   palette:
     - scheme: default
-      primary: blue grey
+      primary: custom   # overridden to #09172B in assets/theme.css
       accent: cyan
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
-      primary: blue grey
+      primary: custom   # overridden to #09172B in assets/theme.css
       accent: cyan
       toggle:
         icon: material/brightness-4
@@ -133,3 +135,6 @@ nav:
       - 0006 — Idempotent-only retries: adr/0006-idempotent-only-retries.md
       - 0007 — Incremental services layer: adr/0007-incremental-services-layer.md
       - 0008 — Command naming convention: adr/0008-command-naming-convention.md
+
+extra_css:
+  - assets/theme.css

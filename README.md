@@ -1,8 +1,16 @@
-# orca
+<p align="center">
+  <img src="docs/assets/logo.png" alt="orca logo" width="200">
+</p>
 
-OpenStack Rich Command-line Alternative — a unified CLI for managing OpenStack cloud infrastructure.
+<h1 align="center">orca</h1>
 
-**[Full Documentation](https://stackopshq.github.io/orca-cli/)**
+<p align="center">
+  OpenStack Rich Command-line Alternative — a unified CLI for managing OpenStack cloud infrastructure.
+</p>
+
+<p align="center">
+  <strong><a href="https://stackopshq.github.io/orca-cli/">Full Documentation</a></strong>
+</p>
 
 ## Highlights
 
