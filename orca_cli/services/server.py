@@ -135,6 +135,15 @@ class ServerService:
     def delete_tag(self, server_id: str, tag: str) -> None:
         self._client.delete(f"{self._base}/{server_id}/tags/{tag}")
 
+    def set_tags(self, server_id: str, tags: list[str]) -> list[str]:
+        """Bulk replace the server's tag set (Nova ``PUT /servers/{id}/tags``)."""
+        data = self._client.put(f"{self._base}/{server_id}/tags",
+                                json={"tags": list(tags)})
+        return data.get("tags", []) if data else []
+
+    def delete_all_tags(self, server_id: str) -> None:
+        self._client.delete(f"{self._base}/{server_id}/tags")
+
     # ── volume attachments ─────────────────────────────────────────────
 
     def attach_volume(self, server_id: str, volume_id: str,

@@ -11,6 +11,7 @@ from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
 from orca_cli.core.waiter import wait_for_resource
+from orca_cli.services.server import ServerService
 from orca_cli.services.volume import VolumeService
 
 
@@ -494,8 +495,8 @@ def volume_tree(ctx: click.Context, filter_vol: str | None) -> None:  # noqa: C9
 
         # Fetch servers for name resolution
         try:
-            srv_data = client.get(f"{client.compute_url}/servers/detail", params={"limit": 1000})
-            servers = {s["id"]: s.get("name", s["id"]) for s in srv_data.get("servers", [])}
+            srv_list = ServerService(client).find(limit=1000)
+            servers = {s["id"]: s.get("name", s["id"]) for s in srv_list}
         except Exception:
             servers = {}
 

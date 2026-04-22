@@ -1821,11 +1821,7 @@ def server_set(ctx: click.Context, server_id: str, name: str | None,
         did_something = True
 
     if tags:
-        # PUT /tags replaces the whole tag set; service exposes
-        # add/delete per-tag, so call the client directly here for the
-        # bulk-replace semantics.
-        client.put(f"{client.compute_url}/servers/{server_id}/tags",
-                   json={"tags": list(tags)})
+        service.set_tags(server_id, list(tags))
         console.print(f"[green]Tags set on server {server_id}: {', '.join(tags)}[/green]")
         did_something = True
 
