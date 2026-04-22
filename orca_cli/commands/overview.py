@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Any, Callable
 
 import click
 from rich.table import Table
@@ -10,6 +11,7 @@ from rich.table import Table
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console
 from orca_cli.services.image import ImageService
+from orca_cli.services.network import NetworkService
 
 
 @click.command()
@@ -17,17 +19,16 @@ from orca_cli.services.image import ImageService
 def overview(ctx: click.Context) -> None:
     """Show a project dashboard — servers, quotas, volumes, IPs at a glance."""
     client = ctx.find_object(OrcaContext).ensure_client()
+    net_svc = NetworkService(client)
 
-    fetchers = {
+    fetchers: dict[str, Callable[[], list[Any]]] = {
         "servers": lambda: client.paginate(f"{client.compute_url}/servers/detail", "servers"),
         "volumes": lambda: client.paginate(f"{client.volume_url}/volumes/detail", "volumes"),
-        "fips": lambda: client.paginate(f"{client.network_url}/v2.0/floatingips", "floatingips"),
-        "nets": lambda: client.paginate(f"{client.network_url}/v2.0/networks", "networks"),
-        "subnets": lambda: client.paginate(f"{client.network_url}/v2.0/subnets", "subnets"),
-        "routers": lambda: client.paginate(f"{client.network_url}/v2.0/routers", "routers"),
-        "sgs": lambda: client.paginate(
-            f"{client.network_url}/v2.0/security-groups", "security_groups"
-        ),
+        "fips": lambda: net_svc.find_all_floating_ips(),
+        "nets": lambda: net_svc.find_all(),
+        "subnets": lambda: net_svc.find_all_subnets(),
+        "routers": lambda: net_svc.find_all_routers(),
+        "sgs": lambda: net_svc.find_all_security_groups(),
         "kps": lambda: client.get(f"{client.compute_url}/os-keypairs").get("keypairs", []),
         "images": lambda: ImageService(client).find_all(),
     }

@@ -21,6 +21,7 @@ from rich.table import Table
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console
 from orca_cli.services.image import ImageService
+from orca_cli.services.network import NetworkService
 
 # ── Per-resource search helpers ──────────────────────────────────────────
 
@@ -29,6 +30,14 @@ def _safe_list(client, url: str, key: str, params: dict | None = None) -> list[d
     try:
         data = client.get(url, params=params or {})
         return data.get(key, []) or []
+    except Exception:
+        return []
+
+
+def _safe(fn, *args, **kwargs) -> list[dict]:
+    """Call a service method; swallow all errors to []."""
+    try:
+        return fn(*args, **kwargs)
     except Exception:
         return []
 
@@ -62,7 +71,7 @@ def _find_servers(client, q: str) -> list[tuple[dict, str]]:
 
 
 def _find_ports(client, q: str) -> list[tuple[dict, str]]:
-    ports = _safe_list(client, f"{client.network_url}/v2.0/ports", "ports")
+    ports = _safe(NetworkService(client).find_ports)
     hits = []
     for p in ports:
         why = None
@@ -86,7 +95,7 @@ def _find_ports(client, q: str) -> list[tuple[dict, str]]:
 
 
 def _find_floatingips(client, q: str) -> list[tuple[dict, str]]:
-    fips = _safe_list(client, f"{client.network_url}/v2.0/floatingips", "floatingips")
+    fips = _safe(NetworkService(client).find_floating_ips)
     hits = []
     for f in fips:
         why = None
@@ -116,7 +125,7 @@ def _find_volumes(client, q: str) -> list[tuple[dict, str]]:
 
 
 def _find_networks(client, q: str) -> list[tuple[dict, str]]:
-    nets = _safe_list(client, f"{client.network_url}/v2.0/networks", "networks")
+    nets = _safe(NetworkService(client).find)
     hits = []
     for n in nets:
         why = None
@@ -130,7 +139,7 @@ def _find_networks(client, q: str) -> list[tuple[dict, str]]:
 
 
 def _find_subnets(client, q: str) -> list[tuple[dict, str]]:
-    subnets = _safe_list(client, f"{client.network_url}/v2.0/subnets", "subnets")
+    subnets = _safe(NetworkService(client).find_subnets)
     hits = []
     for s in subnets:
         why = None
@@ -146,8 +155,7 @@ def _find_subnets(client, q: str) -> list[tuple[dict, str]]:
 
 
 def _find_security_groups(client, q: str) -> list[tuple[dict, str]]:
-    sgs = _safe_list(client, f"{client.network_url}/v2.0/security-groups",
-                     "security_groups")
+    sgs = _safe(NetworkService(client).find_security_groups)
     hits = []
     for sg in sgs:
         why = None
@@ -193,7 +201,7 @@ def _find_keypairs(client, q: str) -> list[tuple[dict, str]]:
 
 
 def _find_routers(client, q: str) -> list[tuple[dict, str]]:
-    routers = _safe_list(client, f"{client.network_url}/v2.0/routers", "routers")
+    routers = _safe(NetworkService(client).find_routers)
     hits = []
     for r in routers:
         why = None

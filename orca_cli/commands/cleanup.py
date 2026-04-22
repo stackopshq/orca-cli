@@ -9,6 +9,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.exceptions import APIError
 from orca_cli.core.output import console
+from orca_cli.services.network import NetworkService
 
 # Resource types that can be detected and optionally deleted
 CLEANUP_TYPES = [
@@ -30,6 +31,14 @@ def _collect(client, url: str, key: str, params: dict | None = None) -> list:
     """
     try:
         return client.paginate(url, key, params=params)
+    except Exception:
+        return []
+
+
+def _safe(fn, *args, **kwargs) -> list:
+    """Call a NetworkService method; swallow errors (service unavailable)."""
+    try:
+        return fn(*args, **kwargs)
     except Exception:
         return []
 
@@ -81,6 +90,7 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,  # noqa
       orca cleanup --older-than 14 --delete --yes
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    net_svc = NetworkService(client)
     skip = set(skip_types)
     issues: list[tuple[str, str, str, str]] = []  # (type, id, name, reason)
 
@@ -92,7 +102,7 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,  # noqa
 
         # ── Floating IPs not associated ──────────────────────────────────────
         if "floating-ip" not in skip:
-            for f in _collect(client, f"{client.network_url}/v2.0/floatingips", "floatingips"):
+            for f in _safe(net_svc.find_all_floating_ips):
                 if not f.get("port_id"):
                     issues.append((
                         "floating-ip", f["id"],
@@ -129,7 +139,7 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,  # noqa
 
         # ── Ports without device ─────────────────────────────────────────────
         if "port" not in skip:
-            for p in _collect(client, f"{client.network_url}/v2.0/ports", "ports"):
+            for p in _safe(net_svc.find_all_ports):
                 if not p.get("device_id") and not p.get("device_owner"):
                     ips = ", ".join(
                         ip.get("ip_address", "") for ip in p.get("fixed_ips", [])
@@ -138,9 +148,7 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,  # noqa
 
         # ── Unused security groups ────────────────────────────────────────────
         if "security-group" not in skip:
-            sgs = _collect(
-                client, f"{client.network_url}/v2.0/security-groups", "security_groups"
-            )
+            sgs = _safe(net_svc.find_all_security_groups)
             servers = _collect(
                 client, f"{client.compute_url}/servers/detail", "servers",
             )
@@ -174,12 +182,12 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,  # noqa
             # One query for ALL router-interface ports, then group by device_id
             # — replaces a 1+N pattern (one ports query per router).
             router_iface_ports: dict[str, list] = {}
-            for p in _collect(
-                client, f"{client.network_url}/v2.0/ports", "ports",
+            for p in _safe(
+                net_svc.find_all_ports,
                 params={"device_owner": "network:router_interface"},
             ):
                 router_iface_ports.setdefault(p.get("device_id", ""), []).append(p)
-            for r in _collect(client, f"{client.network_url}/v2.0/routers", "routers"):
+            for r in _safe(net_svc.find_all_routers):
                 if r.get("external_gateway_info"):
                     continue
                 if not router_iface_ports.get(r["id"]):
@@ -240,19 +248,19 @@ def cleanup(ctx: click.Context, do_delete: bool, older_than: int | None,  # noqa
         label = f"{rtype} {rname} ({rid})"
         try:
             if rtype == "floating-ip":
-                client.delete(f"{client.network_url}/v2.0/floatingips/{rid}")
+                net_svc.delete_floating_ip(rid)
             elif rtype == "volume":
                 client.delete(f"{client.volume_url}/volumes/{rid}?cascade=true")
             elif rtype == "snapshot":
                 client.delete(f"{client.volume_url}/snapshots/{rid}")
             elif rtype == "port":
-                client.delete(f"{client.network_url}/v2.0/ports/{rid}")
+                net_svc.delete_port(rid)
             elif rtype == "security-group":
-                client.delete(f"{client.network_url}/v2.0/security-groups/{rid}")
+                net_svc.delete_security_group(rid)
             elif rtype == "server":
                 client.delete(f"{client.compute_url}/servers/{rid}")
             elif rtype == "router":
-                client.delete(f"{client.network_url}/v2.0/routers/{rid}")
+                net_svc.delete_router(rid)
             elif rtype == "stack":
                 client.delete(f"{client.orchestration_url}/stacks/{rname}/{rid}")
             elif rtype == "loadbalancer":

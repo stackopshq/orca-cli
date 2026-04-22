@@ -10,6 +10,7 @@ from orca_cli.core.context import OrcaContext
 from orca_cli.core.exceptions import APIError
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.services.image import ImageService
+from orca_cli.services.network import NetworkService
 
 
 def _iam(client) -> str:
@@ -206,26 +207,27 @@ def _delete_one(client, rtype: str, rid: str, rname: str) -> bool:
         elif rtype == "server":
             client.delete(f"{client.compute_url}/servers/{rid}")
         elif rtype == "floating-ip":
-            client.delete(f"{client.network_url}/v2.0/floatingips/{rid}")
+            NetworkService(client).delete_floating_ip(rid)
         elif rtype == "router":
             # Detach all subnet interfaces before deleting
-            ports = _collect(
-                client, f"{client.network_url}/v2.0/ports", "ports",
-                params={"device_id": rid, "device_owner": "network:router_interface"},
-            )
+            net_svc = NetworkService(client)
+            try:
+                ports = net_svc.find_ports(params={
+                    "device_id": rid,
+                    "device_owner": "network:router_interface",
+                })
+            except Exception:
+                ports = []
             for p in ports:
                 try:
-                    client.put(
-                        f"{client.network_url}/v2.0/routers/{rid}/remove_router_interface",
-                        json={"port_id": p["id"]},
-                    )
+                    net_svc.remove_router_interface(rid, {"port_id": p["id"]})
                 except Exception:
                     pass
-            client.delete(f"{client.network_url}/v2.0/routers/{rid}")
+            net_svc.delete_router(rid)
         elif rtype == "network":
-            client.delete(f"{client.network_url}/v2.0/networks/{rid}")
+            NetworkService(client).delete(rid)
         elif rtype == "security-group":
-            client.delete(f"{client.network_url}/v2.0/security-groups/{rid}")
+            NetworkService(client).delete_security_group(rid)
         elif rtype == "volume":
             client.delete(f"{client.volume_url}/volumes/{rid}?cascade=true")
         elif rtype == "snapshot":
@@ -357,10 +359,11 @@ def project_cleanup(ctx, target_project, dry_run, yes, created_before, skip_type
                          params={"project_id": proj_id, "limit": 1000}))
 
         if "floating-ip" not in skip:
-            add("floating-ip",
-                _collect(client, f"{client.network_url}/v2.0/floatingips",
-                         "floatingips", params=p_filter),
-                name_key="floating_ip_address")
+            try:
+                fips = NetworkService(client).find_floating_ips(params=p_filter)
+            except Exception:
+                fips = []
+            add("floating-ip", fips, name_key="floating_ip_address")
 
         if "dns-zone" not in skip:
             # Designate scopes zones to the auth token project by default.
@@ -383,22 +386,29 @@ def project_cleanup(ctx, target_project, dry_run, yes, created_before, skip_type
             except Exception:
                 pass
 
+        net_svc = NetworkService(client)
+
         if "router" not in skip:
-            add("router",
-                _collect(client, f"{client.network_url}/v2.0/routers",
-                         "routers", params=tenant_filter))
+            try:
+                routers = net_svc.find_routers(params=tenant_filter)
+            except Exception:
+                routers = []
+            add("router", routers)
 
         if "network" not in skip:
-            add("network",
-                _collect(client, f"{client.network_url}/v2.0/networks",
-                         "networks", params=tenant_filter))
+            try:
+                nets = net_svc.find(params=tenant_filter)
+            except Exception:
+                nets = []
+            add("network", nets)
 
         if "security-group" not in skip:
+            try:
+                sgs = net_svc.find_security_groups(params=tenant_filter)
+            except Exception:
+                sgs = []
             add("security-group",
-                [sg for sg in _collect(client,
-                                        f"{client.network_url}/v2.0/security-groups",
-                                        "security_groups", params=tenant_filter)
-                 if sg.get("name") != "default"])
+                [sg for sg in sgs if sg.get("name") != "default"])
 
         if "volume" not in skip:
             add("volume",

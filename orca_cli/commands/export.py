@@ -14,6 +14,7 @@ from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console
 from orca_cli.core.validators import safe_output_path
 from orca_cli.services.image import ImageService
+from orca_cli.services.network import NetworkService
 
 VALID_RESOURCE_TYPES = (
     "servers",
@@ -282,23 +283,18 @@ def _collect_images(images: list[dict]) -> list[dict]:
 
 
 def _fetchers(client: Any) -> dict[str, Any]:
+    net_svc = NetworkService(client)
     return {
         "servers": lambda: client.paginate(
             f"{client.compute_url}/servers/detail", "servers"),
         "volumes": lambda: client.paginate(
             f"{client.volume_url}/volumes/detail", "volumes"),
-        "networks": lambda: client.paginate(
-            f"{client.network_url}/v2.0/networks", "networks"),
-        "subnets": lambda: client.paginate(
-            f"{client.network_url}/v2.0/subnets", "subnets"),
-        "routers": lambda: client.paginate(
-            f"{client.network_url}/v2.0/routers", "routers"),
-        "ports": lambda: client.paginate(
-            f"{client.network_url}/v2.0/ports", "ports"),
-        "floatingips": lambda: client.paginate(
-            f"{client.network_url}/v2.0/floatingips", "floatingips"),
-        "security_groups": lambda: client.paginate(
-            f"{client.network_url}/v2.0/security-groups", "security_groups"),
+        "networks": net_svc.find_all,
+        "subnets": net_svc.find_all_subnets,
+        "routers": net_svc.find_all_routers,
+        "ports": net_svc.find_all_ports,
+        "floatingips": net_svc.find_all_floating_ips,
+        "security_groups": net_svc.find_all_security_groups,
         "keypairs": lambda: client.get(
             f"{client.compute_url}/os-keypairs").get("keypairs", []),
         "images": lambda: ImageService(client).find_all(),
