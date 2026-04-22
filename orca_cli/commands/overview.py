@@ -10,6 +10,7 @@ from rich.table import Table
 
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console
+from orca_cli.services.compute import ComputeService
 from orca_cli.services.image import ImageService
 from orca_cli.services.network import NetworkService
 
@@ -20,6 +21,7 @@ def overview(ctx: click.Context) -> None:
     """Show a project dashboard — servers, quotas, volumes, IPs at a glance."""
     client = ctx.find_object(OrcaContext).ensure_client()
     net_svc = NetworkService(client)
+    compute_svc = ComputeService(client)
 
     fetchers: dict[str, Callable[[], list[Any]]] = {
         "servers": lambda: client.paginate(f"{client.compute_url}/servers/detail", "servers"),
@@ -29,7 +31,7 @@ def overview(ctx: click.Context) -> None:
         "subnets": lambda: net_svc.find_all_subnets(),
         "routers": lambda: net_svc.find_all_routers(),
         "sgs": lambda: net_svc.find_all_security_groups(),
-        "kps": lambda: client.get(f"{client.compute_url}/os-keypairs").get("keypairs", []),
+        "kps": compute_svc.find_keypairs,
         "images": lambda: ImageService(client).find_all(),
     }
 

@@ -20,6 +20,7 @@ from rich.table import Table
 
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console
+from orca_cli.services.compute import ComputeService
 from orca_cli.services.image import ImageService
 from orca_cli.services.network import NetworkService
 
@@ -186,7 +187,7 @@ def _find_images(client, q: str) -> list[tuple[dict, str]]:
 
 
 def _find_keypairs(client, q: str) -> list[tuple[dict, str]]:
-    raw = _safe_list(client, f"{client.compute_url}/os-keypairs", "keypairs")
+    raw = _safe(ComputeService(client).find_keypairs)
     hits = []
     for wrapper in raw:
         kp = wrapper.get("keypair", wrapper)

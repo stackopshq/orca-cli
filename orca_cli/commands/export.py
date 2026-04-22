@@ -13,6 +13,7 @@ import yaml
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console
 from orca_cli.core.validators import safe_output_path
+from orca_cli.services.compute import ComputeService
 from orca_cli.services.image import ImageService
 from orca_cli.services.network import NetworkService
 
@@ -284,6 +285,7 @@ def _collect_images(images: list[dict]) -> list[dict]:
 
 def _fetchers(client: Any) -> dict[str, Any]:
     net_svc = NetworkService(client)
+    compute_svc = ComputeService(client)
     return {
         "servers": lambda: client.paginate(
             f"{client.compute_url}/servers/detail", "servers"),
@@ -295,8 +297,7 @@ def _fetchers(client: Any) -> dict[str, Any]:
         "ports": net_svc.find_all_ports,
         "floatingips": net_svc.find_all_floating_ips,
         "security_groups": net_svc.find_all_security_groups,
-        "keypairs": lambda: client.get(
-            f"{client.compute_url}/os-keypairs").get("keypairs", []),
+        "keypairs": compute_svc.find_keypairs,
         "images": lambda: ImageService(client).find_all(),
     }
 
