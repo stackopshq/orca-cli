@@ -105,6 +105,25 @@ readers can see how far along the work is.
   direct ``client.put`` in ``commands/server.py``), and routed the
   ``volume tree`` server-name lookup through ``ServerService.find``
   instead of a direct ``/servers/detail`` call.
+- 2026-04-22 — ``identity`` (Keystone v3): IdentityService + Project /
+  User / Role (+ RoleAssignment / RoleInference) / Domain / Group /
+  Credential / ApplicationCredential / Endpoint / EndpointGroup /
+  Service / Region / Policy / IdentityProvider / FederationProtocol /
+  Mapping / ServiceProvider / Trust / AccessRule TypedDicts.
+  Migrated 16 command modules: project, user, role (+ grants +
+  assignments + implied roles), domain, group (+ membership),
+  credential, application_credential, endpoint, endpoint_group
+  (+ project attachments), service, region, policy, federation
+  (identity-provider/protocol/mapping/service-provider, PUT upsert),
+  trust (immutable; no update method), token (revoke only; ``issue``
+  stays on cached token state), access_rule (read-only per-user).
+  The service preserves the historical split between callers that
+  prepend ``/v3`` to ``client.identity_url`` and callers that use it
+  directly (credentials, endpoints, services, regions, OS-TRUST).
+  Cross-service Keystone lookups in ``commands/project.py cleanup``
+  (project-by-name / project-by-id resolution) route through
+  IdentityService too. ``commands/catalog.py`` still reads
+  ``client._catalog`` from the auth token state — no HTTP call.
 - 2026-04-22 — ``compute`` (Nova, non-server): ComputeService + Flavor
   (+ FlavorAccess) / Keypair / Aggregate / Hypervisor (+ statistics) /
   AvailabilityZone / ComputeService / ServerGroup / TenantUsage /
