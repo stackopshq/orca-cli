@@ -10,10 +10,7 @@ import click
 from orca_cli.core.context import OrcaContext
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
-
-
-def _url(client) -> str:
-    return client.rating_url
+from orca_cli.services.rating import RatingService
 
 
 def _parse_iso(value: str | None) -> str | None:
@@ -45,7 +42,8 @@ def rating(ctx: click.Context) -> None:
 def rating_info(ctx: click.Context) -> None:
     """Show CloudKitty configuration (collector, metrics, fetcher)."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_url(client)}/v1/info/config")
+    svc = RatingService(client)
+    data = svc.get_config()
     console.print_json(json.dumps(data, indent=2))
 
 
@@ -55,7 +53,8 @@ def rating_info(ctx: click.Context) -> None:
 def rating_metric_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List metrics that CloudKitty is configured to rate."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    items = client.get(f"{_url(client)}/v1/info/metrics").get("metrics", [])
+    svc = RatingService(client)
+    items = svc.find_metrics()
     col_defs = [
         ("Metric", "metric_id", {"style": "bold"}),
         ("Unit", "unit"),
@@ -73,7 +72,8 @@ def rating_metric_list(ctx, output_format, columns, fit_width, max_width, noinde
 def rating_metric_show(ctx, metric_id, output_format, columns, fit_width, max_width, noindent):
     """Show collection details for a rated metric."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_url(client)}/v1/info/metrics/{metric_id}")
+    svc = RatingService(client)
+    data = svc.get_metric(metric_id)
     fields = [
         ("Metric", data.get("metric_id", "")),
         ("Unit", data.get("unit", "")),
@@ -109,6 +109,7 @@ def rating_summary(ctx, begin, end, groupby, filters,
       orca rating summary --begin 2026-01-01T00:00:00 --end 2026-02-01T00:00:00 --groupby project_id
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = RatingService(client)
     if not begin and not end:
         begin, end = _default_window()
     params: dict = {}
@@ -124,7 +125,7 @@ def rating_summary(ctx, begin, end, groupby, filters,
         k, v = f.split("=", 1)
         params[f"filters[{k}]"] = v
 
-    data = client.get(f"{_url(client)}/v2/summary", params=params)
+    data = svc.get_summary(params=params)
     results = data.get("results", []) or []
     cols = data.get("columns", []) or []
     if not results:
@@ -149,6 +150,7 @@ def rating_dataframes(ctx, begin, end, limit):
     Falls back to v1 storage if the v2 endpoint is not exposed.
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = RatingService(client)
     if not begin and not end:
         # Tighter default than summary: last 24 h, dataframes can be huge.
         now = datetime.now(timezone.utc)
@@ -166,9 +168,9 @@ def rating_dataframes(ctx, begin, end, limit):
     # v2 is the preferred API but many clouds (e.g. Infomaniak) only expose
     # the v1 storage endpoint. Try v2, fall back to v1 on 404.
     try:
-        data = client.get(f"{_url(client)}/v2/dataframes", params=params)
+        data = svc.find_dataframes(v2=True, params=params)
     except Exception:
-        data = client.get(f"{_url(client)}/v1/storage/dataframes", params=params)
+        data = svc.find_dataframes(v2=False, params=params)
 
     frames = data.get("dataframes", []) or data.get("results", [])
     if not frames:
@@ -198,6 +200,7 @@ def rating_quote(ctx, resources):
       orca rating quote --resource '{"service":"instance","desc":{"flavor_id":"2"},"volume":"1"}'
     """
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = RatingService(client)
     body_items: list[dict] = []
     for raw in resources:
         try:
@@ -205,7 +208,7 @@ def rating_quote(ctx, resources):
         except json.JSONDecodeError as exc:
             raise click.BadParameter(f"Invalid JSON: {exc}", param_hint="--resource") from exc
     payload = {"resources": body_items}
-    data = client.post(f"{_url(client)}/v1/rating/quote", json=payload)
+    data = svc.create_quote(payload)
     if isinstance(data, (int, float, str)):
         console.print(f"Estimated price: [bold]{data}[/bold]")
     else:
@@ -222,8 +225,8 @@ def rating_quote(ctx, resources):
 def rating_module_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List rating modules (hashmap, pyscripts, noop, …). Admin only."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_url(client)}/v1/rating/modules")
-    items = data.get("modules", []) if isinstance(data, dict) else data
+    svc = RatingService(client)
+    items = svc.find_modules()
     col_defs = [
         ("Module", "module_id", {"style": "bold"}),
         ("Enabled", "enabled"),
@@ -242,7 +245,8 @@ def rating_module_list(ctx, output_format, columns, fit_width, max_width, noinde
 def rating_module_show(ctx, module_id, output_format, columns, fit_width, max_width, noindent):
     """Show a rating module. Admin only."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_url(client)}/v1/rating/modules/{module_id}")
+    svc = RatingService(client)
+    data = svc.get_module(module_id)
     fields = [
         ("Module", data.get("module_id", "")),
         ("Enabled", data.get("enabled", "")),
@@ -254,15 +258,15 @@ def rating_module_show(ctx, module_id, output_format, columns, fit_width, max_wi
                  fit_width=fit_width, max_width=max_width, noindent=noindent)
 
 
-def _module_put(client, module_id: str, patch: dict) -> None:
+def _module_put(svc: RatingService, module_id: str, patch: dict) -> None:
     """PUT the full module representation with the given patch applied.
 
     CloudKitty's module PUT is a full-replacement; fetch-merge-send.
     """
-    current = client.get(f"{_url(client)}/v1/rating/modules/{module_id}")
+    current = svc.get_module(module_id)
     body = {k: v for k, v in current.items() if k != "module_id"}
     body.update(patch)
-    client.put(f"{_url(client)}/v1/rating/modules/{module_id}", json=body)
+    svc.update_module(module_id, body)
 
 
 @rating.command("module-enable")
@@ -271,7 +275,8 @@ def _module_put(client, module_id: str, patch: dict) -> None:
 def rating_module_enable(ctx, module_id):
     """Enable a rating module. Admin only."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    _module_put(client, module_id, {"enabled": True})
+    svc = RatingService(client)
+    _module_put(svc, module_id, {"enabled": True})
     console.print(f"Rating module [bold]{module_id}[/bold] enabled.")
 
 
@@ -281,7 +286,8 @@ def rating_module_enable(ctx, module_id):
 def rating_module_disable(ctx, module_id):
     """Disable a rating module. Admin only."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    _module_put(client, module_id, {"enabled": False})
+    svc = RatingService(client)
+    _module_put(svc, module_id, {"enabled": False})
     console.print(f"Rating module [bold]{module_id}[/bold] disabled.")
 
 
@@ -292,16 +298,14 @@ def rating_module_disable(ctx, module_id):
 def rating_module_set_priority(ctx, module_id, priority):
     """Set module priority (higher runs first). Admin only."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    _module_put(client, module_id, {"priority": priority})
+    svc = RatingService(client)
+    _module_put(svc, module_id, {"priority": priority})
     console.print(f"Rating module [bold]{module_id}[/bold] priority set to [bold]{priority}[/bold].")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  rating hashmap — services / fields / mappings / thresholds / groups
 # ══════════════════════════════════════════════════════════════════════════════
-
-_HM = "/v1/rating/module_config/hashmap"
-
 
 @rating.group("hashmap")
 def rating_hashmap() -> None:
@@ -316,8 +320,8 @@ def rating_hashmap() -> None:
 def hm_service_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List HashMap services (one per rated metric)."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_url(client)}{_HM}/services")
-    items = data.get("services", []) if isinstance(data, dict) else data
+    svc = RatingService(client)
+    items = svc.find_hashmap_services()
     print_list(
         items,
         [("Service ID", "service_id", {"style": "cyan"}),
@@ -334,7 +338,8 @@ def hm_service_list(ctx, output_format, columns, fit_width, max_width, noindent)
 def hm_service_create(ctx, name):
     """Create a HashMap service (one per rated metric)."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.post(f"{_url(client)}{_HM}/services", json={"name": name})
+    svc = RatingService(client)
+    data = svc.create_hashmap_service(name)
     console.print(f"HashMap service [bold]{name}[/bold] created "
                   f"(ID: {data.get('service_id', '?')}).")
 
@@ -348,7 +353,8 @@ def hm_service_delete(ctx, service_id, yes):
     if not yes:
         click.confirm(f"Delete HashMap service {service_id}?", abort=True)
     client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_url(client)}{_HM}/services/{service_id}")
+    svc = RatingService(client)
+    svc.delete_hashmap_service(service_id)
     console.print(f"HashMap service [bold]{service_id}[/bold] deleted.")
 
 
@@ -362,9 +368,9 @@ def hm_service_delete(ctx, service_id, yes):
 def hm_field_list(ctx, service_id, output_format, columns, fit_width, max_width, noindent):
     """List HashMap fields (metadata keys a service is rated on)."""
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = RatingService(client)
     params = {"service_id": service_id} if service_id else {}
-    data = client.get(f"{_url(client)}{_HM}/fields", params=params)
-    items = data.get("fields", []) if isinstance(data, dict) else data
+    items = svc.find_hashmap_fields(params=params)
     print_list(
         items,
         [("Field ID", "field_id", {"style": "cyan"}),
@@ -383,8 +389,8 @@ def hm_field_list(ctx, service_id, output_format, columns, fit_width, max_width,
 def hm_field_create(ctx, service_id, name):
     """Create a HashMap field under a service."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.post(f"{_url(client)}{_HM}/fields",
-                       json={"service_id": service_id, "name": name})
+    svc = RatingService(client)
+    data = svc.create_hashmap_field({"service_id": service_id, "name": name})
     console.print(f"HashMap field [bold]{name}[/bold] created "
                   f"(ID: {data.get('field_id', '?')}).")
 
@@ -398,7 +404,8 @@ def hm_field_delete(ctx, field_id, yes):
     if not yes:
         click.confirm(f"Delete HashMap field {field_id}?", abort=True)
     client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_url(client)}{_HM}/fields/{field_id}")
+    svc = RatingService(client)
+    svc.delete_hashmap_field(field_id)
     console.print(f"HashMap field [bold]{field_id}[/bold] deleted.")
 
 
@@ -414,6 +421,7 @@ def hm_mapping_list(ctx, service_id, field_id, group_id,
                     output_format, columns, fit_width, max_width, noindent):
     """List HashMap mappings (value → price)."""
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = RatingService(client)
     params = {}
     if service_id:
         params["service_id"] = service_id
@@ -421,8 +429,7 @@ def hm_mapping_list(ctx, service_id, field_id, group_id,
         params["field_id"] = field_id
     if group_id:
         params["group_id"] = group_id
-    data = client.get(f"{_url(client)}{_HM}/mappings", params=params)
-    items = data.get("mappings", []) if isinstance(data, dict) else data
+    items = svc.find_hashmap_mappings(params=params)
     print_list(
         items,
         [("Mapping ID", "mapping_id", {"style": "cyan"}),
@@ -465,6 +472,7 @@ def hm_mapping_create(ctx, field_id, service_id, value, cost, mapping_type, grou
     if not field_id and not service_id:
         raise click.UsageError("Provide either --field-id or --service-id.")
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = RatingService(client)
     body: dict = {"cost": cost, "type": mapping_type}
     if field_id:
         body["field_id"] = field_id
@@ -474,7 +482,7 @@ def hm_mapping_create(ctx, field_id, service_id, value, cost, mapping_type, grou
         body["value"] = value
     if group_id:
         body["group_id"] = group_id
-    data = client.post(f"{_url(client)}{_HM}/mappings", json=body)
+    data = svc.create_hashmap_mapping(body)
     console.print(f"HashMap mapping created (ID: [bold]{data.get('mapping_id', '?')}[/bold]).")
 
 
@@ -487,7 +495,8 @@ def hm_mapping_delete(ctx, mapping_id, yes):
     if not yes:
         click.confirm(f"Delete HashMap mapping {mapping_id}?", abort=True)
     client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_url(client)}{_HM}/mappings/{mapping_id}")
+    svc = RatingService(client)
+    svc.delete_hashmap_mapping(mapping_id)
     console.print(f"HashMap mapping [bold]{mapping_id}[/bold] deleted.")
 
 
@@ -503,6 +512,7 @@ def hm_threshold_list(ctx, service_id, field_id, group_id,
                       output_format, columns, fit_width, max_width, noindent):
     """List HashMap thresholds."""
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = RatingService(client)
     params = {}
     if service_id:
         params["service_id"] = service_id
@@ -510,8 +520,7 @@ def hm_threshold_list(ctx, service_id, field_id, group_id,
         params["field_id"] = field_id
     if group_id:
         params["group_id"] = group_id
-    data = client.get(f"{_url(client)}{_HM}/thresholds", params=params)
-    items = data.get("thresholds", []) if isinstance(data, dict) else data
+    items = svc.find_hashmap_thresholds(params=params)
     print_list(
         items,
         [("Threshold ID", "threshold_id", {"style": "cyan"}),
@@ -539,6 +548,7 @@ def hm_threshold_create(ctx, field_id, service_id, level, cost, threshold_type, 
     if not field_id and not service_id:
         raise click.UsageError("Provide either --field-id or --service-id.")
     client = ctx.find_object(OrcaContext).ensure_client()
+    svc = RatingService(client)
     body: dict = {"level": level, "cost": cost, "type": threshold_type}
     if field_id:
         body["field_id"] = field_id
@@ -546,7 +556,7 @@ def hm_threshold_create(ctx, field_id, service_id, level, cost, threshold_type, 
         body["service_id"] = service_id
     if group_id:
         body["group_id"] = group_id
-    data = client.post(f"{_url(client)}{_HM}/thresholds", json=body)
+    data = svc.create_hashmap_threshold(body)
     console.print(f"HashMap threshold created (ID: [bold]{data.get('threshold_id', '?')}[/bold]).")
 
 
@@ -559,7 +569,8 @@ def hm_threshold_delete(ctx, threshold_id, yes):
     if not yes:
         click.confirm(f"Delete HashMap threshold {threshold_id}?", abort=True)
     client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_url(client)}{_HM}/thresholds/{threshold_id}")
+    svc = RatingService(client)
+    svc.delete_hashmap_threshold(threshold_id)
     console.print(f"HashMap threshold [bold]{threshold_id}[/bold] deleted.")
 
 
@@ -571,8 +582,8 @@ def hm_threshold_delete(ctx, threshold_id, yes):
 def hm_group_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List HashMap groups (shared metadata across mappings)."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.get(f"{_url(client)}{_HM}/groups")
-    items = data.get("groups", []) if isinstance(data, dict) else data
+    svc = RatingService(client)
+    items = svc.find_hashmap_groups()
     print_list(
         items,
         [("Group ID", "group_id", {"style": "cyan"}),
@@ -589,7 +600,8 @@ def hm_group_list(ctx, output_format, columns, fit_width, max_width, noindent):
 def hm_group_create(ctx, name):
     """Create a HashMap group."""
     client = ctx.find_object(OrcaContext).ensure_client()
-    data = client.post(f"{_url(client)}{_HM}/groups", json={"name": name})
+    svc = RatingService(client)
+    data = svc.create_hashmap_group(name)
     console.print(f"HashMap group [bold]{name}[/bold] created "
                   f"(ID: {data.get('group_id', '?')}).")
 
@@ -603,5 +615,6 @@ def hm_group_delete(ctx, group_id, yes):
     if not yes:
         click.confirm(f"Delete HashMap group {group_id}?", abort=True)
     client = ctx.find_object(OrcaContext).ensure_client()
-    client.delete(f"{_url(client)}{_HM}/groups/{group_id}")
+    svc = RatingService(client)
+    svc.delete_hashmap_group(group_id)
     console.print(f"HashMap group [bold]{group_id}[/bold] deleted.")
