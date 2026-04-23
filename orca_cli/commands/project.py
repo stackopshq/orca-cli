@@ -187,6 +187,67 @@ def _before_cutoff(resource: dict, cutoff: datetime | None) -> bool:
         return True
 
 
+# device_owner values for ports attached to a router that need to be detached
+# via remove_router_interface before the router can be deleted. Router gateway
+# ports (network:router_gateway, network:router_centralized_snat) are released
+# by clearing external_gateway_info instead.
+_ROUTER_INTERFACE_OWNERS = (
+    "network:router_interface",
+    "network:router_interface_distributed",
+    "network:ha_router_replicated_interface",
+)
+
+
+def _delete_router(client, rid: str) -> None:
+    """Detach all router interfaces and clear the external gateway, then delete."""
+    net_svc = NetworkService(client)
+
+    # Clear external gateway (releases router_gateway / centralized_snat ports).
+    try:
+        net_svc.update_router(rid, {"external_gateway_info": None})
+    except Exception:
+        pass
+
+    # Detach every router-interface port, regardless of legacy/DVR/HA flavor.
+    try:
+        ports = net_svc.find_ports(params={"device_id": rid})
+    except Exception:
+        ports = []
+    for p in ports:
+        owner = p.get("device_owner", "")
+        if not any(owner.startswith(o) for o in _ROUTER_INTERFACE_OWNERS):
+            continue
+        try:
+            net_svc.remove_router_interface(rid, {"port_id": p["id"]})
+        except Exception:
+            pass
+
+    net_svc.delete_router(rid)
+
+
+def _delete_network(client, nid: str) -> None:
+    """Delete orphan/compute leftover ports, then delete the network."""
+    net_svc = NetworkService(client)
+
+    # Ports owned by Neutron itself (dhcp, router, floatingip, ha_*) are cleaned
+    # up by their respective delete paths; we only remove truly orphaned ports
+    # or stale compute VIFs whose server has already been deleted.
+    try:
+        ports = net_svc.find_ports(params={"network_id": nid})
+    except Exception:
+        ports = []
+    for p in ports:
+        owner = p.get("device_owner", "")
+        if owner and not owner.startswith("compute:"):
+            continue
+        try:
+            net_svc.delete_port(p["id"])
+        except Exception:
+            pass
+
+    net_svc.delete(nid)
+
+
 def _delete_one(client, rtype: str, rid: str, rname: str) -> bool:
     """Delete a single resource by type. Returns True on success."""
     label = f"{rtype} {rname} ({rid})"
@@ -200,23 +261,9 @@ def _delete_one(client, rtype: str, rid: str, rname: str) -> bool:
         elif rtype == "floating-ip":
             NetworkService(client).delete_floating_ip(rid)
         elif rtype == "router":
-            # Detach all subnet interfaces before deleting
-            net_svc = NetworkService(client)
-            try:
-                ports = net_svc.find_ports(params={
-                    "device_id": rid,
-                    "device_owner": "network:router_interface",
-                })
-            except Exception:
-                ports = []
-            for p in ports:
-                try:
-                    net_svc.remove_router_interface(rid, {"port_id": p["id"]})
-                except Exception:
-                    pass
-            net_svc.delete_router(rid)
+            _delete_router(client, rid)
         elif rtype == "network":
-            NetworkService(client).delete(rid)
+            _delete_network(client, rid)
         elif rtype == "security-group":
             NetworkService(client).delete_security_group(rid)
         elif rtype == "volume":
