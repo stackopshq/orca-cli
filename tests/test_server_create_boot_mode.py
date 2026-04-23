@@ -34,7 +34,7 @@ def _mock_create_with_flavors(mock_client, flavors):
 
 class TestAutoDetect:
 
-    def test_flavor_with_disk_defaults_to_ephemeral(
+    def test_flavor_with_disk_defaults_to_boot_from_image(
         self, invoke, config_dir, mock_client, sample_profile,
     ):
         save_profile("p", sample_profile)
@@ -52,7 +52,7 @@ class TestAutoDetect:
         body = state["posted"]["body"]
         assert body["imageRef"] == IMG_ID
         assert "block_device_mapping_v2" not in body
-        assert "ephemeral" in result.output.lower()
+        assert "from image" in result.output.lower()
 
     def test_diskless_flavor_falls_back_to_bfv(
         self, invoke, config_dir, mock_client, sample_profile,
@@ -103,7 +103,7 @@ class TestExplicitFlags:
         assert body["block_device_mapping_v2"][0]["volume_size"] == 40
         assert "imageRef" not in body
 
-    def test_ephemeral_on_flavor_with_disk(
+    def test_boot_from_image_on_flavor_with_disk(
         self, invoke, config_dir, mock_client, sample_profile,
     ):
         save_profile("p", sample_profile)
@@ -116,14 +116,14 @@ class TestExplicitFlags:
                          "--name", "vm4",
                          "--flavor", FLAVOR_WITH_DISK,
                          "--image", IMG_ID,
-                         "--ephemeral"])
+                         "--boot-from-image"])
 
         assert result.exit_code == 0, result.output
         body = state["posted"]["body"]
         assert body["imageRef"] == IMG_ID
         assert "block_device_mapping_v2" not in body
 
-    def test_ephemeral_on_diskless_flavor_errors(
+    def test_boot_from_image_on_diskless_flavor_errors(
         self, invoke, config_dir, mock_client, sample_profile,
     ):
         save_profile("p", sample_profile)
@@ -136,7 +136,7 @@ class TestExplicitFlags:
                          "--name", "vm5",
                          "--flavor", FLAVOR_DISKLESS,
                          "--image", IMG_ID,
-                         "--ephemeral"])
+                         "--boot-from-image"])
 
         assert result.exit_code != 0
         assert "disk=0" in result.output
@@ -156,7 +156,7 @@ class TestExplicitFlags:
                          "--name", "vm6",
                          "--flavor", FLAVOR_WITH_DISK,
                          "--image", IMG_ID,
-                         "--ephemeral",
+                         "--boot-from-image",
                          "--boot-from-volume"])
 
         assert result.exit_code != 0
@@ -168,10 +168,10 @@ class TestExplicitFlags:
 
 class TestFlavorLookupFailure:
 
-    def test_unreachable_flavor_respects_ephemeral_flag(
+    def test_unreachable_flavor_respects_boot_from_image_flag(
         self, invoke, config_dir, mock_client, sample_profile, monkeypatch,
     ):
-        """When GET /flavors/<id> errors, the explicit --ephemeral is honored."""
+        """When GET /flavors/<id> errors, the explicit --boot-from-image is honored."""
         save_profile("p", sample_profile)
         set_active_profile("p")
         state = _mock_create_with_flavors(mock_client, {})
@@ -184,7 +184,7 @@ class TestFlavorLookupFailure:
                          "--name", "vm7",
                          "--flavor", FLAVOR_WITH_DISK,
                          "--image", IMG_ID,
-                         "--ephemeral"])
+                         "--boot-from-image"])
 
         assert result.exit_code == 0, result.output
         body = state["posted"]["body"]
