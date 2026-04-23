@@ -10,31 +10,27 @@
       
       
       
-        <link rel="canonical" href="https://stackopshq.github.io/orca-cli/adr/">
+        <link rel="canonical" href="https://stackopshq.github.io/orca-cli/adr/0009-server-boot-mode-policy/">
       
       
-        <link rel="prev" href="../commands/completion/">
-      
-      
-        <link rel="next" href="0001-lazy-command-registration/">
       
       
         
       
       
-      <link rel="icon" href="../assets/favicon.png">
+      <link rel="icon" href="../../assets/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Index - orca</title>
+        <title>ADR-0009: Server boot mode defaults to boot-from-image - orca</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,9 +49,9 @@
       
     
     
-      <link rel="stylesheet" href="../assets/theme.css">
+      <link rel="stylesheet" href="../../assets/theme.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture-decision-records" class="md-skip">
+        <a href="#adr-0009-server-boot-mode-defaults-to-boot-from-image" class="md-skip">
           Skip to content
         </a>
       
@@ -96,9 +92,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="orca" class="md-header__button md-logo" aria-label="orca" data-md-component="logo">
+    <a href="../.." title="orca" class="md-header__button md-logo" aria-label="orca" data-md-component="logo">
       
-  <img src="../assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Index
+              ADR-0009: Server boot mode defaults to boot-from-image
             
           </span>
         </div>
@@ -233,9 +229,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="orca" class="md-nav__button md-logo" aria-label="orca" data-md-component="logo">
+    <a href="../.." title="orca" class="md-nav__button md-logo" aria-label="orca" data-md-component="logo">
       
-  <img src="../assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     orca
@@ -262,7 +258,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -289,7 +285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/" class="md-nav__link">
+      <a href="../../getting-started/" class="md-nav__link">
         
   
   
@@ -316,7 +312,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/" class="md-nav__link">
+      <a href="../../reference/" class="md-nav__link">
         
   
   
@@ -397,7 +393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/" class="md-nav__link">
+      <a href="../../commands/" class="md-nav__link">
         
   
   
@@ -476,7 +472,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/overview/" class="md-nav__link">
+      <a href="../../commands/overview/" class="md-nav__link">
         
   
   
@@ -504,7 +500,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/watch/" class="md-nav__link">
+      <a href="../../commands/watch/" class="md-nav__link">
         
   
   
@@ -532,7 +528,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/doctor/" class="md-nav__link">
+      <a href="../../commands/doctor/" class="md-nav__link">
         
   
   
@@ -560,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/audit/" class="md-nav__link">
+      <a href="../../commands/audit/" class="md-nav__link">
         
   
   
@@ -588,7 +584,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/cleanup/" class="md-nav__link">
+      <a href="../../commands/cleanup/" class="md-nav__link">
         
   
   
@@ -616,7 +612,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/export/" class="md-nav__link">
+      <a href="../../commands/export/" class="md-nav__link">
         
   
   
@@ -644,7 +640,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/profile/" class="md-nav__link">
+      <a href="../../commands/profile/" class="md-nav__link">
         
   
   
@@ -731,7 +727,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/server/" class="md-nav__link">
+      <a href="../../commands/server/" class="md-nav__link">
         
   
   
@@ -759,7 +755,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/flavor/" class="md-nav__link">
+      <a href="../../commands/flavor/" class="md-nav__link">
         
   
   
@@ -787,7 +783,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/keypair/" class="md-nav__link">
+      <a href="../../commands/keypair/" class="md-nav__link">
         
   
   
@@ -815,7 +811,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/aggregate/" class="md-nav__link">
+      <a href="../../commands/aggregate/" class="md-nav__link">
         
   
   
@@ -843,7 +839,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/availability-zone/" class="md-nav__link">
+      <a href="../../commands/availability-zone/" class="md-nav__link">
         
   
   
@@ -871,7 +867,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/compute-service/" class="md-nav__link">
+      <a href="../../commands/compute-service/" class="md-nav__link">
         
   
   
@@ -899,7 +895,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/hypervisor/" class="md-nav__link">
+      <a href="../../commands/hypervisor/" class="md-nav__link">
         
   
   
@@ -927,7 +923,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/server-group/" class="md-nav__link">
+      <a href="../../commands/server-group/" class="md-nav__link">
         
   
   
@@ -955,7 +951,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/event/" class="md-nav__link">
+      <a href="../../commands/event/" class="md-nav__link">
         
   
   
@@ -983,7 +979,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/usage/" class="md-nav__link">
+      <a href="../../commands/usage/" class="md-nav__link">
         
   
   
@@ -1070,7 +1066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/image/" class="md-nav__link">
+      <a href="../../commands/image/" class="md-nav__link">
         
   
   
@@ -1157,7 +1153,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/volume/" class="md-nav__link">
+      <a href="../../commands/volume/" class="md-nav__link">
         
   
   
@@ -1185,7 +1181,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/backup/" class="md-nav__link">
+      <a href="../../commands/backup/" class="md-nav__link">
         
   
   
@@ -1272,7 +1268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/container/" class="md-nav__link">
+      <a href="../../commands/container/" class="md-nav__link">
         
   
   
@@ -1300,7 +1296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/object/" class="md-nav__link">
+      <a href="../../commands/object/" class="md-nav__link">
         
   
   
@@ -1387,7 +1383,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/network/" class="md-nav__link">
+      <a href="../../commands/network/" class="md-nav__link">
         
   
   
@@ -1415,7 +1411,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/floating-ip/" class="md-nav__link">
+      <a href="../../commands/floating-ip/" class="md-nav__link">
         
   
   
@@ -1443,7 +1439,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/security-group/" class="md-nav__link">
+      <a href="../../commands/security-group/" class="md-nav__link">
         
   
   
@@ -1471,7 +1467,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/qos/" class="md-nav__link">
+      <a href="../../commands/qos/" class="md-nav__link">
         
   
   
@@ -1499,7 +1495,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/subnet-pool/" class="md-nav__link">
+      <a href="../../commands/subnet-pool/" class="md-nav__link">
         
   
   
@@ -1527,7 +1523,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/trunk/" class="md-nav__link">
+      <a href="../../commands/trunk/" class="md-nav__link">
         
   
   
@@ -1614,7 +1610,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/loadbalancer/" class="md-nav__link">
+      <a href="../../commands/loadbalancer/" class="md-nav__link">
         
   
   
@@ -1701,7 +1697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/zone/" class="md-nav__link">
+      <a href="../../commands/zone/" class="md-nav__link">
         
   
   
@@ -1729,7 +1725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/recordset/" class="md-nav__link">
+      <a href="../../commands/recordset/" class="md-nav__link">
         
   
   
@@ -1816,7 +1812,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/stack/" class="md-nav__link">
+      <a href="../../commands/stack/" class="md-nav__link">
         
   
   
@@ -1903,7 +1899,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/cluster/" class="md-nav__link">
+      <a href="../../commands/cluster/" class="md-nav__link">
         
   
   
@@ -1990,7 +1986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/metric/" class="md-nav__link">
+      <a href="../../commands/metric/" class="md-nav__link">
         
   
   
@@ -2018,7 +2014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/alarm/" class="md-nav__link">
+      <a href="../../commands/alarm/" class="md-nav__link">
         
   
   
@@ -2105,7 +2101,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/placement/" class="md-nav__link">
+      <a href="../../commands/placement/" class="md-nav__link">
         
   
   
@@ -2192,7 +2188,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/secret/" class="md-nav__link">
+      <a href="../../commands/secret/" class="md-nav__link">
         
   
   
@@ -2279,7 +2275,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/user/" class="md-nav__link">
+      <a href="../../commands/user/" class="md-nav__link">
         
   
   
@@ -2307,7 +2303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/project/" class="md-nav__link">
+      <a href="../../commands/project/" class="md-nav__link">
         
   
   
@@ -2335,7 +2331,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/domain/" class="md-nav__link">
+      <a href="../../commands/domain/" class="md-nav__link">
         
   
   
@@ -2363,7 +2359,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/role/" class="md-nav__link">
+      <a href="../../commands/role/" class="md-nav__link">
         
   
   
@@ -2391,7 +2387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/group/" class="md-nav__link">
+      <a href="../../commands/group/" class="md-nav__link">
         
   
   
@@ -2419,7 +2415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/credential/" class="md-nav__link">
+      <a href="../../commands/credential/" class="md-nav__link">
         
   
   
@@ -2447,7 +2443,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/application-credential/" class="md-nav__link">
+      <a href="../../commands/application-credential/" class="md-nav__link">
         
   
   
@@ -2475,7 +2471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/access-rule/" class="md-nav__link">
+      <a href="../../commands/access-rule/" class="md-nav__link">
         
   
   
@@ -2503,7 +2499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/trust/" class="md-nav__link">
+      <a href="../../commands/trust/" class="md-nav__link">
         
   
   
@@ -2531,7 +2527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/token/" class="md-nav__link">
+      <a href="../../commands/token/" class="md-nav__link">
         
   
   
@@ -2559,7 +2555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/auth/" class="md-nav__link">
+      <a href="../../commands/auth/" class="md-nav__link">
         
   
   
@@ -2587,7 +2583,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/endpoint/" class="md-nav__link">
+      <a href="../../commands/endpoint/" class="md-nav__link">
         
   
   
@@ -2615,7 +2611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/endpoint-group/" class="md-nav__link">
+      <a href="../../commands/endpoint-group/" class="md-nav__link">
         
   
   
@@ -2643,7 +2639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/region/" class="md-nav__link">
+      <a href="../../commands/region/" class="md-nav__link">
         
   
   
@@ -2671,7 +2667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/service/" class="md-nav__link">
+      <a href="../../commands/service/" class="md-nav__link">
         
   
   
@@ -2699,7 +2695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/limit/" class="md-nav__link">
+      <a href="../../commands/limit/" class="md-nav__link">
         
   
   
@@ -2786,7 +2782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/ip/" class="md-nav__link">
+      <a href="../../commands/ip/" class="md-nav__link">
         
   
   
@@ -2814,7 +2810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/limits/" class="md-nav__link">
+      <a href="../../commands/limits/" class="md-nav__link">
         
   
   
@@ -2842,7 +2838,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/quota/" class="md-nav__link">
+      <a href="../../commands/quota/" class="md-nav__link">
         
   
   
@@ -2870,7 +2866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/catalog/" class="md-nav__link">
+      <a href="../../commands/catalog/" class="md-nav__link">
         
   
   
@@ -2898,7 +2894,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/completion/" class="md-nav__link">
+      <a href="../../commands/completion/" class="md-nav__link">
         
   
   
@@ -2938,8 +2934,6 @@
       
   
   
-    
-  
   
   
     
@@ -2952,11 +2946,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -2977,7 +2973,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2992,37 +2988,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Index
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -3038,37 +3007,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#index" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Index
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -3081,7 +3019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="0001-lazy-command-registration/" class="md-nav__link">
+      <a href="../0001-lazy-command-registration/" class="md-nav__link">
         
   
   
@@ -3109,7 +3047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="0002-dual-format-config-file/" class="md-nav__link">
+      <a href="../0002-dual-format-config-file/" class="md-nav__link">
         
   
   
@@ -3137,7 +3075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="0003-auth-type-auto-detection/" class="md-nav__link">
+      <a href="../0003-auth-type-auto-detection/" class="md-nav__link">
         
   
   
@@ -3165,7 +3103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="0004-no-services-layer/" class="md-nav__link">
+      <a href="../0004-no-services-layer/" class="md-nav__link">
         
   
   
@@ -3193,7 +3131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="0005-durable-token-cache/" class="md-nav__link">
+      <a href="../0005-durable-token-cache/" class="md-nav__link">
         
   
   
@@ -3221,7 +3159,7 @@
   
   
     <li class="md-nav__item">
-      <a href="0006-idempotent-only-retries/" class="md-nav__link">
+      <a href="../0006-idempotent-only-retries/" class="md-nav__link">
         
   
   
@@ -3249,7 +3187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="0007-incremental-services-layer/" class="md-nav__link">
+      <a href="../0007-incremental-services-layer/" class="md-nav__link">
         
   
   
@@ -3277,7 +3215,7 @@
   
   
     <li class="md-nav__item">
-      <a href="0008-command-naming-convention/" class="md-nav__link">
+      <a href="../0008-command-naming-convention/" class="md-nav__link">
         
   
   
@@ -3332,10 +3270,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#index" class="md-nav__link">
+  <a href="#context" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Index
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives considered
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation
       
     </span>
   </a>
@@ -3362,41 +3344,94 @@
   
 
 
-<h1 id="architecture-decision-records">Architecture Decision Records<a class="headerlink" href="#architecture-decision-records" title="Permanent link">&para;</a></h1>
-<p>This folder records the <em>non-obvious</em> design decisions behind orca — the
-choices a future contributor would otherwise have to reverse-engineer from
-the code, and where a casual refactor could silently undo a deliberate
-trade-off.</p>
-<p>ADRs are intentionally short (one page each). Format:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a># ADR-NNNN: Title
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>**Status**: Accepted | Superseded by ADR-MMMM | Deprecated
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>**Date**: YYYY-MM-DD
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>## Context
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>What problem we faced.
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>## Decision
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>What we chose to do.
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>## Consequences
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>- Positive: ...
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>- Negative / trade-off: ...
-</code></pre></div>
-<p>When a decision is reversed, <em>don't delete the ADR</em> — mark it
-<code>Superseded by ADR-MMMM</code> and add a new file. The history of choices is part
-of the documentation.</p>
-<h2 id="index">Index<a class="headerlink" href="#index" title="Permanent link">&para;</a></h2>
+<h1 id="adr-0009-server-boot-mode-defaults-to-boot-from-image">ADR-0009: Server boot mode defaults to boot-from-image<a class="headerlink" href="#adr-0009-server-boot-mode-defaults-to-boot-from-image" title="Permanent link">&para;</a></h1>
+<p><strong>Status</strong>: Accepted
+<strong>Date</strong>: 2026-04-23</p>
+<h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
+<p>Until v2.0.1, <code>orca server create</code> and <code>orca server clone</code> built an
+unconditional <code>block_device_mapping_v2</code> with
+<code>source_type=image, destination_type=volume</code>, asking Nova to create a
+Cinder volume from the image for every boot. The docstring even advertised
+this as <em>"Create a new server (boot from volume)"</em>.</p>
+<p>Forcing boot-from-volume (BFV) uniformly has real costs on any cloud where
+the flavor can carry a local root disk:</p>
 <ul>
-<li><a href="0001-lazy-command-registration/">ADR-0001 — Lazy command registration</a></li>
-<li><a href="0002-dual-format-config-file/">ADR-0002 — Dual-format configuration file</a></li>
-<li><a href="0003-auth-type-auto-detection/">ADR-0003 — Auth-type auto-detection</a></li>
-<li><a href="0004-no-services-layer/">ADR-0004 — No services layer (yet)</a> <em>(superseded by ADR-0007)</em></li>
-<li><a href="0005-durable-token-cache/">ADR-0005 — Durable, atomic token cache</a></li>
-<li><a href="0006-idempotent-only-retries/">ADR-0006 — Idempotent-only HTTP retries</a></li>
-<li><a href="0007-incremental-services-layer/">ADR-0007 — Incremental services layer with typed models</a></li>
-<li><a href="0008-command-naming-convention/">ADR-0008 — Command naming follows openstackclient convention</a></li>
-<li><a href="0009-server-boot-mode-policy/">ADR-0009 — Server boot mode defaults to boot-from-image</a></li>
+<li><strong>Cinder quota is consumed per VM</strong>, even for a 5-minute test instance.
+  A cleanup run on 2026-04-23 with 30 ephemeral test VMs left 30 boot
+  volumes attached; they cascaded as 404s during <code>project cleanup</code>.</li>
+<li><strong>Provisioning is slower</strong>: Cinder must materialise the volume from the
+  image before Nova schedules the VM (3–10 s typical, more on a busy
+  backend).</li>
+<li><strong>The flavor's <code>disk</code> field becomes dead</strong> — allocated but unused.</li>
+<li><strong>Horizon and the dashboard default</strong> is boot-from-image with an
+  opt-in checkbox for boot-from-volume; an <code>openstack</code>-trained user
+  expects <code>orca server create --image X</code> to behave the same way.</li>
+</ul>
+<p>The one case where BFV is actually required is flavors declared with
+<code>disk == 0</code>. Nova refuses to schedule an ephemeral boot on such a
+flavor because there is no root-disk allocation; Cinder is the only
+backing available.</p>
+<h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
+<p><strong><code>orca server create</code> and <code>orca server clone</code> boot from image by
+default.</strong> The Nova body uses <code>imageRef</code> and no
+<code>block_device_mapping_v2</code>; Nova sizes the root disk from the flavor.</p>
+<p>The policy lives in a single helper <code>_resolve_boot_mode(client,
+flavor_id, boot_from_image, boot_from_volume)</code> that both commands call.
+Precedence:</p>
+<ol>
+<li><code>--boot-from-volume</code> explicit → BFV, regardless of flavor.</li>
+<li><code>--boot-from-image</code> explicit → ephemeral; errors with a clear
+   message if <code>flavor.disk == 0</code>.</li>
+<li>Neither flag → auto: ephemeral when <code>flavor.disk &gt; 0</code>, BFV when
+   <code>flavor.disk == 0</code>.</li>
+</ol>
+<p>The two flags are mutually exclusive. When the flavor lookup itself
+fails (transient Nova error, missing permissions), the explicit flag
+is honoured; without one the helper falls back to BFV, which works on
+every deployment.</p>
+<p><code>--disk-size</code> keeps its meaning on the BFV path (boot volume size in
+GB) and is ignored on the ephemeral path (Nova sizes the root disk
+from the flavor — <code>--disk-size</code> there would silently have no effect,
+not surface an error).</p>
+<h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Positive</strong>: default behaviour matches Horizon, <code>openstack server
+  create</code>, and user expectations. No silent Cinder quota drain per VM.</li>
+<li><strong>Positive</strong>: faster server creation on flavors with <code>disk &gt; 0</code>.</li>
+<li><strong>Positive</strong>: <code>project cleanup</code> output shrinks — no more wave of
+  cascaded boot-volume 404s after deleting test fleets.</li>
+<li><strong>Negative / trade-off</strong>: <strong>backwards-incompatible</strong> for pipelines
+  that relied on the root Cinder volume being auto-created. Migration
+  is a single flag (<code>--boot-from-volume</code>); documented in the PRs that
+  landed the change and in <code>--help</code> output.</li>
+<li><strong>Negative / trade-off</strong>: the command now issues one extra <code>GET
+  /flavors/&lt;id&gt;</code> on auto-detection. This is ~10 ms and cached by
+  Nova — acceptable.</li>
+<li><strong>Neutral</strong>: the interactive wizard (<code>-i</code>) does not prompt for boot
+  mode; it follows the same auto-detection. A future change could
+  surface the choice if users request it, but keeping the wizard
+  mirror of the non-interactive defaults keeps the two paths aligned.</li>
+</ul>
+<h2 id="alternatives-considered">Alternatives considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Keep BFV unconditional (status quo)</strong>. Rejected: silently wastes
+   Cinder quota and provisioning time on the majority case.</li>
+<li><strong>Flip to ephemeral unconditionally</strong>. Rejected: breaks any flavor
+   with <code>disk=0</code> without recourse. Auto-detection is the minimum
+   required to stay operable on every cloud.</li>
+<li><strong>Expose the flag as <code>--ephemeral / --boot-from-volume</code></strong>.
+   Rejected: mixes a storage-type term (<code>ephemeral</code>) with an action
+   term (<code>boot-from-volume</code>). The Horizon and docs vocabulary is
+   <code>boot from image</code> / <code>boot from volume</code>; the flag pair should
+   mirror that.</li>
+</ol>
+<h2 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>orca_cli/commands/server.py</code> — <code>_resolve_boot_mode</code> + two flags on
+  <code>server create</code> and <code>server clone</code>.</li>
+<li><code>tests/test_server_create_boot_mode.py</code> — 8 tests.</li>
+<li><code>tests/test_server_clone_boot_mode.py</code> — 6 tests.</li>
+<li>Initial landing: PR #3 (create), PR #4 (clone).</li>
 </ul>
 
 
@@ -3453,10 +3488,10 @@ of the documentation.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
