@@ -1075,6 +1075,87 @@ def volume_backup_unset(ctx: click.Context, backup_id: str,
     )
 
 
+@volume_backup.group("record")
+def volume_backup_record() -> None:
+    """Export / import backup records for cross-cloud migration (admin)."""
+
+
+@volume_backup_record.command("export")
+@click.argument("backup_id", callback=validate_id)
+@click.option("--output", "-o", "output_file", default=None,
+              help="Write the record to a file (JSON) instead of stdout.")
+@click.pass_context
+def volume_backup_record_export(ctx: click.Context, backup_id: str,
+                                 output_file: str | None) -> None:
+    """Export a backup record (admin) — JSON dump usable to re-import.
+
+    The record contains the metadata needed to recreate the backup
+    entry on another Cinder deployment via ``volume backup record
+    import`` (the actual backup data must already live in shared
+    storage like Swift / Ceph).
+
+    \b
+    Examples:
+      orca volume backup record export <backup-id> -o /tmp/rec.json
+      orca volume backup record export <backup-id> | jq .
+    """
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    record = svc.export_backup_record(backup_id)
+    if not record:
+        raise OrcaCLIError(f"Backup {backup_id} returned an empty record.")
+    import json as _json
+    payload = _json.dumps(record, indent=2)
+    if output_file:
+        from orca_cli.core.validators import safe_output_path
+        out = safe_output_path(output_file)
+        out.write_text(payload + "\n")
+        console.print(f"[green]Record written to {out}.[/green]")
+    else:
+        click.echo(payload)
+
+
+@volume_backup_record.command("import")
+@click.option("--backup-service", required=True,
+              help="Backup service identifier from the exported record "
+                   "(e.g. ``cinder.backup.drivers.swift.SwiftBackupDriver``).")
+@click.option("--backup-url", default=None,
+              help="The base64 ``backup_url`` from the exported record. "
+                   "Mutually exclusive with --file.")
+@click.option("--file", "-f", "record_file", default=None,
+              type=click.Path(exists=True),
+              help="Path to a JSON file produced by ``volume backup record "
+                   "export`` — reads ``backup_service`` and ``backup_url`` "
+                   "from it (overrides --backup-service / --backup-url).")
+@click.pass_context
+def volume_backup_record_import(ctx: click.Context, backup_service: str,
+                                 backup_url: str | None,
+                                 record_file: str | None) -> None:
+    """Recreate a backup entry from a previously exported record (admin).
+
+    Two ways to feed the record: either pass --backup-service /
+    --backup-url directly, or point --file at the JSON file produced
+    by ``volume backup record export``.
+
+    \b
+    Examples:
+      orca volume backup record import -f /tmp/rec.json
+      orca volume backup record import --backup-service swift --backup-url <base64>
+    """
+    if record_file:
+        import json as _json
+        from pathlib import Path
+        data = _json.loads(Path(record_file).read_text())
+        record = data.get("backup-record", data)
+        backup_service = record.get("backup_service") or backup_service
+        backup_url = record.get("backup_url") or backup_url
+    if not backup_url:
+        raise OrcaCLIError("Provide --backup-url or --file.")
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    backup = svc.import_backup_record(backup_service, backup_url)
+    bid = backup.get("id", "?")
+    console.print(f"[green]Backup record imported → backup {bid}.[/green]")
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  Volume metadata (set / unset)
 # ══════════════════════════════════════════════════════════════════════════
@@ -2100,6 +2181,72 @@ def volume_group_update(ctx: click.Context, group_id: str, name: str | None,
     console.print(f"[green]Group {group_id} updated.[/green]")
 
 
+@volume_group.command("set")
+@click.argument("group_id", callback=validate_id)
+@click.option("--name", default=None, help="New name.")
+@click.option("--description", default=None, help="New description.")
+@click.option("--add-volume", "add_volumes", multiple=True,
+              help="Volume ID to add to the group (repeatable).")
+@click.option("--remove-volume", "remove_volumes", multiple=True,
+              help="Volume ID to remove from the group (repeatable).")
+@click.pass_context
+def volume_group_set(ctx: click.Context, group_id: str, name: str | None,
+                     description: str | None,
+                     add_volumes: tuple[str, ...],
+                     remove_volumes: tuple[str, ...]) -> None:
+    """Update a volume group (OSC-parity alias for ``group update``)."""
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    body: dict = {}
+    if name is not None:
+        body["name"] = name
+    if description is not None:
+        body["description"] = description
+    if add_volumes:
+        body["add_volumes"] = ",".join(add_volumes)
+    if remove_volumes:
+        body["remove_volumes"] = ",".join(remove_volumes)
+    if not body:
+        console.print("[yellow]Nothing to update.[/yellow]")
+        return
+    service.update_group(group_id, body)
+    console.print(f"[green]Group {group_id} updated.[/green]")
+
+
+@volume_group.command("failover")
+@click.argument("group_id", callback=validate_id)
+@click.option("--secondary-backend-id", default=None,
+              help="Target replication backend ID. Omit to use the configured default.")
+@click.option("--allow-attached-volume", is_flag=True, default=False,
+              help="Permit failover even if the group has attached volumes "
+                   "(dangerous on async replication — data loss risk).")
+@click.pass_context
+def volume_group_failover(ctx: click.Context, group_id: str,
+                          secondary_backend_id: str | None,
+                          allow_attached_volume: bool) -> None:
+    """Fail a replicated group over to its secondary backend (admin).
+
+    Triggers Cinder's ``failover_replication`` group action. The group
+    must have ``replication_status == enabled`` on a replication-
+    capable driver.
+
+    \b
+    Examples:
+      orca volume group failover <group-id>
+      orca volume group failover <group-id> --secondary-backend-id ceph-dr
+      orca volume group failover <group-id> --allow-attached-volume
+    """
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    svc.group_failover_replication(
+        group_id,
+        allow_attached_volume=allow_attached_volume,
+        secondary_backend_id=secondary_backend_id,
+    )
+    target = secondary_backend_id or "(default)"
+    console.print(
+        f"[green]Group {group_id} failover requested → {target}.[/green]"
+    )
+
+
 @volume_group.command("delete")
 @click.argument("group_id", callback=validate_id)
 @click.option("--delete-volumes", is_flag=True, default=False,
@@ -2453,3 +2600,89 @@ def volume_host_list(ctx: click.Context, zone,
         output_format=output_format, columns=columns,
         fit_width=fit_width, max_width=max_width, noindent=noindent,
     )
+
+
+@volume_host.command("set")
+@click.argument("host")
+@click.option("--enable", "action", flag_value="enable",
+              help="Enable the host's volume service.")
+@click.option("--disable", "action", flag_value="disable",
+              help="Disable the host's volume service.")
+@click.option("--disabled-reason", default=None,
+              help="Reason for disabling (sets disable-log-reason).")
+@click.option("--freeze", "freeze_action", flag_value="freeze",
+              help="Freeze the host (block new attaches, allow existing ones).")
+@click.option("--thaw", "freeze_action", flag_value="thaw",
+              help="Thaw a previously frozen host.")
+@click.pass_context
+def volume_host_set(ctx: click.Context, host: str, action: str | None,
+                     disabled_reason: str | None,
+                     freeze_action: str | None) -> None:
+    """Enable / disable / freeze a Cinder host (admin).
+
+    OSC parity with ``openstack volume host set``. Acts on the
+    ``cinder-volume`` service hosted by *HOST*.
+
+    \b
+    Examples:
+      orca volume host set cinder@lvm#LVM --disable --disabled-reason "maintenance"
+      orca volume host set cinder@lvm#LVM --enable
+      orca volume host set cinder@lvm#LVM --freeze
+      orca volume host set cinder@lvm#LVM --thaw
+    """
+    if not action and not freeze_action:
+        raise OrcaCLIError("Specify --enable / --disable / --freeze / --thaw.")
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    body: dict = {"host": host, "binary": "cinder-volume"}
+    verbs: list[str] = []
+    if action == "disable":
+        if disabled_reason:
+            body["disabled_reason"] = disabled_reason
+            verbs.append("disable-log-reason")
+        else:
+            verbs.append("disable")
+    elif action == "enable":
+        verbs.append("enable")
+    if freeze_action:
+        verbs.append(freeze_action)
+    for verb in verbs:
+        svc.update_service(verb, body)
+    console.print(
+        f"[green]Host {host} updated ({', '.join(verbs)}).[/green]"
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Backend (admin) — capability inspection
+# ══════════════════════════════════════════════════════════════════════════
+
+@volume.group("backend")
+def volume_backend() -> None:
+    """Inspect Cinder backend driver capabilities (admin)."""
+
+
+@volume_backend.command("capability")
+@click.argument("host")
+@output_options
+@click.pass_context
+def volume_backend_capability(ctx: click.Context, host: str,
+                               output_format: str, columns: tuple[str, ...],
+                               fit_width: bool, max_width: int | None,
+                               noindent: bool) -> None:
+    """Show the capabilities advertised by a backend driver.
+
+    Useful for debugging scheduler decisions or onboarding a new
+    backend. Returns the raw driver capabilities dict.
+
+    \b
+    Example:
+      orca volume backend capability cinder@lvm
+    """
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_backend_capability(host)
+    if not data:
+        console.print("[yellow]No capabilities returned.[/yellow]")
+        return
+    fields = [(k, str(v)) for k, v in data.items()]
+    print_detail(fields, output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)

@@ -230,6 +230,191 @@ class TestVolumeRevertTopLevel:
 
 
 # ══════════════════════════════════════════════════════════════════════════
+#  admin parity additions (host set, backend capability, backup record,
+#  group failover, group set) — 2026-04-28 Cinder audit, pass 2
+# ══════════════════════════════════════════════════════════════════════════
+
+class TestVolumeHostSet:
+
+    def test_disable_with_reason_uses_log_reason_endpoint(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock(return_value={})
+        result = invoke(["volume", "host", "set", "cinder@lvm",
+                         "--disable", "--disabled-reason", "maintenance"])
+        assert result.exit_code == 0
+        url = mock_client.put.call_args.args[0]
+        body = mock_client.put.call_args.kwargs["json"]
+        assert "/os-services/disable-log-reason" in url
+        assert body == {"host": "cinder@lvm", "binary": "cinder-volume",
+                        "disabled_reason": "maintenance"}
+
+    def test_enable(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock(return_value={})
+        invoke(["volume", "host", "set", "cinder@lvm", "--enable"])
+        url = mock_client.put.call_args.args[0]
+        assert "/os-services/enable" in url
+
+    def test_freeze(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock(return_value={})
+        invoke(["volume", "host", "set", "cinder@lvm", "--freeze"])
+        url = mock_client.put.call_args.args[0]
+        assert "/os-services/freeze" in url
+
+    def test_no_action(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock()
+        result = invoke(["volume", "host", "set", "cinder@lvm"])
+        assert result.exit_code != 0
+        mock_client.put.assert_not_called()
+
+
+class TestVolumeBackendCapability:
+
+    def test_capability_show(self, invoke, mock_client):
+        _vol(mock_client)
+        mock_client.get.return_value = {
+            "driver_version": "1.2.3",
+            "vendor_name": "Acme",
+            "storage_protocol": "iSCSI",
+        }
+        result = invoke(["volume", "backend", "capability", "cinder@lvm", "-f", "json"])
+        assert result.exit_code == 0
+        assert "driver_version" in result.output
+        assert "Acme" in result.output
+        url = mock_client.get.call_args[0][0]
+        assert "/capabilities/cinder@lvm" in url
+
+
+class TestVolumeBackupRecord:
+
+    BACKUP_ID = "44444444-4444-4444-4444-444444444444"
+
+    def test_export_to_stdout(self, invoke, mock_client):
+        _vol(mock_client)
+        mock_client.get.return_value = {
+            "backup-record": {
+                "backup_service": "cinder.backup.drivers.swift.SwiftBackupDriver",
+                "backup_url": "QkFDS1VQX1JFQ09SRA==",
+            }
+        }
+        result = invoke(["volume", "backup", "record", "export", self.BACKUP_ID])
+        assert result.exit_code == 0
+        assert "backup_service" in result.output
+        url = mock_client.get.call_args[0][0]
+        assert f"/backups/{self.BACKUP_ID}/export_record" in url
+
+    def test_export_to_file(self, invoke, mock_client, tmp_path):
+        _vol(mock_client)
+        mock_client.get.return_value = {
+            "backup-record": {"backup_service": "swift", "backup_url": "AA=="}
+        }
+        out = tmp_path / "rec.json"
+        result = invoke(["volume", "backup", "record", "export",
+                         self.BACKUP_ID, "-o", str(out)])
+        assert result.exit_code == 0
+        assert out.exists()
+        import json as _json
+        assert _json.loads(out.read_text())["backup_service"] == "swift"
+
+    def test_import_from_flags(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.post = MagicMock(return_value={"backup": {"id": self.BACKUP_ID}})
+        result = invoke(["volume", "backup", "record", "import",
+                         "--backup-service", "swift",
+                         "--backup-url", "AA=="])
+        assert result.exit_code == 0
+        body = mock_client.post.call_args.kwargs["json"]["backup-record"]
+        assert body == {"backup_service": "swift", "backup_url": "AA=="}
+
+    def test_import_from_file(self, invoke, mock_client, tmp_path):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.post = MagicMock(return_value={"backup": {"id": self.BACKUP_ID}})
+        rec_file = tmp_path / "rec.json"
+        rec_file.write_text(
+            '{"backup-record": {"backup_service": "ceph", "backup_url": "QkI="}}'
+        )
+        invoke(["volume", "backup", "record", "import", "-f", str(rec_file),
+                "--backup-service", "ignored-by-file"])
+        body = mock_client.post.call_args.kwargs["json"]["backup-record"]
+        assert body["backup_service"] == "ceph"
+        assert body["backup_url"] == "QkI="
+
+    def test_import_requires_url(self, invoke, mock_client):
+        _vol(mock_client)
+        result = invoke(["volume", "backup", "record", "import",
+                         "--backup-service", "swift"])
+        assert result.exit_code != 0
+
+
+class TestVolumeGroupFailover:
+
+    GROUP_ID = "55555555-5555-5555-5555-555555555555"
+
+    def test_failover_default(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.post = MagicMock(return_value=None)
+        result = invoke(["volume", "group", "failover", self.GROUP_ID])
+        assert result.exit_code == 0
+        url = mock_client.post.call_args.args[0]
+        body = mock_client.post.call_args.kwargs["json"]
+        assert f"/groups/{self.GROUP_ID}/action" in url
+        assert body == {"failover_replication": {"allow_attached_volume": False}}
+
+    def test_failover_with_secondary_and_attached(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.post = MagicMock(return_value=None)
+        invoke(["volume", "group", "failover", self.GROUP_ID,
+                "--secondary-backend-id", "ceph-dr",
+                "--allow-attached-volume"])
+        body = mock_client.post.call_args.kwargs["json"]["failover_replication"]
+        assert body["allow_attached_volume"] is True
+        assert body["secondary_backend_id"] == "ceph-dr"
+
+
+class TestVolumeGroupSet:
+
+    GROUP_ID = "66666666-6666-6666-6666-666666666666"
+
+    def test_set_name(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock(return_value={"group": {"id": self.GROUP_ID}})
+        invoke(["volume", "group", "set", self.GROUP_ID, "--name", "renamed"])
+        body = mock_client.put.call_args.kwargs["json"]["group"]
+        assert body == {"name": "renamed"}
+
+    def test_set_add_remove_volumes(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock(return_value={"group": {}})
+        invoke(["volume", "group", "set", self.GROUP_ID,
+                "--add-volume", "v1", "--add-volume", "v2",
+                "--remove-volume", "v3"])
+        body = mock_client.put.call_args.kwargs["json"]["group"]
+        assert body["add_volumes"] == "v1,v2"
+        assert body["remove_volumes"] == "v3"
+
+    def test_set_nothing(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock()
+        result = invoke(["volume", "group", "set", self.GROUP_ID])
+        assert result.exit_code == 0
+        assert "Nothing to update" in result.output
+        mock_client.put.assert_not_called()
+
+
+# ══════════════════════════════════════════════════════════════════════════
 #  volume type-list / show / create / set / delete
 # ══════════════════════════════════════════════════════════════════════════
 

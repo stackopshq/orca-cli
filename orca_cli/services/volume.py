@@ -470,6 +470,45 @@ class VolumeService:
 
     # ── scheduler / pools / hosts (admin) ──────────────────────────────
 
+    def get_backend_capability(self, host: str) -> dict:
+        """GET /capabilities/{host} — admin, what a backend driver advertises."""
+        data = self._client.get(f"{self._base}/capabilities/{host}")
+        return data if isinstance(data, dict) else {}
+
+    def export_backup_record(self, backup_id: str) -> dict:
+        """GET /backups/{id}/export_record — admin, dump the metadata needed
+        to recreate this backup on another cloud via ``import_backup_record``.
+        """
+        data = self._client.get(f"{self._base}/backups/{backup_id}/export_record")
+        return data.get("backup-record", data) if isinstance(data, dict) else {}
+
+    def import_backup_record(self, backup_service: str,
+                              backup_url: str) -> dict:
+        """POST /backups/import_record — admin, recreate a backup entry from
+        an exported record (typically the output of ``export_backup_record``).
+        """
+        data = self._client.post(
+            f"{self._base}/backups/import_record",
+            json={"backup-record": {
+                "backup_service": backup_service,
+                "backup_url": backup_url,
+            }},
+        )
+        return data.get("backup", data) if data else {}
+
+    def group_failover_replication(self, group_id: str, *,
+                                    allow_attached_volume: bool = False,
+                                    secondary_backend_id: str | None = None,
+                                    ) -> None:
+        """POST /groups/{id}/action — admin, fail a replicated group over."""
+        body: dict[str, Any] = {
+            "allow_attached_volume": allow_attached_volume,
+        }
+        if secondary_backend_id:
+            body["secondary_backend_id"] = secondary_backend_id
+        self._client.post(f"{self._base}/groups/{group_id}/action",
+                          json={"failover_replication": body})
+
     def find_pools(self, *, detail: bool = False) -> list[dict]:
         """List Cinder scheduler backend pools (admin)."""
         params = {"detail": "true"} if detail else None
