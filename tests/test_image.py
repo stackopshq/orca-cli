@@ -103,10 +103,11 @@ class TestImageList:
             _image(img_id=IMG_ID2, name="Debian 12"),
         ])
 
-        result = invoke(["image", "list"])
+        # ``value`` format = no Rich truncation in narrow CliRunner terminal.
+        result = invoke(["image", "list", "-f", "value", "-c", "Name"])
         assert result.exit_code == 0
-        assert "Ubun" in result.output
-        assert "Debi" in result.output
+        assert "Ubuntu 22.04" in result.output
+        assert "Debian 12" in result.output
 
     def test_list_empty(self, invoke, config_dir, mock_client, sample_profile):
         save_profile("p", sample_profile)
@@ -125,7 +126,7 @@ class TestImageList:
             _image(img_id=IMG_ID2, name="Alpha"),
         ])
 
-        result = invoke(["image", "list"])
+        result = invoke(["image", "list", "-f", "value", "-c", "Name"])
         alpha_pos = result.output.index("Alpha")
         zulu_pos = result.output.index("Zulu")
         assert alpha_pos < zulu_pos
@@ -137,6 +138,50 @@ class TestImageList:
 
         result = invoke(["image", "list"])
         assert "100" in result.output
+
+    def test_list_shows_visibility_column(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        _setup_mock(mock_client, images=[_image(visibility="shared")])
+
+        # ``value`` format avoids Rich truncation in narrow CliRunner terminal.
+        result = invoke(["image", "list", "-f", "value", "-c", "Visibility"])
+        assert result.exit_code == 0
+        assert "shared" in result.output
+
+    def test_list_filter_visibility_passed_to_glance(self, invoke, config_dir, mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        # _setup_mock() replaces client.get with a plain function — swap it for
+        # a MagicMock so we can capture the call.
+        mock_client.image_url = "https://glance.example.com"
+        mock_client.get = MagicMock(return_value={"images": []})
+
+        result = invoke(["image", "list", "--visibility", "public"])
+        assert result.exit_code == 0
+        assert mock_client.get.call_args.kwargs.get("params") == {"visibility": "public"}
+
+    def test_list_default_visibility_sends_no_filter(self, invoke, config_dir, mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.image_url = "https://glance.example.com"
+        mock_client.get = MagicMock(return_value={"images": []})
+
+        result = invoke(["image", "list"])
+        assert result.exit_code == 0
+        # Default ("all") => no visibility filter sent to Glance.
+        assert mock_client.get.call_args.kwargs.get("params") is None
+
+    def test_list_rejects_invalid_visibility(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        _setup_mock(mock_client, images=[])
+
+        result = invoke(["image", "list", "--visibility", "bogus"])
+        assert result.exit_code != 0
+        assert "Invalid value" in result.output or "bogus" in result.output
 
 
 # ══════════════════════════════════════════════════════════════════════════

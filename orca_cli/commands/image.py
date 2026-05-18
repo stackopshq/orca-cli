@@ -82,17 +82,34 @@ def image(ctx: click.Context) -> None:
 
 
 @image.command("list")
+@click.option("--visibility",
+              type=click.Choice(["public", "private", "shared", "community", "all"]),
+              default="all", show_default=True,
+              help="Filter by image visibility. Glance defaults to 'all' the caller can see.")
 @output_options
 @click.pass_context
-def image_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
-    """List available images."""
+def image_list(ctx: click.Context, visibility: str, output_format: str,
+               columns: tuple[str, ...], fit_width: bool, max_width: int | None,
+               noindent: bool) -> None:
+    """List available images.
+
+    \b
+    Examples:
+      orca image list
+      orca image list --visibility public
+      orca image list --visibility shared -f value -c ID -c Name
+    """
     service = ImageService(ctx.find_object(OrcaContext).ensure_client())
-    images = sorted(service.find(), key=lambda x: x.get("name", ""))
+    params: dict[str, Any] = {}
+    if visibility != "all":
+        params["visibility"] = visibility
+    images = sorted(service.find(params=params or None), key=lambda x: x.get("name", ""))
 
     column_defs = [
         ("ID", "id", {"style": "cyan", "no_wrap": True}),
         ("Name", "name", {"style": "bold"}),
         ("Status", "status", {"style": "green"}),
+        ("Visibility", lambda img: img.get("visibility", "") or "—"),
         ("Min Disk (GB)", "min_disk", {"justify": "right"}),
         ("Min RAM (MB)", "min_ram", {"justify": "right"}),
         ("Size (MB)", lambda img: str(round(img["size"] / 1024 / 1024)) if img.get("size") else "", {"justify": "right"}),
