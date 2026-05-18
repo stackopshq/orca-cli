@@ -1649,10 +1649,43 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-security-group-rule-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-security-group-rule-delete" class="md-nav__link">
     <span class="md-ellipsis">
       
         delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-security-group-rule-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-security-group-rule-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
       
     </span>
   </a>
@@ -4003,10 +4036,43 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-security-group-rule-add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        add
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-security-group-rule-delete" class="md-nav__link">
     <span class="md-ellipsis">
       
         delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-security-group-rule-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-security-group-rule-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
       
     </span>
   </a>
@@ -4357,7 +4423,10 @@ instances. Use --delete to remove them.</p>
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#orca-security-group-rule-add">add</a></em>: Add a rule to a security group.</li>
+<li><em><a href="#orca-security-group-rule-add">add</a></em>: Add a rule to a security group.</li>
 <li><em><a href="#orca-security-group-rule-delete">delete</a></em>: Delete a security group rule.</li>
+<li><em><a href="#orca-security-group-rule-list">list</a></em>: List security group rules (across all groups, or filtered).</li>
+<li><em><a href="#orca-security-group-rule-show">show</a></em>: Show a security group rule's details.</li>
 </ul>
 <h5 id="orca-security-group-rule-add">orca security-group rule add<a class="headerlink" href="#orca-security-group-rule-add" title="Permanent link">&para;</a></h5>
 <p>Add a rule to a security group.</p>
@@ -4428,10 +4497,79 @@ instances. Use --delete to remove them.</p>
 </tr>
 </tbody>
 </table>
+<h5 id="orca-security-group-rule-add">orca security-group rule add<a class="headerlink" href="#orca-security-group-rule-add" title="Permanent link">&para;</a></h5>
+<p>Add a rule to a security group.</p>
+<p>Examples:
+  orca security-group rule-add <id> --direction ingress --protocol tcp --port-min 22
+  orca security-group rule-add <id> --direction ingress --protocol tcp --port-min 80 --port-max 443 --remote-ip 0.0.0.0/0</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>orca security-group rule add [OPTIONS] GROUP_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--direction</code></td>
+<td>choice (<code>ingress</code> &#x7C; <code>egress</code>)</td>
+<td>N/A</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--protocol</code></td>
+<td>text</td>
+<td>Protocol (tcp, udp, icmp, or number).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--port-min</code></td>
+<td>integer</td>
+<td>Min port (or single port).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--port-max</code></td>
+<td>integer</td>
+<td>Max port. Defaults to port-min.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--remote-ip</code></td>
+<td>text</td>
+<td>Remote IP prefix (CIDR).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--remote-group</code></td>
+<td>text</td>
+<td>Remote security group ID.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--ethertype</code></td>
+<td>choice (<code>IPv4</code> &#x7C; <code>IPv6</code>)</td>
+<td>N/A</td>
+<td><code>IPv4</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h5 id="orca-security-group-rule-delete">orca security-group rule delete<a class="headerlink" href="#orca-security-group-rule-delete" title="Permanent link">&para;</a></h5>
 <p>Delete a security group rule.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>orca security-group rule delete [OPTIONS] RULE_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>orca security-group rule delete [OPTIONS] RULE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4458,13 +4596,143 @@ instances. Use --delete to remove them.</p>
 </tr>
 </tbody>
 </table>
+<h5 id="orca-security-group-rule-list">orca security-group rule list<a class="headerlink" href="#orca-security-group-rule-list" title="Permanent link">&para;</a></h5>
+<p>List security group rules (across all groups, or filtered).</p>
+<p>Examples:
+  orca security-group rule list
+  orca security-group rule list --group-id <sg-id>
+  orca security-group rule list --direction ingress --protocol tcp</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>orca security-group rule list [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--group-id</code></td>
+<td>text</td>
+<td>Filter rules to a single security group.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--direction</code></td>
+<td>choice (<code>ingress</code> &#x7C; <code>egress</code>)</td>
+<td>Filter by direction.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--protocol</code></td>
+<td>text</td>
+<td>Filter by protocol.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="orca-security-group-rule-show">orca security-group rule show<a class="headerlink" href="#orca-security-group-rule-show" title="Permanent link">&para;</a></h5>
+<p>Show a security group rule's details.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>orca security-group rule show [OPTIONS] RULE_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="orca-security-group-rule-add">orca security-group rule-add<a class="headerlink" href="#orca-security-group-rule-add" title="Permanent link">&para;</a></h4>
 <p>Add a rule to a security group.</p>
 <p>Examples:
   orca security-group rule-add <id> --direction ingress --protocol tcp --port-min 22
   orca security-group rule-add <id> --direction ingress --protocol tcp --port-min 80 --port-max 443 --remote-ip 0.0.0.0/0</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>orca security-group rule-add [OPTIONS] GROUP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>orca security-group rule-add [OPTIONS] GROUP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4530,7 +4798,7 @@ instances. Use --delete to remove them.</p>
 <h4 id="orca-security-group-rule-delete">orca security-group rule-delete<a class="headerlink" href="#orca-security-group-rule-delete" title="Permanent link">&para;</a></h4>
 <p>Delete a security group rule.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>orca security-group rule-delete [OPTIONS] RULE_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>orca security-group rule-delete [OPTIONS] RULE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4560,7 +4828,7 @@ instances. Use --delete to remove them.</p>
 <h4 id="orca-security-group-show">orca security-group show<a class="headerlink" href="#orca-security-group-show" title="Permanent link">&para;</a></h4>
 <p>Show security group details and rules.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>orca security-group show [OPTIONS] GROUP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>orca security-group show [OPTIONS] GROUP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4614,7 +4882,7 @@ instances. Use --delete to remove them.</p>
 <h4 id="orca-security-group-update">orca security-group update<a class="headerlink" href="#orca-security-group-update" title="Permanent link">&para;</a></h4>
 <p>Update a security group.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>orca security-group update [OPTIONS] GROUP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>orca security-group update [OPTIONS] GROUP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4650,7 +4918,7 @@ instances. Use --delete to remove them.</p>
 <h4 id="orca-security-group-update">orca security-group update<a class="headerlink" href="#orca-security-group-update" title="Permanent link">&para;</a></h4>
 <p>Update a security group.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>orca security-group update [OPTIONS] GROUP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>orca security-group update [OPTIONS] GROUP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>

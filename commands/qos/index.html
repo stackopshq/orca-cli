@@ -1770,6 +1770,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4157,6 +4179,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4802,6 +4846,8 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-qos-rule-create">create</a></em>: Create a QoS rule.</li>
 <li><em><a href="#orca-qos-rule-delete">delete</a></em>: Delete a QoS rule.</li>
 <li><em><a href="#orca-qos-rule-list">list</a></em>: List QoS rules for a policy.</li>
+<li><em><a href="#orca-qos-rule-set">set</a></em>: Update an existing QoS rule.</li>
+<li><em><a href="#orca-qos-rule-show">show</a></em>: Show details of a QoS rule.</li>
 </ul>
 <h5 id="orca-qos-rule-create">orca qos rule create<a class="headerlink" href="#orca-qos-rule-create" title="Permanent link">&para;</a></h5>
 <p>Create a QoS rule.</p>
@@ -4963,6 +5009,128 @@ always reflects the version installed.</p>
 </tr>
 </tbody>
 </table>
+<h5 id="orca-qos-rule-set">orca qos rule set<a class="headerlink" href="#orca-qos-rule-set" title="Permanent link">&para;</a></h5>
+<p>Update an existing QoS rule.</p>
+<p>Example:
+  orca qos rule set <policy-id> <rule-id> --type bandwidth-limit --max-kbps 2000</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>orca qos rule set [OPTIONS] POLICY_ID RULE_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--type</code></td>
+<td>choice (<code>bandwidth-limit</code> &#x7C; <code>dscp-marking</code> &#x7C; <code>minimum-bandwidth</code> &#x7C; <code>minimum-packet-rate</code>)</td>
+<td>Rule type.</td>
+<td><code>bandwidth-limit</code></td>
+</tr>
+<tr>
+<td><code>--max-kbps</code></td>
+<td>integer</td>
+<td>New max bandwidth in kbps (bandwidth-limit).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--max-burst-kbps</code></td>
+<td>integer</td>
+<td>New max burst bandwidth in kbps (bandwidth-limit).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--direction</code></td>
+<td>choice (<code>ingress</code> &#x7C; <code>egress</code>)</td>
+<td>New traffic direction (bandwidth-limit, minimum-bandwidth).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--dscp-mark</code></td>
+<td>integer</td>
+<td>New DSCP mark value (dscp-marking).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--min-kbps</code></td>
+<td>integer</td>
+<td>New min bandwidth in kbps (minimum-bandwidth).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="orca-qos-rule-show">orca qos rule show<a class="headerlink" href="#orca-qos-rule-show" title="Permanent link">&para;</a></h5>
+<p>Show details of a QoS rule.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>orca qos rule show [OPTIONS] POLICY_ID RULE_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--type</code></td>
+<td>choice (<code>bandwidth-limit</code> &#x7C; <code>dscp-marking</code> &#x7C; <code>minimum-bandwidth</code> &#x7C; <code>minimum-packet-rate</code>)</td>
+<td>Rule type.</td>
+<td><code>bandwidth-limit</code></td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="orca-qos-rule-create">orca qos rule-create<a class="headerlink" href="#orca-qos-rule-create" title="Permanent link">&para;</a></h4>
 <p>Create a QoS rule.</p>
 <p>Examples:
@@ -4970,7 +5138,7 @@ always reflects the version installed.</p>
   orca qos rule-create <policy-id> --type dscp-marking --dscp-mark 14
   orca qos rule-create <policy-id> --type minimum-bandwidth --min-kbps 500</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>orca qos rule-create [OPTIONS] POLICY_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>orca qos rule-create [OPTIONS] POLICY_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5030,7 +5198,7 @@ always reflects the version installed.</p>
 <h4 id="orca-qos-rule-delete">orca qos rule-delete<a class="headerlink" href="#orca-qos-rule-delete" title="Permanent link">&para;</a></h4>
 <p>Delete a QoS rule.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>orca qos rule-delete [OPTIONS] POLICY_ID RULE_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>orca qos rule-delete [OPTIONS] POLICY_ID RULE_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5066,7 +5234,7 @@ always reflects the version installed.</p>
 <h4 id="orca-qos-rule-list">orca qos rule-list<a class="headerlink" href="#orca-qos-rule-list" title="Permanent link">&para;</a></h4>
 <p>List QoS rules for a policy.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>orca qos rule-list [OPTIONS] POLICY_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>orca qos rule-list [OPTIONS] POLICY_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
