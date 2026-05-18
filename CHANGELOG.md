@@ -4,6 +4,109 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] — 2026-04-28
+
+### Added — new service
+
+- **Manila (shared file systems)** is now wrapped under
+  ``orca share``. 18th service supported. Covers share CRUD,
+  access rules (NFS IP, CIFS user, CephFS x509 — surfaces the
+  one-shot ``access_key`` from cephx), snapshots, and read-only
+  share-type inspection. New private helper
+  ``orca_cli/core/client.share_url`` with the same ``sharev2`` →
+  ``share`` catalog fallback as ``volume_url``. Microversion pinned
+  to 2.51 (unified ``/share-access-rules`` endpoint, no per-share
+  action API).
+
+### Added — OSC parity catch-up
+
+OSC commands missing from orca in 2.3.0 are now wired up. All
+admin operations are first-class: orca positions as an OSC
+alternative, not a subset.
+
+- **Nova / ``orca server``** — ``server backup`` (Nova
+  ``createBackup`` with rotation), ``server volume set``
+  (``--delete-on-termination`` flip).
+- **Cinder / ``orca volume``** — 11 new commands across two passes:
+  - ``volume snapshot unset``, ``volume type unset``,
+    ``volume qos unset`` (Cinder's PUT ``/delete_keys`` quirk
+    wrapped behind a single ``unset_qos_keys`` method),
+    ``volume backup set/unset``, ``volume revert``
+    (OSC-parity top-level shortcut).
+  - ``volume host set`` (enable/disable/freeze/thaw + auto-switch
+    on ``disable-log-reason``), ``volume backend capability``,
+    ``volume backup record export/import`` (cross-cloud backup
+    migration round-trip), ``volume group failover``,
+    ``volume group set``.
+- **Neutron / ``orca network`` + 4 new top-levels** — 75 new
+  commands across 12 lots, every OSC ``network ...`` /
+  ``port ...`` / ``router ...`` / ``subnet ...`` / etc. operation
+  now has an orca counterpart:
+  - **Symmetry / aliases (lots 1a + 1b)** — ``set`` aliases for
+    every Neutron resource that previously had ``update``
+    (network, port, subnet, router, rbac, security-group); ``qos
+    rule show/set``, ``security-group rule create/list/show``,
+    ``trunk unset``, ``subnet-pool unset``.
+  - **New top-levels** — ``orca address-group``,
+    ``orca address-scope``, ``orca ip-availability`` (admin),
+    ``orca local-ip`` (+ ``local-ip association``, Yoga+ tenant
+    overlay VIPs).
+  - **New sub-groups** — ``floating-ip port-forwarding`` (DNAT),
+    ``network meter`` + ``network meter-rule`` (admin),
+    ``network flavor`` + ``flavor-profile`` (admin SDN),
+    ``network segment-range`` (admin VLAN/VXLAN pools),
+    ``network l3-conntrack-helper`` (per-router FTP/SIP helpers),
+    ``network router ndp-proxy`` (IPv6),
+    ``network agent add/remove network|router`` (admin scheduler
+    binding).
+- **Glance / ``orca image list``** — gains ``--visibility
+  {public,private,shared,community,all}`` and the ``Visibility``
+  column. Glance ``?visibility=…`` is forwarded server-side when
+  filtered.
+
+### Added — tooling
+
+- **``orca doctor --list-deprecated``** — offline table of every
+  ADR-0008 deprecated alias in the live CLI tree alongside its
+  replacement. Helps users grep their scripts before the eventual
+  3.0.0 cut.
+- The regular ``orca doctor`` run also reports the count.
+- New helpers ``count_deprecated_aliases`` and
+  ``list_deprecated_aliases`` in ``orca_cli.core.aliases``.
+
+### Changed
+
+- **Python floor: 3.10** (3.9 was already EOL'd 2025-10). Drops
+  the 6th matrix entry from CI. The codebase passed a ``pyupgrade``
+  sweep: ``Dict[K,V]`` → ``dict[K,V]``, ``Optional[X]`` →
+  ``X | None``, ``Union[A,B]`` → ``A | B``,
+  ``isinstance(x,(A,B))`` → ``isinstance(x, A | B)``. ``UP``
+  rules permanently enabled in ruff.
+- ADR-0008 *Deprecation horizon* documented: aliases will be
+  removed in **3.0.0** (PR draft on ``feat/3.0.0`` already prepared
+  but not merged or tagged).
+
+### Fixed
+
+- ``security-group rule delete`` now prints a green confirmation
+  message (was silent — Click 8+'s native ``DeprecationWarning``
+  on the legacy ``rule-delete`` alias was the only visible output).
+- Live-test suite: 54 ``invoke([...])`` invocations migrated to
+  ADR-0008 paths so warning text no longer leaks into captured
+  output (caught a real failure on
+  ``test_resource_provider_usage`` during the v2.3.0 re-test).
+
+### Tests
+
+- ``services/dns``, ``services/orchestration``, ``services/image``,
+  ``services/object_store`` taken to **100 % unit coverage**
+  (176 new tests).
+- 100 % unit coverage on the new ``FileShareService`` (Manila).
+- 70+ new tests across the OSC-parity additions (Nova, Cinder,
+  Neutron, Glance).
+- ``tests/test_aliases.py`` introduced for the new alias helpers.
+- Total: **2716 tests pass**, coverage **87.3 %**.
+
 ## [2.3.0] — 2026-04-28
 
 ### Added
