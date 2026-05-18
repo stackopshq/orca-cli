@@ -4,6 +4,25 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] — 2026-05-18
+
+### Fixed
+
+- **``orca server create --image NAME``** (and ``--flavor NAME`` /
+  ``--network NAME``) used to forward the human-readable string
+  straight to Nova, which returned a 400 ``imageRef is not valid
+  under any of the given schemas``. The CLI now resolves names to
+  UUIDs via the matching service before posting, mirroring OSC:
+  - Glance / Neutron : ``?name=`` server-side filter.
+  - Nova / flavors : the ``/flavors/detail`` endpoint rejects
+    ``?name=`` (``Additional properties are not allowed``) so the
+    fix fetches the full flavor list and filters client-side.
+  Unknown names raise ``not found``, multiple matches raise
+  ``ambiguous (N matches…)`` rather than silently picking one.
+  Pure UUIDs short-circuit the lookup. Live-validated on DevStack:
+  ``orca server create --image orca-live-cirros --flavor
+  debug-flavor --network private --wait`` boots in 16 s.
+
 ## [2.4.0] — 2026-04-28
 
 ### Added — new service
