@@ -1792,6 +1792,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-trunk-unset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unset
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4051,6 +4062,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-trunk-unset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unset
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4115,6 +4137,7 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-trunk-show">show</a></em>: Show trunk details.</li>
 <li><em><a href="#orca-trunk-subport">subport</a></em>: Manage sub-ports on a trunk.</li>
 <li><em><a href="#orca-trunk-subport-list">subport-list</a></em>: [deprecated, use 'trunk subport list' instead]</li>
+<li><em><a href="#orca-trunk-unset">unset</a></em>: Clear optional fields on a trunk (description, …).</li>
 </ul>
 <h4 id="orca-trunk-add-subport">orca trunk add-subport<a class="headerlink" href="#orca-trunk-add-subport" title="Permanent link">&para;</a></h4>
 <p>Add a sub-port to a trunk.</p>
@@ -4629,6 +4652,36 @@ always reflects the version installed.</p>
 <td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
 <td>Output format.</td>
 <td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-trunk-unset">orca trunk unset<a class="headerlink" href="#orca-trunk-unset" title="Permanent link">&para;</a></h4>
+<p>Clear optional fields on a trunk (description, …).</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>orca trunk unset [OPTIONS] TRUNK_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--description</code></td>
+<td>boolean</td>
+<td>Clear the description.</td>
+<td><code>False</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>

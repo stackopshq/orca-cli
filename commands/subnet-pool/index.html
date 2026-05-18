@@ -1681,6 +1681,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-subnet-pool-unset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unset
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3885,6 +3896,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-subnet-pool-unset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        unset
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3945,6 +3967,7 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-subnet-pool-list">list</a></em>: List subnet pools.</li>
 <li><em><a href="#orca-subnet-pool-set">set</a></em>: Update a subnet pool.</li>
 <li><em><a href="#orca-subnet-pool-show">show</a></em>: Show subnet pool details.</li>
+<li><em><a href="#orca-subnet-pool-unset">unset</a></em>: Remove address prefixes from a subnet pool.</li>
 </ul>
 <h4 id="orca-subnet-pool-create">orca subnet-pool create<a class="headerlink" href="#orca-subnet-pool-create" title="Permanent link">&para;</a></h4>
 <p>Create a subnet pool.</p>
@@ -4218,6 +4241,41 @@ always reflects the version installed.</p>
 <td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
 <td>Output format.</td>
 <td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-subnet-pool-unset">orca subnet-pool unset<a class="headerlink" href="#orca-subnet-pool-unset" title="Permanent link">&para;</a></h4>
+<p>Remove address prefixes from a subnet pool.</p>
+<p>Neutron has no atomic "remove prefix" endpoint — we fetch the
+current list, subtract, and PUT the result back. Other concurrent
+writes lose; race-tolerant patterns should rebuild the pool.</p>
+<p>Example:
+  orca subnet-pool unset <pool-id> --prefix 10.0.0.0/16</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>orca subnet-pool unset [OPTIONS] POOL_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--prefix</code></td>
+<td>text</td>
+<td>CIDR prefix to drop from the pool (repeatable).</td>
+<td><code>Sentinel.UNSET</code></td>
 </tr>
 <tr>
 <td><code>--help</code></td>
