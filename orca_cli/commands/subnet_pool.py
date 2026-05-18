@@ -155,3 +155,36 @@ def subnet_pool_delete(ctx, pool_id, yes):
         click.confirm(f"Delete subnet pool {pool_id}?", abort=True)
     svc.delete_subnet_pool(pool_id)
     console.print(f"[green]Subnet pool {pool_id} deleted.[/green]")
+
+
+@subnet_pool.command("unset")
+@click.argument("pool_id", callback=validate_id)
+@click.option("--prefix", "prefixes", multiple=True, required=True,
+              help="CIDR prefix to drop from the pool (repeatable).")
+@click.pass_context
+def subnet_pool_unset(ctx: click.Context, pool_id: str,
+                      prefixes: tuple[str, ...]) -> None:
+    """Remove address prefixes from a subnet pool.
+
+    Neutron has no atomic "remove prefix" endpoint — we fetch the
+    current list, subtract, and PUT the result back. Other concurrent
+    writes lose; race-tolerant patterns should rebuild the pool.
+
+    \b
+    Example:
+      orca subnet-pool unset <pool-id> --prefix 10.0.0.0/16
+    """
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    current = svc.get_subnet_pool(pool_id).get("prefixes", []) or []
+    to_remove = set(prefixes)
+    new_prefixes = [p for p in current if p not in to_remove]
+    if new_prefixes == current:
+        console.print(
+            f"[yellow]No matching prefixes on {pool_id} — nothing removed.[/yellow]"
+        )
+        return
+    svc.remove_subnet_pool_prefixes(pool_id, new_prefixes)
+    removed = len(current) - len(new_prefixes)
+    console.print(
+        f"[green]Removed {removed} prefix(es) from subnet pool {pool_id}.[/green]"
+    )

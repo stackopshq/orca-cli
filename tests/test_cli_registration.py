@@ -19,6 +19,7 @@ EXPECTED_COMMANDS = [
     "policy", "identity-provider", "federation-protocol", "mapping", "service-provider",
     "limit", "registered-limit", "access-rule", "token", "endpoint-group",
     "share",
+    "address-group", "address-scope", "ip-availability", "local-ip",
 ]
 
 

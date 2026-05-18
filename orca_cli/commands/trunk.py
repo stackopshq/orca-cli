@@ -100,6 +100,21 @@ def trunk_set(ctx, trunk_id, name, description, admin_state_up):
     console.print(f"[green]Trunk {trunk_id} updated.[/green]")
 
 
+@trunk.command("unset")
+@click.argument("trunk_id", callback=validate_id)
+@click.option("--description", "clear_description", is_flag=True,
+              help="Clear the description.")
+@click.pass_context
+def trunk_unset(ctx, trunk_id, clear_description):
+    """Clear optional fields on a trunk (description, …)."""
+    if not clear_description:
+        console.print("[yellow]Nothing to unset.[/yellow]")
+        return
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_trunk(trunk_id, {"description": ""})
+    console.print(f"[green]Trunk {trunk_id} — description cleared.[/green]")
+
+
 @trunk.command("delete")
 @click.argument("trunk_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")

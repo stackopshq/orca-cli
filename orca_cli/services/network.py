@@ -533,3 +533,421 @@ class NetworkService:
         """
         data = self._client.get(f"{self._base}/quotas/{project_id}/details")
         return data.get("quota", data)
+
+    # ══════════════════════════════════════════════════════════════════
+    #  2026-04-28 audit catch-up (lots 2-12) — OSC-parity Neutron
+    #  resources. Single CRUD pattern: list / show / create / update /
+    #  delete plus a handful of action endpoints. All ressources below
+    #  follow the "envelope is the singular noun" wrapping convention.
+    # ══════════════════════════════════════════════════════════════════
+
+    # ── address groups ────────────────────────────────────────────────
+
+    def find_address_groups(self, *,
+                            params: dict[str, Any] | None = None) -> list[dict]:
+        data = self._client.get(f"{self._base}/address-groups", params=params)
+        return data.get("address_groups", [])
+
+    def get_address_group(self, ag_id: str) -> dict:
+        data = self._client.get(f"{self._base}/address-groups/{ag_id}")
+        return data.get("address_group", data)
+
+    def create_address_group(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(f"{self._base}/address-groups",
+                                 json={"address_group": body})
+        return data.get("address_group", data) if data else {}
+
+    def update_address_group(self, ag_id: str,
+                             body: dict[str, Any]) -> dict:
+        data = self._client.put(f"{self._base}/address-groups/{ag_id}",
+                                json={"address_group": body})
+        return data.get("address_group", data) if data else {}
+
+    def delete_address_group(self, ag_id: str) -> None:
+        self._client.delete(f"{self._base}/address-groups/{ag_id}")
+
+    def add_addresses_to_group(self, ag_id: str, addresses: list[str]) -> dict:
+        data = self._client.put(
+            f"{self._base}/address-groups/{ag_id}/add_addresses",
+            json={"addresses": addresses},
+        )
+        return data.get("address_group", data) if data else {}
+
+    def remove_addresses_from_group(self, ag_id: str,
+                                     addresses: list[str]) -> dict:
+        data = self._client.put(
+            f"{self._base}/address-groups/{ag_id}/remove_addresses",
+            json={"addresses": addresses},
+        )
+        return data.get("address_group", data) if data else {}
+
+    # ── address scopes ────────────────────────────────────────────────
+
+    def find_address_scopes(self, *,
+                            params: dict[str, Any] | None = None) -> list[dict]:
+        data = self._client.get(f"{self._base}/address-scopes", params=params)
+        return data.get("address_scopes", [])
+
+    def get_address_scope(self, as_id: str) -> dict:
+        data = self._client.get(f"{self._base}/address-scopes/{as_id}")
+        return data.get("address_scope", data)
+
+    def create_address_scope(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(f"{self._base}/address-scopes",
+                                 json={"address_scope": body})
+        return data.get("address_scope", data) if data else {}
+
+    def update_address_scope(self, as_id: str,
+                             body: dict[str, Any]) -> dict:
+        data = self._client.put(f"{self._base}/address-scopes/{as_id}",
+                                json={"address_scope": body})
+        return data.get("address_scope", data) if data else {}
+
+    def delete_address_scope(self, as_id: str) -> None:
+        self._client.delete(f"{self._base}/address-scopes/{as_id}")
+
+    # ── floating IP port forwarding ───────────────────────────────────
+
+    def find_port_forwardings(self, fip_id: str, *,
+                              params: dict[str, Any] | None = None,
+                              ) -> list[dict]:
+        data = self._client.get(
+            f"{self._base}/floatingips/{fip_id}/port_forwardings",
+            params=params,
+        )
+        return data.get("port_forwardings", [])
+
+    def get_port_forwarding(self, fip_id: str, pf_id: str) -> dict:
+        data = self._client.get(
+            f"{self._base}/floatingips/{fip_id}/port_forwardings/{pf_id}"
+        )
+        return data.get("port_forwarding", data)
+
+    def create_port_forwarding(self, fip_id: str,
+                               body: dict[str, Any]) -> dict:
+        data = self._client.post(
+            f"{self._base}/floatingips/{fip_id}/port_forwardings",
+            json={"port_forwarding": body},
+        )
+        return data.get("port_forwarding", data) if data else {}
+
+    def update_port_forwarding(self, fip_id: str, pf_id: str,
+                               body: dict[str, Any]) -> dict:
+        data = self._client.put(
+            f"{self._base}/floatingips/{fip_id}/port_forwardings/{pf_id}",
+            json={"port_forwarding": body},
+        )
+        return data.get("port_forwarding", data) if data else {}
+
+    def delete_port_forwarding(self, fip_id: str, pf_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/floatingips/{fip_id}/port_forwardings/{pf_id}"
+        )
+
+    # ── metering labels + rules ───────────────────────────────────────
+
+    def find_metering_labels(self, *,
+                             params: dict[str, Any] | None = None,
+                             ) -> list[dict]:
+        data = self._client.get(f"{self._base}/metering/metering-labels",
+                                params=params)
+        return data.get("metering_labels", [])
+
+    def get_metering_label(self, label_id: str) -> dict:
+        data = self._client.get(
+            f"{self._base}/metering/metering-labels/{label_id}"
+        )
+        return data.get("metering_label", data)
+
+    def create_metering_label(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(
+            f"{self._base}/metering/metering-labels",
+            json={"metering_label": body},
+        )
+        return data.get("metering_label", data) if data else {}
+
+    def delete_metering_label(self, label_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/metering/metering-labels/{label_id}"
+        )
+
+    def find_metering_label_rules(self, *,
+                                  params: dict[str, Any] | None = None,
+                                  ) -> list[dict]:
+        data = self._client.get(
+            f"{self._base}/metering/metering-label-rules", params=params,
+        )
+        return data.get("metering_label_rules", [])
+
+    def get_metering_label_rule(self, rule_id: str) -> dict:
+        data = self._client.get(
+            f"{self._base}/metering/metering-label-rules/{rule_id}"
+        )
+        return data.get("metering_label_rule", data)
+
+    def create_metering_label_rule(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(
+            f"{self._base}/metering/metering-label-rules",
+            json={"metering_label_rule": body},
+        )
+        return data.get("metering_label_rule", data) if data else {}
+
+    def delete_metering_label_rule(self, rule_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/metering/metering-label-rules/{rule_id}"
+        )
+
+    # ── network flavor + service profile ──────────────────────────────
+
+    def find_network_flavors(self, *,
+                             params: dict[str, Any] | None = None,
+                             ) -> list[dict]:
+        data = self._client.get(f"{self._base}/flavors", params=params)
+        return data.get("flavors", [])
+
+    def get_network_flavor(self, flavor_id: str) -> dict:
+        data = self._client.get(f"{self._base}/flavors/{flavor_id}")
+        return data.get("flavor", data)
+
+    def create_network_flavor(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(f"{self._base}/flavors",
+                                 json={"flavor": body})
+        return data.get("flavor", data) if data else {}
+
+    def update_network_flavor(self, flavor_id: str,
+                              body: dict[str, Any]) -> dict:
+        data = self._client.put(f"{self._base}/flavors/{flavor_id}",
+                                json={"flavor": body})
+        return data.get("flavor", data) if data else {}
+
+    def delete_network_flavor(self, flavor_id: str) -> None:
+        self._client.delete(f"{self._base}/flavors/{flavor_id}")
+
+    def add_flavor_profile(self, flavor_id: str,
+                           service_profile_id: str) -> None:
+        self._client.post(
+            f"{self._base}/flavors/{flavor_id}/service_profiles",
+            json={"service_profile": {"id": service_profile_id}},
+        )
+
+    def remove_flavor_profile(self, flavor_id: str,
+                              service_profile_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/flavors/{flavor_id}/service_profiles/{service_profile_id}"
+        )
+
+    def find_service_profiles(self) -> list[dict]:
+        data = self._client.get(f"{self._base}/service_profiles")
+        return data.get("service_profiles", [])
+
+    def get_service_profile(self, sp_id: str) -> dict:
+        data = self._client.get(f"{self._base}/service_profiles/{sp_id}")
+        return data.get("service_profile", data)
+
+    def create_service_profile(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(f"{self._base}/service_profiles",
+                                 json={"service_profile": body})
+        return data.get("service_profile", data) if data else {}
+
+    def update_service_profile(self, sp_id: str,
+                               body: dict[str, Any]) -> dict:
+        data = self._client.put(f"{self._base}/service_profiles/{sp_id}",
+                                json={"service_profile": body})
+        return data.get("service_profile", data) if data else {}
+
+    def delete_service_profile(self, sp_id: str) -> None:
+        self._client.delete(f"{self._base}/service_profiles/{sp_id}")
+
+    # ── network segment ranges (admin SDN) ────────────────────────────
+
+    def find_segment_ranges(self, *,
+                            params: dict[str, Any] | None = None,
+                            ) -> list[dict]:
+        data = self._client.get(f"{self._base}/network_segment_ranges",
+                                params=params)
+        return data.get("network_segment_ranges", [])
+
+    def get_segment_range(self, sr_id: str) -> dict:
+        data = self._client.get(
+            f"{self._base}/network_segment_ranges/{sr_id}"
+        )
+        return data.get("network_segment_range", data)
+
+    def create_segment_range(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(
+            f"{self._base}/network_segment_ranges",
+            json={"network_segment_range": body},
+        )
+        return data.get("network_segment_range", data) if data else {}
+
+    def update_segment_range(self, sr_id: str,
+                             body: dict[str, Any]) -> dict:
+        data = self._client.put(
+            f"{self._base}/network_segment_ranges/{sr_id}",
+            json={"network_segment_range": body},
+        )
+        return data.get("network_segment_range", data) if data else {}
+
+    def delete_segment_range(self, sr_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/network_segment_ranges/{sr_id}"
+        )
+
+    # ── L3 conntrack helpers (per-router) ─────────────────────────────
+
+    def find_conntrack_helpers(self, router_id: str) -> list[dict]:
+        data = self._client.get(
+            f"{self._base}/routers/{router_id}/conntrack_helpers"
+        )
+        return data.get("conntrack_helpers", [])
+
+    def get_conntrack_helper(self, router_id: str, ch_id: str) -> dict:
+        data = self._client.get(
+            f"{self._base}/routers/{router_id}/conntrack_helpers/{ch_id}"
+        )
+        return data.get("conntrack_helper", data)
+
+    def create_conntrack_helper(self, router_id: str,
+                                body: dict[str, Any]) -> dict:
+        data = self._client.post(
+            f"{self._base}/routers/{router_id}/conntrack_helpers",
+            json={"conntrack_helper": body},
+        )
+        return data.get("conntrack_helper", data) if data else {}
+
+    def update_conntrack_helper(self, router_id: str, ch_id: str,
+                                body: dict[str, Any]) -> dict:
+        data = self._client.put(
+            f"{self._base}/routers/{router_id}/conntrack_helpers/{ch_id}",
+            json={"conntrack_helper": body},
+        )
+        return data.get("conntrack_helper", data) if data else {}
+
+    def delete_conntrack_helper(self, router_id: str, ch_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/routers/{router_id}/conntrack_helpers/{ch_id}"
+        )
+
+    # ── router NDP proxy (per-router) ─────────────────────────────────
+
+    def find_ndp_proxies(self, *,
+                         params: dict[str, Any] | None = None) -> list[dict]:
+        data = self._client.get(f"{self._base}/ndp_proxies", params=params)
+        return data.get("ndp_proxies", [])
+
+    def get_ndp_proxy(self, ndp_id: str) -> dict:
+        data = self._client.get(f"{self._base}/ndp_proxies/{ndp_id}")
+        return data.get("ndp_proxy", data)
+
+    def create_ndp_proxy(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(f"{self._base}/ndp_proxies",
+                                 json={"ndp_proxy": body})
+        return data.get("ndp_proxy", data) if data else {}
+
+    def update_ndp_proxy(self, ndp_id: str, body: dict[str, Any]) -> dict:
+        data = self._client.put(f"{self._base}/ndp_proxies/{ndp_id}",
+                                json={"ndp_proxy": body})
+        return data.get("ndp_proxy", data) if data else {}
+
+    def delete_ndp_proxy(self, ndp_id: str) -> None:
+        self._client.delete(f"{self._base}/ndp_proxies/{ndp_id}")
+
+    # ── local IP + associations (Yoga+) ───────────────────────────────
+
+    def find_local_ips(self, *,
+                       params: dict[str, Any] | None = None) -> list[dict]:
+        data = self._client.get(f"{self._base}/local_ips", params=params)
+        return data.get("local_ips", [])
+
+    def get_local_ip(self, lip_id: str) -> dict:
+        data = self._client.get(f"{self._base}/local_ips/{lip_id}")
+        return data.get("local_ip", data)
+
+    def create_local_ip(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(f"{self._base}/local_ips",
+                                 json={"local_ip": body})
+        return data.get("local_ip", data) if data else {}
+
+    def update_local_ip(self, lip_id: str, body: dict[str, Any]) -> dict:
+        data = self._client.put(f"{self._base}/local_ips/{lip_id}",
+                                json={"local_ip": body})
+        return data.get("local_ip", data) if data else {}
+
+    def delete_local_ip(self, lip_id: str) -> None:
+        self._client.delete(f"{self._base}/local_ips/{lip_id}")
+
+    def find_local_ip_associations(self, lip_id: str) -> list[dict]:
+        data = self._client.get(
+            f"{self._base}/local_ips/{lip_id}/port_associations"
+        )
+        return data.get("port_associations", [])
+
+    def create_local_ip_association(self, lip_id: str,
+                                     body: dict[str, Any]) -> dict:
+        data = self._client.post(
+            f"{self._base}/local_ips/{lip_id}/port_associations",
+            json={"port_association": body},
+        )
+        return data.get("port_association", data) if data else {}
+
+    def delete_local_ip_association(self, lip_id: str, port_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/local_ips/{lip_id}/port_associations/{port_id}"
+        )
+
+    # ── IP availability (admin) ───────────────────────────────────────
+
+    def find_ip_availabilities(self, *,
+                               params: dict[str, Any] | None = None,
+                               ) -> list[dict]:
+        data = self._client.get(
+            f"{self._base}/network-ip-availabilities", params=params,
+        )
+        return data.get("network_ip_availabilities", [])
+
+    def get_ip_availability(self, network_id: str) -> dict:
+        data = self._client.get(
+            f"{self._base}/network-ip-availabilities/{network_id}"
+        )
+        return data.get("network_ip_availability", data)
+
+    # ── agent network/router bindings ─────────────────────────────────
+
+    def add_network_to_dhcp_agent(self, agent_id: str,
+                                  network_id: str) -> None:
+        self._client.post(
+            f"{self._base}/agents/{agent_id}/dhcp-networks",
+            json={"network_id": network_id},
+        )
+
+    def remove_network_from_dhcp_agent(self, agent_id: str,
+                                       network_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/agents/{agent_id}/dhcp-networks/{network_id}"
+        )
+
+    def add_router_to_l3_agent(self, agent_id: str, router_id: str) -> None:
+        self._client.post(
+            f"{self._base}/agents/{agent_id}/l3-routers",
+            json={"router_id": router_id},
+        )
+
+    def remove_router_from_l3_agent(self, agent_id: str,
+                                    router_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/agents/{agent_id}/l3-routers/{router_id}"
+        )
+
+    # ── subnet pool & trunk metadata removal (lot 12) ─────────────────
+
+    def remove_subnet_pool_prefixes(self, pool_id: str,
+                                    prefixes: list[str]) -> dict:
+        """Remove address prefixes from a subnet pool."""
+        # Subnet pools don't expose a direct "remove" endpoint — Neutron
+        # expects a PUT with the full new list. The caller computes the
+        # difference; we just forward.
+        data = self._client.put(
+            f"{self._base}/subnetpools/{pool_id}",
+            json={"subnetpool": {"prefixes": prefixes}},
+        )
+        return data.get("subnetpool", data) if data else {}

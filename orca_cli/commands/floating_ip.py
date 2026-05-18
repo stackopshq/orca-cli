@@ -275,3 +275,136 @@ def fip_bulk_release(ctx: click.Context, target_status: str, unassociated: bool,
     else:
         console.print()
     console.print()
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Port forwarding (FIP DNAT)
+# ══════════════════════════════════════════════════════════════════════════
+
+@floating_ip.group("port-forwarding")
+def fip_port_forwarding() -> None:
+    """Manage port-forwarding rules attached to a floating IP."""
+
+
+def _pf_svc(ctx: click.Context) -> NetworkService:
+    return NetworkService(ctx.find_object(OrcaContext).ensure_client())
+
+
+@fip_port_forwarding.command("list")
+@click.argument("fip_id", callback=validate_id)
+@output_options
+@click.pass_context
+def pf_list(ctx, fip_id, output_format, columns, fit_width, max_width, noindent):
+    """List port-forwarding rules on a floating IP."""
+    pfs = _pf_svc(ctx).find_port_forwardings(fip_id)
+    print_list(
+        pfs,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Proto", "protocol"),
+            ("External Port", "external_port", {"justify": "right"}),
+            ("Internal IP", "internal_ip_address"),
+            ("Internal Port", "internal_port", {"justify": "right"}),
+            ("Internal Port ID", "internal_port_id"),
+        ],
+        title=f"Port forwardings on FIP {fip_id}",
+        output_format=output_format, fit_width=fit_width, max_width=max_width,
+        noindent=noindent, columns=columns,
+        empty_msg="No port forwarding rules.",
+    )
+
+
+@fip_port_forwarding.command("show")
+@click.argument("fip_id", callback=validate_id)
+@click.argument("pf_id", callback=validate_id)
+@output_options
+@click.pass_context
+def pf_show(ctx, fip_id, pf_id, output_format, columns, fit_width, max_width, noindent):
+    """Show a port-forwarding rule."""
+    data = _pf_svc(ctx).get_port_forwarding(fip_id, pf_id)
+    fields = [(k, str(v)) for k, v in data.items()]
+    print_detail(fields, output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@fip_port_forwarding.command("create")
+@click.argument("fip_id", callback=validate_id)
+@click.option("--internal-port-id", required=True,
+              help="Port to forward traffic to.")
+@click.option("--internal-ip-address", required=True,
+              help="Fixed IP of the internal port to target.")
+@click.option("--internal-port", type=int, required=True,
+              help="Internal TCP/UDP port.")
+@click.option("--external-port", type=int, required=True,
+              help="External TCP/UDP port (on the floating IP).")
+@click.option("--protocol", type=click.Choice(["tcp", "udp"]),
+              default="tcp", show_default=True)
+@click.option("--description", default=None, help="Free-text description.")
+@click.pass_context
+def pf_create(ctx, fip_id, internal_port_id, internal_ip_address,
+              internal_port, external_port, protocol, description):
+    """Create a port-forwarding rule.
+
+    \b
+    Example:
+      orca floating-ip port-forwarding create <fip-id> \\
+        --internal-port-id <port-id> --internal-ip-address 10.0.0.5 \\
+        --internal-port 22 --external-port 2222
+    """
+    body: dict = {
+        "internal_port_id": internal_port_id,
+        "internal_ip_address": internal_ip_address,
+        "internal_port": internal_port,
+        "external_port": external_port,
+        "protocol": protocol,
+    }
+    if description:
+        body["description"] = description
+    data = _pf_svc(ctx).create_port_forwarding(fip_id, body)
+    console.print(f"[green]Port forwarding created ({data.get('id', '')}).[/green]")
+
+
+@fip_port_forwarding.command("set")
+@click.argument("fip_id", callback=validate_id)
+@click.argument("pf_id", callback=validate_id)
+@click.option("--internal-port-id", default=None)
+@click.option("--internal-ip-address", default=None)
+@click.option("--internal-port", type=int, default=None)
+@click.option("--external-port", type=int, default=None)
+@click.option("--protocol", type=click.Choice(["tcp", "udp"]), default=None)
+@click.option("--description", default=None)
+@click.pass_context
+def pf_set(ctx, fip_id, pf_id, internal_port_id, internal_ip_address,
+           internal_port, external_port, protocol, description):
+    """Update a port-forwarding rule."""
+    body: dict = {}
+    if internal_port_id:
+        body["internal_port_id"] = internal_port_id
+    if internal_ip_address:
+        body["internal_ip_address"] = internal_ip_address
+    if internal_port is not None:
+        body["internal_port"] = internal_port
+    if external_port is not None:
+        body["external_port"] = external_port
+    if protocol:
+        body["protocol"] = protocol
+    if description is not None:
+        body["description"] = description
+    if not body:
+        console.print("[yellow]Nothing to update.[/yellow]")
+        return
+    _pf_svc(ctx).update_port_forwarding(fip_id, pf_id, body)
+    console.print(f"[green]Port forwarding {pf_id} updated.[/green]")
+
+
+@fip_port_forwarding.command("delete")
+@click.argument("fip_id", callback=validate_id)
+@click.argument("pf_id", callback=validate_id)
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
+@click.pass_context
+def pf_delete(ctx, fip_id, pf_id, yes):
+    """Delete a port-forwarding rule."""
+    if not yes:
+        click.confirm(f"Delete port forwarding {pf_id} on FIP {fip_id}?", abort=True)
+    _pf_svc(ctx).delete_port_forwarding(fip_id, pf_id)
+    console.print(f"[green]Port forwarding {pf_id} deleted.[/green]")

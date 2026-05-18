@@ -1397,3 +1397,667 @@ for _legacy, _primary, _path in [
 ]:
     add_command_with_alias(network, _primary, legacy_name=_legacy, primary_path=_path)
 del _legacy, _primary, _path
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Metering labels + rules (2026-04-28 lot 4)
+# ══════════════════════════════════════════════════════════════════════════
+
+@network.group("meter")
+def network_meter() -> None:
+    """Manage Neutron metering labels (admin)."""
+
+
+@network.group("meter-rule")
+def network_meter_rule() -> None:
+    """Manage Neutron metering label rules (admin)."""
+
+
+def _net_svc(ctx: click.Context) -> NetworkService:
+    return NetworkService(ctx.find_object(OrcaContext).ensure_client())
+
+
+@network_meter.command("list")
+@output_options
+@click.pass_context
+def meter_list(ctx, output_format, columns, fit_width, max_width, noindent):
+    """List metering labels."""
+    items = _net_svc(ctx).find_metering_labels()
+    print_list(items, [
+        ("ID", "id", {"style": "cyan", "no_wrap": True}),
+        ("Name", "name", {"style": "bold"}),
+        ("Description", lambda lbl: lbl.get("description", "") or "—"),
+        ("Shared", "shared"),
+    ], title="Metering labels",
+       output_format=output_format, fit_width=fit_width, max_width=max_width,
+       noindent=noindent, columns=columns,
+       empty_msg="No metering labels.")
+
+
+@network_meter.command("show")
+@click.argument("label_id")
+@output_options
+@click.pass_context
+def meter_show(ctx, label_id, output_format, columns, fit_width, max_width, noindent):
+    """Show a metering label."""
+    data = _net_svc(ctx).get_metering_label(label_id)
+    print_detail([(k, str(v)) for k, v in data.items()],
+                 output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@network_meter.command("create")
+@click.argument("name")
+@click.option("--description", default=None)
+@click.option("--shared/--unshared", default=False)
+@click.pass_context
+def meter_create(ctx, name, description, shared):
+    """Create a metering label."""
+    body: dict = {"name": name, "shared": shared}
+    if description:
+        body["description"] = description
+    data = _net_svc(ctx).create_metering_label(body)
+    console.print(f"[green]Metering label '{name}' created ({data.get('id', '')}).[/green]")
+
+
+@network_meter.command("delete")
+@click.argument("label_id")
+@click.option("--yes", "-y", is_flag=True)
+@click.pass_context
+def meter_delete(ctx, label_id, yes):
+    """Delete a metering label."""
+    if not yes:
+        click.confirm(f"Delete metering label {label_id}?", abort=True)
+    _net_svc(ctx).delete_metering_label(label_id)
+    console.print(f"[green]Metering label {label_id} deleted.[/green]")
+
+
+@network_meter_rule.command("list")
+@click.option("--label-id", default=None, help="Filter by metering label.")
+@output_options
+@click.pass_context
+def meter_rule_list(ctx, label_id, output_format, columns, fit_width, max_width, noindent):
+    """List metering label rules."""
+    params = {"metering_label_id": label_id} if label_id else None
+    items = _net_svc(ctx).find_metering_label_rules(params=params)
+    print_list(items, [
+        ("ID", "id", {"style": "cyan", "no_wrap": True}),
+        ("Label", "metering_label_id"),
+        ("Direction", "direction"),
+        ("CIDR", lambda r: r.get("remote_ip_prefix") or r.get("source_ip_prefix") or "—"),
+        ("Excluded", "excluded"),
+    ], title="Metering rules",
+       output_format=output_format, fit_width=fit_width, max_width=max_width,
+       noindent=noindent, columns=columns,
+       empty_msg="No metering rules.")
+
+
+@network_meter_rule.command("show")
+@click.argument("rule_id")
+@output_options
+@click.pass_context
+def meter_rule_show(ctx, rule_id, output_format, columns, fit_width, max_width, noindent):
+    """Show a metering rule."""
+    data = _net_svc(ctx).get_metering_label_rule(rule_id)
+    print_detail([(k, str(v)) for k, v in data.items()],
+                 output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@network_meter_rule.command("create")
+@click.option("--label-id", required=True, help="Metering label to attach to.")
+@click.option("--direction", type=click.Choice(["ingress", "egress"]),
+              default="ingress", show_default=True)
+@click.option("--remote-ip-prefix", default=None,
+              help="CIDR to match (legacy alias of --source-ip-prefix).")
+@click.option("--source-ip-prefix", default=None)
+@click.option("--destination-ip-prefix", default=None)
+@click.option("--excluded", is_flag=True, default=False,
+              help="Invert the match (exclude this CIDR from accounting).")
+@click.pass_context
+def meter_rule_create(ctx, label_id, direction, remote_ip_prefix,
+                       source_ip_prefix, destination_ip_prefix, excluded):
+    """Create a metering rule."""
+    body: dict = {
+        "metering_label_id": label_id,
+        "direction": direction,
+        "excluded": excluded,
+    }
+    if remote_ip_prefix:
+        body["remote_ip_prefix"] = remote_ip_prefix
+    if source_ip_prefix:
+        body["source_ip_prefix"] = source_ip_prefix
+    if destination_ip_prefix:
+        body["destination_ip_prefix"] = destination_ip_prefix
+    data = _net_svc(ctx).create_metering_label_rule(body)
+    console.print(f"[green]Metering rule created ({data.get('id', '')}).[/green]")
+
+
+@network_meter_rule.command("delete")
+@click.argument("rule_id")
+@click.option("--yes", "-y", is_flag=True)
+@click.pass_context
+def meter_rule_delete(ctx, rule_id, yes):
+    """Delete a metering rule."""
+    if not yes:
+        click.confirm(f"Delete metering rule {rule_id}?", abort=True)
+    _net_svc(ctx).delete_metering_label_rule(rule_id)
+    console.print(f"[green]Metering rule {rule_id} deleted.[/green]")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Network flavors + service profiles (admin SDN, lot 5)
+# ══════════════════════════════════════════════════════════════════════════
+
+@network.group("flavor")
+def network_flavor() -> None:
+    """Manage Neutron service flavors (admin SDN)."""
+
+
+@network.group("flavor-profile")
+def network_flavor_profile() -> None:
+    """Manage Neutron service profiles attached to flavors (admin)."""
+
+
+@network_flavor.command("list")
+@output_options
+@click.pass_context
+def nflavor_list(ctx, output_format, columns, fit_width, max_width, noindent):
+    """List network flavors."""
+    items = _net_svc(ctx).find_network_flavors()
+    print_list(items, [
+        ("ID", "id", {"style": "cyan", "no_wrap": True}),
+        ("Name", "name", {"style": "bold"}),
+        ("Service Type", "service_type"),
+        ("Enabled", "enabled"),
+    ], title="Network flavors",
+       output_format=output_format, fit_width=fit_width, max_width=max_width,
+       noindent=noindent, columns=columns,
+       empty_msg="No flavors.")
+
+
+@network_flavor.command("show")
+@click.argument("flavor_id")
+@output_options
+@click.pass_context
+def nflavor_show(ctx, flavor_id, output_format, columns, fit_width, max_width, noindent):
+    """Show a network flavor."""
+    data = _net_svc(ctx).get_network_flavor(flavor_id)
+    print_detail([(k, str(v)) for k, v in data.items()],
+                 output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@network_flavor.command("create")
+@click.argument("name")
+@click.option("--service-type", required=True,
+              help="Service type (FLAVORS, FIREWALL_V2, …).")
+@click.option("--description", default=None)
+@click.option("--enabled/--disabled", default=True)
+@click.pass_context
+def nflavor_create(ctx, name, service_type, description, enabled):
+    """Create a network flavor."""
+    body: dict = {"name": name, "service_type": service_type, "enabled": enabled}
+    if description:
+        body["description"] = description
+    data = _net_svc(ctx).create_network_flavor(body)
+    console.print(f"[green]Flavor '{name}' created ({data.get('id', '')}).[/green]")
+
+
+@network_flavor.command("set")
+@click.argument("flavor_id")
+@click.option("--name", default=None)
+@click.option("--description", default=None)
+@click.option("--enabled/--disabled", default=None)
+@click.pass_context
+def nflavor_set(ctx, flavor_id, name, description, enabled):
+    """Update a network flavor."""
+    body: dict = {}
+    if name is not None:
+        body["name"] = name
+    if description is not None:
+        body["description"] = description
+    if enabled is not None:
+        body["enabled"] = enabled
+    if not body:
+        console.print("[yellow]Nothing to update.[/yellow]")
+        return
+    _net_svc(ctx).update_network_flavor(flavor_id, body)
+    console.print(f"[green]Flavor {flavor_id} updated.[/green]")
+
+
+@network_flavor.command("delete")
+@click.argument("flavor_id")
+@click.option("--yes", "-y", is_flag=True)
+@click.pass_context
+def nflavor_delete(ctx, flavor_id, yes):
+    """Delete a network flavor."""
+    if not yes:
+        click.confirm(f"Delete flavor {flavor_id}?", abort=True)
+    _net_svc(ctx).delete_network_flavor(flavor_id)
+    console.print(f"[green]Flavor {flavor_id} deleted.[/green]")
+
+
+@network_flavor.command("add")
+@click.argument("flavor_id")
+@click.argument("profile_id")
+@click.pass_context
+def nflavor_add(ctx, flavor_id, profile_id):
+    """Attach a service profile to a flavor (OSC: ``flavor add profile``)."""
+    _net_svc(ctx).add_flavor_profile(flavor_id, profile_id)
+    console.print(f"[green]Profile {profile_id} added to flavor {flavor_id}.[/green]")
+
+
+@network_flavor.command("remove")
+@click.argument("flavor_id")
+@click.argument("profile_id")
+@click.pass_context
+def nflavor_remove(ctx, flavor_id, profile_id):
+    """Detach a service profile from a flavor (OSC: ``flavor remove profile``)."""
+    _net_svc(ctx).remove_flavor_profile(flavor_id, profile_id)
+    console.print(f"[green]Profile {profile_id} removed from flavor {flavor_id}.[/green]")
+
+
+@network_flavor_profile.command("list")
+@output_options
+@click.pass_context
+def fprofile_list(ctx, output_format, columns, fit_width, max_width, noindent):
+    """List service profiles."""
+    items = _net_svc(ctx).find_service_profiles()
+    print_list(items, [
+        ("ID", "id", {"style": "cyan", "no_wrap": True}),
+        ("Driver", "driver"),
+        ("Description", lambda p: p.get("description", "") or "—"),
+        ("Enabled", "enabled"),
+    ], title="Service profiles",
+       output_format=output_format, fit_width=fit_width, max_width=max_width,
+       noindent=noindent, columns=columns,
+       empty_msg="No service profiles.")
+
+
+@network_flavor_profile.command("show")
+@click.argument("sp_id")
+@output_options
+@click.pass_context
+def fprofile_show(ctx, sp_id, output_format, columns, fit_width, max_width, noindent):
+    """Show a service profile."""
+    data = _net_svc(ctx).get_service_profile(sp_id)
+    print_detail([(k, str(v)) for k, v in data.items()],
+                 output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@network_flavor_profile.command("create")
+@click.option("--driver", default=None, help="Backend driver class.")
+@click.option("--description", default=None)
+@click.option("--metainfo", default=None,
+              help="Free-text JSON the driver consumes.")
+@click.option("--enabled/--disabled", default=True)
+@click.pass_context
+def fprofile_create(ctx, driver, description, metainfo, enabled):
+    """Create a service profile."""
+    body: dict = {"enabled": enabled}
+    if driver:
+        body["driver"] = driver
+    if description:
+        body["description"] = description
+    if metainfo:
+        body["metainfo"] = metainfo
+    data = _net_svc(ctx).create_service_profile(body)
+    console.print(f"[green]Service profile created ({data.get('id', '')}).[/green]")
+
+
+@network_flavor_profile.command("set")
+@click.argument("sp_id")
+@click.option("--description", default=None)
+@click.option("--enabled/--disabled", default=None)
+@click.option("--metainfo", default=None)
+@click.pass_context
+def fprofile_set(ctx, sp_id, description, enabled, metainfo):
+    """Update a service profile."""
+    body: dict = {}
+    if description is not None:
+        body["description"] = description
+    if enabled is not None:
+        body["enabled"] = enabled
+    if metainfo is not None:
+        body["metainfo"] = metainfo
+    if not body:
+        console.print("[yellow]Nothing to update.[/yellow]")
+        return
+    _net_svc(ctx).update_service_profile(sp_id, body)
+    console.print(f"[green]Service profile {sp_id} updated.[/green]")
+
+
+@network_flavor_profile.command("delete")
+@click.argument("sp_id")
+@click.option("--yes", "-y", is_flag=True)
+@click.pass_context
+def fprofile_delete(ctx, sp_id, yes):
+    """Delete a service profile."""
+    if not yes:
+        click.confirm(f"Delete service profile {sp_id}?", abort=True)
+    _net_svc(ctx).delete_service_profile(sp_id)
+    console.print(f"[green]Service profile {sp_id} deleted.[/green]")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Network segment range (admin SDN, lot 6)
+# ══════════════════════════════════════════════════════════════════════════
+
+@network.group("segment-range")
+def network_segment_range() -> None:
+    """Manage network segment ID ranges (admin)."""
+
+
+@network_segment_range.command("list")
+@output_options
+@click.pass_context
+def sr_list(ctx, output_format, columns, fit_width, max_width, noindent):
+    """List network segment ranges."""
+    items = _net_svc(ctx).find_segment_ranges()
+    print_list(items, [
+        ("ID", "id", {"style": "cyan", "no_wrap": True}),
+        ("Name", "name", {"style": "bold"}),
+        ("Type", "network_type"),
+        ("Physical Net", "physical_network"),
+        ("Min", lambda s: str(s.get("minimum", "—"))),
+        ("Max", lambda s: str(s.get("maximum", "—"))),
+        ("Shared", "shared"),
+    ], title="Network segment ranges",
+       output_format=output_format, fit_width=fit_width, max_width=max_width,
+       noindent=noindent, columns=columns,
+       empty_msg="No segment ranges.")
+
+
+@network_segment_range.command("show")
+@click.argument("sr_id")
+@output_options
+@click.pass_context
+def sr_show(ctx, sr_id, output_format, columns, fit_width, max_width, noindent):
+    """Show a segment range."""
+    data = _net_svc(ctx).get_segment_range(sr_id)
+    print_detail([(k, str(v)) for k, v in data.items()],
+                 output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@network_segment_range.command("create")
+@click.argument("name")
+@click.option("--network-type", required=True,
+              type=click.Choice(["vlan", "vxlan", "gre", "geneve"]),
+              help="Segment type.")
+@click.option("--physical-network", default=None,
+              help="Physical network identifier (required for vlan).")
+@click.option("--minimum", type=int, required=True, help="Minimum segment ID.")
+@click.option("--maximum", type=int, required=True, help="Maximum segment ID.")
+@click.option("--shared/--unshared", default=False)
+@click.pass_context
+def sr_create(ctx, name, network_type, physical_network, minimum, maximum, shared):
+    """Create a segment range."""
+    body: dict = {
+        "name": name, "network_type": network_type,
+        "minimum": minimum, "maximum": maximum, "shared": shared,
+    }
+    if physical_network:
+        body["physical_network"] = physical_network
+    data = _net_svc(ctx).create_segment_range(body)
+    console.print(f"[green]Segment range '{name}' created ({data.get('id', '')}).[/green]")
+
+
+@network_segment_range.command("set")
+@click.argument("sr_id")
+@click.option("--name", default=None)
+@click.option("--minimum", type=int, default=None)
+@click.option("--maximum", type=int, default=None)
+@click.pass_context
+def sr_set(ctx, sr_id, name, minimum, maximum):
+    """Update a segment range."""
+    body: dict = {}
+    if name is not None:
+        body["name"] = name
+    if minimum is not None:
+        body["minimum"] = minimum
+    if maximum is not None:
+        body["maximum"] = maximum
+    if not body:
+        console.print("[yellow]Nothing to update.[/yellow]")
+        return
+    _net_svc(ctx).update_segment_range(sr_id, body)
+    console.print(f"[green]Segment range {sr_id} updated.[/green]")
+
+
+@network_segment_range.command("delete")
+@click.argument("sr_id")
+@click.option("--yes", "-y", is_flag=True)
+@click.pass_context
+def sr_delete(ctx, sr_id, yes):
+    """Delete a segment range."""
+    if not yes:
+        click.confirm(f"Delete segment range {sr_id}?", abort=True)
+    _net_svc(ctx).delete_segment_range(sr_id)
+    console.print(f"[green]Segment range {sr_id} deleted.[/green]")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  L3 conntrack helper (per-router, lot 7)
+# ══════════════════════════════════════════════════════════════════════════
+
+@network.group("l3-conntrack-helper")
+def network_l3ch() -> None:
+    """Manage L3 conntrack helper modules on a router (admin)."""
+
+
+@network_l3ch.command("list")
+@click.argument("router_id", callback=validate_id)
+@output_options
+@click.pass_context
+def l3ch_list(ctx, router_id, output_format, columns, fit_width, max_width, noindent):
+    """List conntrack helpers on a router."""
+    items = _net_svc(ctx).find_conntrack_helpers(router_id)
+    print_list(items, [
+        ("ID", "id", {"style": "cyan", "no_wrap": True}),
+        ("Helper", "helper", {"style": "bold"}),
+        ("Protocol", "protocol"),
+        ("Port", lambda r: str(r.get("port", "—"))),
+    ], title=f"Conntrack helpers on router {router_id}",
+       output_format=output_format, fit_width=fit_width, max_width=max_width,
+       noindent=noindent, columns=columns,
+       empty_msg="No conntrack helpers.")
+
+
+@network_l3ch.command("show")
+@click.argument("router_id", callback=validate_id)
+@click.argument("ch_id")
+@output_options
+@click.pass_context
+def l3ch_show(ctx, router_id, ch_id, output_format, columns, fit_width, max_width, noindent):
+    """Show a conntrack helper."""
+    data = _net_svc(ctx).get_conntrack_helper(router_id, ch_id)
+    print_detail([(k, str(v)) for k, v in data.items()],
+                 output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@network_l3ch.command("create")
+@click.argument("router_id", callback=validate_id)
+@click.option("--helper", required=True,
+              help="Helper module name (ftp, tftp, sip, h323, …).")
+@click.option("--protocol", type=click.Choice(["tcp", "udp"]),
+              default="tcp", show_default=True)
+@click.option("--port", type=int, required=True,
+              help="Port the helper listens on.")
+@click.pass_context
+def l3ch_create(ctx, router_id, helper, protocol, port):
+    """Attach a conntrack helper to a router."""
+    body: dict = {"helper": helper, "protocol": protocol, "port": port}
+    data = _net_svc(ctx).create_conntrack_helper(router_id, body)
+    console.print(f"[green]Conntrack helper {helper} added to {router_id} ({data.get('id', '')}).[/green]")
+
+
+@network_l3ch.command("set")
+@click.argument("router_id", callback=validate_id)
+@click.argument("ch_id")
+@click.option("--port", type=int, default=None)
+@click.pass_context
+def l3ch_set(ctx, router_id, ch_id, port):
+    """Update a conntrack helper (port only — helper/protocol are immutable)."""
+    if port is None:
+        console.print("[yellow]Nothing to update.[/yellow]")
+        return
+    _net_svc(ctx).update_conntrack_helper(router_id, ch_id, {"port": port})
+    console.print(f"[green]Conntrack helper {ch_id} updated.[/green]")
+
+
+@network_l3ch.command("delete")
+@click.argument("router_id", callback=validate_id)
+@click.argument("ch_id")
+@click.option("--yes", "-y", is_flag=True)
+@click.pass_context
+def l3ch_delete(ctx, router_id, ch_id, yes):
+    """Detach a conntrack helper."""
+    if not yes:
+        click.confirm(f"Delete conntrack helper {ch_id} on {router_id}?", abort=True)
+    _net_svc(ctx).delete_conntrack_helper(router_id, ch_id)
+    console.print(f"[green]Conntrack helper {ch_id} removed.[/green]")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Router NDP proxy (IPv6, lot 8) — lives under ``network router ndp-proxy``
+# ══════════════════════════════════════════════════════════════════════════
+
+@network_router.group("ndp-proxy")
+def network_router_ndp() -> None:
+    """Manage IPv6 NDP proxies on a router."""
+
+
+@network_router_ndp.command("list")
+@click.option("--router-id", default=None, help="Filter by router.")
+@output_options
+@click.pass_context
+def ndp_list(ctx, router_id, output_format, columns, fit_width, max_width, noindent):
+    """List NDP proxies."""
+    params = {"router_id": router_id} if router_id else None
+    items = _net_svc(ctx).find_ndp_proxies(params=params)
+    print_list(items, [
+        ("ID", "id", {"style": "cyan", "no_wrap": True}),
+        ("Router", "router_id"),
+        ("Port", "port_id"),
+        ("IP", "ip_address"),
+    ], title="NDP proxies",
+       output_format=output_format, fit_width=fit_width, max_width=max_width,
+       noindent=noindent, columns=columns,
+       empty_msg="No NDP proxies.")
+
+
+@network_router_ndp.command("show")
+@click.argument("ndp_id")
+@output_options
+@click.pass_context
+def ndp_show(ctx, ndp_id, output_format, columns, fit_width, max_width, noindent):
+    """Show an NDP proxy."""
+    data = _net_svc(ctx).get_ndp_proxy(ndp_id)
+    print_detail([(k, str(v)) for k, v in data.items()],
+                 output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@network_router_ndp.command("create")
+@click.option("--router-id", required=True)
+@click.option("--port-id", required=True)
+@click.option("--ip-address", default=None,
+              help="Specific IPv6 address (autopicked if omitted).")
+@click.pass_context
+def ndp_create(ctx, router_id, port_id, ip_address):
+    """Create an NDP proxy."""
+    body: dict = {"router_id": router_id, "port_id": port_id}
+    if ip_address:
+        body["ip_address"] = ip_address
+    data = _net_svc(ctx).create_ndp_proxy(body)
+    console.print(f"[green]NDP proxy created ({data.get('id', '')}).[/green]")
+
+
+@network_router_ndp.command("set")
+@click.argument("ndp_id")
+@click.option("--name", default=None)
+@click.option("--description", default=None)
+@click.pass_context
+def ndp_set(ctx, ndp_id, name, description):
+    """Update an NDP proxy."""
+    body: dict = {}
+    if name is not None:
+        body["name"] = name
+    if description is not None:
+        body["description"] = description
+    if not body:
+        console.print("[yellow]Nothing to update.[/yellow]")
+        return
+    _net_svc(ctx).update_ndp_proxy(ndp_id, body)
+    console.print(f"[green]NDP proxy {ndp_id} updated.[/green]")
+
+
+@network_router_ndp.command("delete")
+@click.argument("ndp_id")
+@click.option("--yes", "-y", is_flag=True)
+@click.pass_context
+def ndp_delete(ctx, ndp_id, yes):
+    """Delete an NDP proxy."""
+    if not yes:
+        click.confirm(f"Delete NDP proxy {ndp_id}?", abort=True)
+    _net_svc(ctx).delete_ndp_proxy(ndp_id)
+    console.print(f"[green]NDP proxy {ndp_id} deleted.[/green]")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Agent network/router bindings (lot 11)
+# ══════════════════════════════════════════════════════════════════════════
+
+# Reuse network_agent already defined elsewhere in this file.
+@network_agent.group("add")
+def network_agent_add() -> None:
+    """Bind a network or router to an agent (admin scheduler)."""
+
+
+@network_agent.group("remove")
+def network_agent_remove() -> None:
+    """Unbind a network or router from an agent (admin scheduler)."""
+
+
+@network_agent_add.command("network")
+@click.argument("agent_id")
+@click.argument("network_id")
+@click.pass_context
+def _agent_add_network(ctx, agent_id, network_id):
+    """Bind a network to a DHCP agent."""
+    _net_svc(ctx).add_network_to_dhcp_agent(agent_id, network_id)
+    console.print(f"[green]Network {network_id} bound to agent {agent_id}.[/green]")
+
+
+@network_agent_remove.command("network")
+@click.argument("agent_id")
+@click.argument("network_id")
+@click.pass_context
+def _agent_remove_network(ctx, agent_id, network_id):
+    """Unbind a network from a DHCP agent."""
+    _net_svc(ctx).remove_network_from_dhcp_agent(agent_id, network_id)
+    console.print(f"[green]Network {network_id} unbound from agent {agent_id}.[/green]")
+
+
+@network_agent_add.command("router")
+@click.argument("agent_id")
+@click.argument("router_id")
+@click.pass_context
+def _agent_add_router(ctx, agent_id, router_id):
+    """Bind a router to an L3 agent."""
+    _net_svc(ctx).add_router_to_l3_agent(agent_id, router_id)
+    console.print(f"[green]Router {router_id} bound to agent {agent_id}.[/green]")
+
+
+@network_agent_remove.command("router")
+@click.argument("agent_id")
+@click.argument("router_id")
+@click.pass_context
+def _agent_remove_router(ctx, agent_id, router_id):
+    """Unbind a router from an L3 agent."""
+    _net_svc(ctx).remove_router_from_l3_agent(agent_id, router_id)
+    console.print(f"[green]Router {router_id} unbound from agent {agent_id}.[/green]")
