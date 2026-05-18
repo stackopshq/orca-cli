@@ -160,6 +160,11 @@ class VolumeService:
                                  json={"metadata": kv})
         return data.get("metadata", {}) if data else {}
 
+    def delete_snapshot_metadata_key(self, snapshot_id: str, key: str) -> None:
+        self._client.delete(
+            f"{self._base}/snapshots/{snapshot_id}/metadata/{key}"
+        )
+
     # ── backups ────────────────────────────────────────────────────────
 
     def find_backups(self, *,
@@ -184,6 +189,22 @@ class VolumeService:
         data = self._client.post(f"{self._base}/backups/{backup_id}/restore",
                                  json={"restore": body})
         return data.get("restore", data) if data else {}
+
+    def update_backup(self, backup_id: str, body: dict[str, Any]) -> VolumeBackup:
+        """PUT /backups/{id} — modify name, description, metadata."""
+        data = self._client.put(f"{self._base}/backups/{backup_id}",
+                                json={"backup": body})
+        return data.get("backup", data) if data else {}
+
+    def update_backup_metadata(self, backup_id: str, kv: dict[str, str]) -> dict:
+        data = self._client.put(f"{self._base}/backups/{backup_id}/metadata",
+                                json={"metadata": kv})
+        return data.get("metadata", {}) if data else {}
+
+    def delete_backup_metadata_key(self, backup_id: str, key: str) -> None:
+        self._client.delete(
+            f"{self._base}/backups/{backup_id}/metadata/{key}"
+        )
 
     # ── attachments ────────────────────────────────────────────────────
 
@@ -245,6 +266,11 @@ class VolumeService:
                                  json={"extra_specs": kv})
         return data.get("extra_specs", {}) if data else {}
 
+    def unset_type_extra_spec(self, type_id: str, key: str) -> None:
+        self._client.delete(
+            f"{self._base}/types/{type_id}/extra_specs/{key}"
+        )
+
     def list_type_access(self, type_id: str) -> list[dict]:
         data = self._client.get(
             f"{self._base}/types/{type_id}/os-volume-type-access"
@@ -282,6 +308,18 @@ class VolumeService:
     def delete_qos(self, qos_id: str, *, force: bool = False) -> None:
         params = {"force": True} if force else None
         self._client.delete(f"{self._base}/qos-specs/{qos_id}", params=params)
+
+    def unset_qos_keys(self, qos_id: str, keys: list[str]) -> None:
+        """Remove specs from a QoS object.
+
+        Cinder accepts a list of keys in the body of
+        ``PUT /qos-specs/{id}/delete_keys`` (despite the verb, the
+        documented API uses PUT, not DELETE).
+        """
+        self._client.put(
+            f"{self._base}/qos-specs/{qos_id}/delete_keys",
+            json={"keys": keys},
+        )
 
     def associate_qos(self, qos_id: str, type_id: str) -> None:
         self._client.get(f"{self._base}/qos-specs/{qos_id}/associate",

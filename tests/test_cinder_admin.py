@@ -110,6 +110,126 @@ class TestSnapshotSet:
 
 
 # ══════════════════════════════════════════════════════════════════════════
+#  volume snapshot unset / type unset / qos unset / backup set+unset / revert
+#  (the OSC-parity additions from the 2026-04-28 Cinder audit)
+# ══════════════════════════════════════════════════════════════════════════
+
+class TestSnapshotUnset:
+
+    def test_unset_single_key(self, invoke, mock_client):
+        _vol(mock_client)
+        result = invoke(["volume", "snapshot", "unset", SNAP, "--property", "obsolete"])
+        assert result.exit_code == 0
+        url = mock_client.delete.call_args[0][0]
+        assert f"/snapshots/{SNAP}/metadata/obsolete" in url
+
+    def test_unset_multiple_keys(self, invoke, mock_client):
+        _vol(mock_client)
+        result = invoke(["volume", "snapshot", "unset", SNAP,
+                         "--property", "a", "--property", "b"])
+        assert result.exit_code == 0
+        assert mock_client.delete.call_count == 2
+
+    def test_unset_requires_property(self, invoke, mock_client):
+        _vol(mock_client)
+        result = invoke(["volume", "snapshot", "unset", SNAP])
+        assert result.exit_code != 0  # --property is required
+
+
+class TestVolumeTypeUnset:
+
+    def test_unset_extra_spec(self, invoke, mock_client):
+        _vol(mock_client)
+        result = invoke(["volume", "type", "unset", TYPE, "--property", "bandwidth_limit"])
+        assert result.exit_code == 0
+        url = mock_client.delete.call_args[0][0]
+        assert f"/types/{TYPE}/extra_specs/bandwidth_limit" in url
+
+    def test_unset_multiple(self, invoke, mock_client):
+        _vol(mock_client)
+        result = invoke(["volume", "type", "unset", TYPE,
+                         "--property", "iops", "--property", "bw"])
+        assert result.exit_code == 0
+        assert mock_client.delete.call_count == 2
+
+
+class TestVolumeQosUnset:
+
+    def test_unset_keys_via_put(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        # _vol() overrides client.put with a function; swap in a MagicMock
+        # so we can capture the call body.
+        mock_client.put = MagicMock(return_value=None)
+        QOS = "11111111-1111-1111-1111-111111111111"
+        result = invoke(["volume", "qos", "unset", QOS,
+                         "--property", "total_iops_sec", "--property", "total_bytes_sec"])
+        assert result.exit_code == 0
+        url, kwargs = mock_client.put.call_args.args[0], mock_client.put.call_args.kwargs
+        assert f"/qos-specs/{QOS}/delete_keys" in url
+        assert kwargs["json"] == {"keys": ["total_iops_sec", "total_bytes_sec"]}
+
+
+class TestVolumeBackupSetUnset:
+
+    BACKUP_ID = "22222222-2222-2222-2222-222222222222"
+
+    def test_set_name(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock(return_value={"backup": {"id": self.BACKUP_ID}})
+        result = invoke(["volume", "backup", "set", self.BACKUP_ID,
+                         "--name", "renamed"])
+        assert result.exit_code == 0
+        body = mock_client.put.call_args.kwargs["json"]["backup"]
+        assert body == {"name": "renamed"}
+
+    def test_set_property_uses_metadata_endpoint(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock(return_value={"metadata": {}})
+        result = invoke(["volume", "backup", "set", self.BACKUP_ID,
+                         "--property", "team=ops"])
+        assert result.exit_code == 0
+        # update_backup_metadata uses PUT on /backups/{id}/metadata
+        url, kwargs = mock_client.put.call_args.args[0], mock_client.put.call_args.kwargs
+        assert f"/backups/{self.BACKUP_ID}/metadata" in url
+        assert kwargs["json"] == {"metadata": {"team": "ops"}}
+
+    def test_set_nothing(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.put = MagicMock()
+        result = invoke(["volume", "backup", "set", self.BACKUP_ID])
+        assert result.exit_code == 0
+        assert "Nothing to update" in result.output
+        mock_client.put.assert_not_called()
+
+    def test_unset_single(self, invoke, mock_client):
+        _vol(mock_client)
+        result = invoke(["volume", "backup", "unset", self.BACKUP_ID,
+                         "--property", "team"])
+        assert result.exit_code == 0
+        url = mock_client.delete.call_args[0][0]
+        assert f"/backups/{self.BACKUP_ID}/metadata/team" in url
+
+
+class TestVolumeRevertTopLevel:
+    """``orca volume revert`` mirrors ``openstack volume revert``."""
+
+    def test_revert_calls_snapshot_action(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _vol(mock_client)
+        mock_client.post = MagicMock(return_value=None)
+        VOL = "33333333-3333-3333-3333-333333333333"
+        result = invoke(["volume", "revert", VOL, SNAP])
+        assert result.exit_code == 0
+        url, kwargs = mock_client.post.call_args.args[0], mock_client.post.call_args.kwargs
+        assert f"/volumes/{VOL}/action" in url
+        assert kwargs["json"] == {"revert": {"snapshot_id": SNAP}}
+
+
+# ══════════════════════════════════════════════════════════════════════════
 #  volume type-list / show / create / set / delete
 # ══════════════════════════════════════════════════════════════════════════
 

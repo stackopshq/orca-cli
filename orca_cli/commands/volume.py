@@ -1027,6 +1027,54 @@ def volume_backup_restore(ctx: click.Context, backup_id: str, volume_id: str | N
         )
 
 
+@volume_backup.command("set")
+@click.argument("backup_id", callback=validate_id)
+@click.option("--name", default=None, help="New name.")
+@click.option("--description", default=None, help="New description.")
+@click.option("--property", "properties", multiple=True, metavar="KEY=VALUE",
+              help="Metadata key=value (repeatable).")
+@click.pass_context
+def volume_backup_set(ctx: click.Context, backup_id: str, name: str | None,
+                      description: str | None, properties: tuple[str, ...]) -> None:
+    """Update a backup's name, description, or metadata."""
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    body: dict = {}
+    if name is not None:
+        body["name"] = name
+    if description is not None:
+        body["description"] = description
+    if body:
+        service.update_backup(backup_id, body)
+    if properties:
+        meta: dict = {}
+        for prop in properties:
+            if "=" not in prop:
+                raise OrcaCLIError(f"Invalid format '{prop}', expected KEY=VALUE.")
+            k, v = prop.split("=", 1)
+            meta[k] = v
+        service.update_backup_metadata(backup_id, meta)
+    if not body and not properties:
+        console.print("[yellow]Nothing to update.[/yellow]")
+        return
+    console.print(f"[green]Backup {backup_id} updated.[/green]")
+
+
+@volume_backup.command("unset")
+@click.argument("backup_id", callback=validate_id)
+@click.option("--property", "properties", multiple=True, metavar="KEY", required=True,
+              help="Metadata key to remove (repeatable).")
+@click.pass_context
+def volume_backup_unset(ctx: click.Context, backup_id: str,
+                         properties: tuple[str, ...]) -> None:
+    """Remove metadata keys from a backup."""
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    for key in properties:
+        service.delete_backup_metadata_key(backup_id, key)
+    console.print(
+        f"[green]Backup {backup_id} — removed {len(properties)} key(s).[/green]"
+    )
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  Volume metadata (set / unset)
 # ══════════════════════════════════════════════════════════════════════════
@@ -1134,6 +1182,26 @@ def snapshot_set(ctx: click.Context, snapshot_id: str, name: str | None,
     console.print(f"[green]Snapshot {snapshot_id} updated.[/green]")
 
 
+@volume_snapshot.command("unset")
+@click.argument("snapshot_id", callback=validate_id)
+@click.option("--property", "properties", multiple=True, metavar="KEY", required=True,
+              help="Metadata key to remove (repeatable).")
+@click.pass_context
+def snapshot_unset(ctx: click.Context, snapshot_id: str,
+                   properties: tuple[str, ...]) -> None:
+    """Remove metadata keys from a snapshot.
+
+    Example:
+      orca volume snapshot unset <snap-id> --property obsolete --property draft
+    """
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    for key in properties:
+        service.delete_snapshot_metadata_key(snapshot_id, key)
+    console.print(
+        f"[green]Snapshot {snapshot_id} — removed {len(properties)} key(s).[/green]"
+    )
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  Volume Types
 # ══════════════════════════════════════════════════════════════════════════
@@ -1239,6 +1307,26 @@ def volume_type_set(ctx: click.Context, type_id: str, name: str | None,
         console.print("[yellow]Nothing to update.[/yellow]")
         return
     console.print(f"[green]Volume type {type_id} updated.[/green]")
+
+
+@volume_type.command("unset")
+@click.argument("type_id")
+@click.option("--property", "properties", multiple=True, metavar="KEY", required=True,
+              help="Extra spec key to remove (repeatable).")
+@click.pass_context
+def volume_type_unset(ctx: click.Context, type_id: str,
+                      properties: tuple[str, ...]) -> None:
+    """Remove extra-spec keys from a volume type.
+
+    Example:
+      orca volume type unset gold --property bandwidth_limit --property iops_limit
+    """
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    for key in properties:
+        service.unset_type_extra_spec(type_id, key)
+    console.print(
+        f"[green]Volume type {type_id} — removed {len(properties)} extra spec(s).[/green]"
+    )
 
 
 @volume_type.command("delete")
@@ -1482,6 +1570,25 @@ def volume_qos_set(ctx: click.Context, qos_id: str, properties: tuple[str, ...])
     console.print(f"[green]QoS spec {qos_id} updated.[/green]")
 
 
+@volume_qos.command("unset")
+@click.argument("qos_id", callback=validate_id)
+@click.option("--property", "properties", multiple=True, metavar="KEY", required=True,
+              help="QoS spec key to remove (repeatable).")
+@click.pass_context
+def volume_qos_unset(ctx: click.Context, qos_id: str,
+                     properties: tuple[str, ...]) -> None:
+    """Remove keys from a volume QoS spec.
+
+    Example:
+      orca volume qos unset <qos-id> --property total_iops_sec
+    """
+    service = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    service.unset_qos_keys(qos_id, list(properties))
+    console.print(
+        f"[green]QoS spec {qos_id} — removed {len(properties)} key(s).[/green]"
+    )
+
+
 @volume_qos.command("delete")
 @click.argument("qos_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
@@ -1626,7 +1733,21 @@ def volume_revert_to_snapshot(ctx: click.Context, volume_id: str, snapshot_id: s
 
     \b
     Example:
-      orca volume revert-to-snapshot <volume-id> <snapshot-id>
+      orca volume snapshot revert <volume-id> <snapshot-id>
+    """
+    _vol_action(ctx, volume_id, {"revert": {"snapshot_id": snapshot_id}},
+                f"Revert to snapshot {snapshot_id}")
+
+
+@volume.command("revert")
+@click.argument("volume_id", callback=validate_id)
+@click.argument("snapshot_id", callback=validate_id)
+@click.pass_context
+def volume_revert(ctx: click.Context, volume_id: str, snapshot_id: str) -> None:
+    """Revert a volume to a previous snapshot (OSC-parity alias).
+
+    Equivalent to ``orca volume snapshot revert <volume-id> <snapshot-id>``;
+    exposed at the top level for parity with ``openstack volume revert``.
     """
     _vol_action(ctx, volume_id, {"revert": {"snapshot_id": snapshot_id}},
                 f"Revert to snapshot {snapshot_id}")
