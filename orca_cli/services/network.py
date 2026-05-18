@@ -258,6 +258,20 @@ class NetworkService:
     def delete_security_group_rule(self, rule_id: str) -> None:
         self._client.delete(f"{self._base}/security-group-rules/{rule_id}")
 
+    def find_security_group_rules(self, *,
+                                  params: dict[str, Any] | None = None,
+                                  ) -> list[SecurityGroupRule]:
+        """List standalone security-group rules (optionally filtered)."""
+        data = self._client.get(f"{self._base}/security-group-rules",
+                                params=params)
+        return data.get("security_group_rules", [])
+
+    def get_security_group_rule(self, rule_id: str) -> SecurityGroupRule:
+        data = self._client.get(
+            f"{self._base}/security-group-rules/{rule_id}"
+        )
+        return data.get("security_group_rule", data)
+
     # ── subnet pools ───────────────────────────────────────────────────
 
     def find_subnet_pools(
@@ -394,6 +408,23 @@ class NetworkService:
         self._client.delete(
             f"{self._base}/qos/policies/{policy_id}/{rule_type}/{rule_id}"
         )
+
+    def get_qos_rule(self, policy_id: str, rule_type: str,
+                     rule_id: str) -> QosRule:
+        singular = rule_type[:-1]
+        data = self._client.get(
+            f"{self._base}/qos/policies/{policy_id}/{rule_type}/{rule_id}"
+        )
+        return data.get(singular, data)
+
+    def update_qos_rule(self, policy_id: str, rule_type: str,
+                        rule_id: str, body: dict[str, Any]) -> QosRule:
+        singular = rule_type[:-1]
+        data = self._client.put(
+            f"{self._base}/qos/policies/{policy_id}/{rule_type}/{rule_id}",
+            json={singular: body},
+        )
+        return data.get(singular, data) if data else {}
 
     # ── agents (admin) ─────────────────────────────────────────────────
 

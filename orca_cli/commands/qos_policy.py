@@ -237,6 +237,71 @@ def qos_rule_delete(ctx, policy_id, rule_id, rule_type, yes):
     console.print(f"[green]QoS rule {rule_id} deleted.[/green]")
 
 
+@qos_rule.command("show")
+@click.argument("policy_id", callback=validate_id)
+@click.argument("rule_id", callback=validate_id)
+@click.option("--type", "rule_type",
+              type=click.Choice(list(_RULE_TYPES)),
+              default="bandwidth-limit", show_default=True,
+              help="Rule type.")
+@output_options
+@click.pass_context
+def qos_rule_show(ctx, policy_id, rule_id, rule_type,
+                  output_format, columns, fit_width, max_width, noindent):
+    """Show details of a QoS rule."""
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_qos_rule(policy_id, _RULE_TYPES[rule_type], rule_id)
+    fields = [(k, str(v)) for k, v in data.items()]
+    print_detail(fields, output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@qos_rule.command("set")
+@click.argument("policy_id", callback=validate_id)
+@click.argument("rule_id", callback=validate_id)
+@click.option("--type", "rule_type",
+              type=click.Choice(list(_RULE_TYPES)),
+              default="bandwidth-limit", show_default=True,
+              help="Rule type.")
+@click.option("--max-kbps", type=int, default=None,
+              help="New max bandwidth in kbps (bandwidth-limit).")
+@click.option("--max-burst-kbps", type=int, default=None,
+              help="New max burst bandwidth in kbps (bandwidth-limit).")
+@click.option("--direction",
+              type=click.Choice(["ingress", "egress"]), default=None,
+              help="New traffic direction (bandwidth-limit, minimum-bandwidth).")
+@click.option("--dscp-mark", type=int, default=None,
+              help="New DSCP mark value (dscp-marking).")
+@click.option("--min-kbps", type=int, default=None,
+              help="New min bandwidth in kbps (minimum-bandwidth).")
+@click.pass_context
+def qos_rule_set(ctx, policy_id, rule_id, rule_type, max_kbps, max_burst_kbps,
+                 direction, dscp_mark, min_kbps):
+    """Update an existing QoS rule.
+
+    \b
+    Example:
+      orca qos rule set <policy-id> <rule-id> --type bandwidth-limit --max-kbps 2000
+    """
+    body: dict = {}
+    if max_kbps is not None:
+        body["max_kbps"] = max_kbps
+    if max_burst_kbps is not None:
+        body["max_burst_kbps"] = max_burst_kbps
+    if direction is not None:
+        body["direction"] = direction
+    if dscp_mark is not None:
+        body["dscp_mark"] = dscp_mark
+    if min_kbps is not None:
+        body["min_kbps"] = min_kbps
+    if not body:
+        console.print("[yellow]Nothing to update.[/yellow]")
+        return
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_qos_rule(policy_id, _RULE_TYPES[rule_type], rule_id, body)
+    console.print(f"[green]QoS rule {rule_id} updated.[/green]")
+
+
 # ── ADR-0008 deprecated aliases (backward compatibility) ────────────────
 
 add_command_with_alias(qos_policy, qos_policy_list,

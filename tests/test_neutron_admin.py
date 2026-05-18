@@ -582,6 +582,63 @@ class TestQosRuleDelete:
         assert invoke(["qos", "rule-delete", "--help"]).exit_code == 0
 
 
+class TestQosRuleShow:
+
+    def test_show_calls_correct_url(self, invoke, mock_client):
+        _net(mock_client)
+        mock_client.get.return_value = {
+            "bandwidth_limit_rule": {"id": RULE, "max_kbps": 1000,
+                                     "direction": "egress"},
+        }
+        result = invoke(["qos", "rule", "show", POLICY, RULE,
+                         "--type", "bandwidth-limit", "-f", "json"])
+        assert result.exit_code == 0
+        url = mock_client.get.call_args[0][0]
+        assert f"/qos/policies/{POLICY}/bandwidth_limit_rules/{RULE}" in url
+        assert "1000" in result.output
+
+    def test_show_dscp_marking(self, invoke, mock_client):
+        _net(mock_client)
+        mock_client.get.return_value = {"dscp_marking_rule": {"id": RULE, "dscp_mark": 14}}
+        invoke(["qos", "rule", "show", POLICY, RULE, "--type", "dscp-marking"])
+        url = mock_client.get.call_args[0][0]
+        assert "dscp_marking_rules" in url
+
+
+class TestQosRuleSet:
+
+    def test_set_max_kbps(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _net(mock_client)
+        mock_client.put = MagicMock(return_value={"bandwidth_limit_rule": {}})
+        result = invoke(["qos", "rule", "set", POLICY, RULE,
+                         "--type", "bandwidth-limit", "--max-kbps", "2000"])
+        assert result.exit_code == 0
+        url = mock_client.put.call_args.args[0]
+        body = mock_client.put.call_args.kwargs["json"]["bandwidth_limit_rule"]
+        assert f"/qos/policies/{POLICY}/bandwidth_limit_rules/{RULE}" in url
+        assert body == {"max_kbps": 2000}
+
+    def test_set_dscp_mark(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _net(mock_client)
+        mock_client.put = MagicMock(return_value={"dscp_marking_rule": {}})
+        invoke(["qos", "rule", "set", POLICY, RULE,
+                "--type", "dscp-marking", "--dscp-mark", "28"])
+        body = mock_client.put.call_args.kwargs["json"]["dscp_marking_rule"]
+        assert body == {"dscp_mark": 28}
+
+    def test_set_nothing(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        _net(mock_client)
+        mock_client.put = MagicMock()
+        result = invoke(["qos", "rule", "set", POLICY, RULE,
+                         "--type", "bandwidth-limit"])
+        assert result.exit_code == 0
+        assert "Nothing to update" in result.output
+        mock_client.put.assert_not_called()
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  trunk
 # ══════════════════════════════════════════════════════════════════════════

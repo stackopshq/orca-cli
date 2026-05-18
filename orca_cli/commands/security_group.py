@@ -6,7 +6,7 @@ import click
 
 from orca_cli.core.aliases import add_command_with_alias
 from orca_cli.core.context import OrcaContext
-from orca_cli.core.output import console, output_options, print_list
+from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
 from orca_cli.services.network import NetworkService
 
@@ -242,6 +242,88 @@ def sg_rule_delete(ctx: click.Context, rule_id: str, yes: bool) -> None:
         click.confirm(f"Delete rule {rule_id}?", abort=True)
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     svc.delete_security_group_rule(rule_id)
+    console.print(f"[green]Rule {rule_id} deleted.[/green]")
+
+
+# OSC-parity alias: ``openstack security group rule create`` ≡ orca ``rule add``.
+security_group_rule.add_command(sg_rule_add, name="create")
+
+
+@security_group_rule.command("list")
+@click.option("--group-id", "group_id", default=None,
+              help="Filter rules to a single security group.")
+@click.option("--direction", type=click.Choice(["ingress", "egress"]), default=None,
+              help="Filter by direction.")
+@click.option("--protocol", default=None, help="Filter by protocol.")
+@output_options
+@click.pass_context
+def sg_rule_list(ctx: click.Context, group_id: str | None,
+                 direction: str | None, protocol: str | None,
+                 output_format: str, columns: tuple[str, ...],
+                 fit_width: bool, max_width: int | None,
+                 noindent: bool) -> None:
+    """List security group rules (across all groups, or filtered).
+
+    \b
+    Examples:
+      orca security-group rule list
+      orca security-group rule list --group-id <sg-id>
+      orca security-group rule list --direction ingress --protocol tcp
+    """
+    params: dict = {}
+    if group_id:
+        params["security_group_id"] = group_id
+    if direction:
+        params["direction"] = direction
+    if protocol:
+        params["protocol"] = protocol
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    rules = svc.find_security_group_rules(params=params or None)
+
+    def _port_range(r: dict) -> str:
+        pmin = r.get("port_range_min")
+        pmax = r.get("port_range_max")
+        if pmin is None and pmax is None:
+            return "—"
+        if pmin == pmax:
+            return str(pmin)
+        return f"{pmin}-{pmax}"
+
+    def _remote(r: dict) -> str:
+        return r.get("remote_ip_prefix") or r.get("remote_group_id") or "—"
+
+    print_list(
+        rules,
+        [
+            ("Rule ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("SG", "security_group_id"),
+            ("Direction", "direction"),
+            ("Ether", "ethertype"),
+            ("Protocol", lambda r: r.get("protocol") or "—"),
+            ("Ports", _port_range),
+            ("Remote", _remote),
+        ],
+        title="Security group rules",
+        output_format=output_format, fit_width=fit_width, max_width=max_width,
+        noindent=noindent, columns=columns,
+        empty_msg="No security group rules.",
+    )
+
+
+@security_group_rule.command("show")
+@click.argument("rule_id", callback=validate_id)
+@output_options
+@click.pass_context
+def sg_rule_show(ctx: click.Context, rule_id: str,
+                 output_format: str, columns: tuple[str, ...],
+                 fit_width: bool, max_width: int | None,
+                 noindent: bool) -> None:
+    """Show a security group rule's details."""
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_security_group_rule(rule_id)
+    fields = [(k, str(v) if v is not None else "—") for k, v in data.items()]
+    print_detail(fields, output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
     console.print(f"[green]Rule {rule_id} deleted.[/green]")
 
 

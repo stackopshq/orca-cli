@@ -242,6 +242,88 @@ class TestSGRuleDelete:
 
 
 # ══════════════════════════════════════════════════════════════════════════
+#  rule create / list / show — OSC parity (2026-04-28 Neutron lot 1b)
+# ══════════════════════════════════════════════════════════════════════════
+
+class TestSGRuleCreate:
+    """``rule create`` is an OSC-parity alias for ``rule add``."""
+
+    def test_create_is_alias_of_add(self, invoke, config_dir, mock_client,
+                                     sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.post = MagicMock(return_value={
+            "security_group_rule": {"id": RULE_ID},
+        })
+        result = invoke(["security-group", "rule", "create", SG_ID,
+                         "--direction", "ingress", "--protocol", "tcp",
+                         "--port-min", "22"])
+        assert result.exit_code == 0
+        body = mock_client.post.call_args.kwargs["json"]["security_group_rule"]
+        assert body["security_group_id"] == SG_ID
+        assert body["direction"] == "ingress"
+        assert body["protocol"] == "tcp"
+        assert body["port_range_min"] == 22
+        assert body["port_range_max"] == 22
+
+
+class TestSGRuleList:
+
+    def test_list_no_filters(self, invoke, config_dir, mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.get = MagicMock(return_value={"security_group_rules": [{
+            "id": RULE_ID, "security_group_id": SG_ID,
+            "direction": "ingress", "ethertype": "IPv4",
+            "protocol": "tcp", "port_range_min": 22, "port_range_max": 22,
+            "remote_ip_prefix": "0.0.0.0/0",
+        }]})
+        result = invoke(["security-group", "rule", "list", "-f", "value", "-c", "Protocol"])
+        assert result.exit_code == 0
+        assert "tcp" in result.output
+        url = mock_client.get.call_args[0][0]
+        assert "/security-group-rules" in url
+        assert mock_client.get.call_args.kwargs.get("params") is None
+
+    def test_list_with_filters(self, invoke, config_dir, mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.get = MagicMock(return_value={"security_group_rules": []})
+        invoke(["security-group", "rule", "list",
+                "--group-id", SG_ID,
+                "--direction", "ingress",
+                "--protocol", "tcp"])
+        params = mock_client.get.call_args.kwargs.get("params")
+        assert params == {"security_group_id": SG_ID,
+                          "direction": "ingress",
+                          "protocol": "tcp"}
+
+
+class TestSGRuleShow:
+
+    def test_show_calls_correct_url(self, invoke, config_dir, mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.get = MagicMock(return_value={"security_group_rule": {
+            "id": RULE_ID, "direction": "ingress", "protocol": "tcp",
+            "port_range_min": 22, "port_range_max": 22,
+        }})
+        result = invoke(["security-group", "rule", "show", RULE_ID, "-f", "json"])
+        assert result.exit_code == 0
+        url = mock_client.get.call_args[0][0]
+        assert f"/security-group-rules/{RULE_ID}" in url
+        assert "22" in result.output
+
+
+# ══════════════════════════════════════════════════════════════════════════
 #  clone
 # ══════════════════════════════════════════════════════════════════════════
 
