@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import fnmatch
 import os
+import re
 import time
 from collections.abc import Mapping
 from typing import Any
@@ -27,6 +28,7 @@ from orca_cli.core.validators import validate_id
 from orca_cli.core.waiter import wait_for_resource
 from orca_cli.services.compute import ComputeService
 from orca_cli.services.image import ImageService
+from orca_cli.services.network import NetworkService
 from orca_cli.services.server import ServerService
 from orca_cli.services.volume import VolumeService
 
@@ -68,6 +70,79 @@ def _resolve_boot_mode(
         return False
     # Auto: boot-from-image by default when the flavor can carry a root disk.
     return disk == 0
+
+
+# ── name-or-ID resolvers ──────────────────────────────────────────────────
+#
+# Nova's POST /servers wants raw UUIDs for imageRef / flavorRef / networks.
+# Users naturally pass the human-readable name they saw in ``orca image list``
+# or ``orca flavor list``; without resolution Nova returns a 400. Mirror OSC's
+# behaviour: accept either, prefer the API's ID format and fall back to a
+# name lookup when needed.
+
+_ID_LIKE_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    r"|^[0-9a-f]{32}$|^\d+$",
+    re.IGNORECASE,
+)
+
+
+def _looks_like_id(value: str) -> bool:
+    """True if *value* is a UUID, 32-hex blob, or numeric ID."""
+    return bool(_ID_LIKE_RE.match(value))
+
+
+def _resolve_name_or_id(name_or_id: str, kind: str,
+                        find_fn) -> str:
+    """Return *name_or_id* if it already looks like an ID, else look it up.
+
+    *find_fn* is called with ``params={"name": ...}`` and must return a list
+    of dicts with an ``id`` key. Multiple matches raise to avoid silently
+    picking the wrong one.
+    """
+    if _looks_like_id(name_or_id):
+        return name_or_id
+    matches = find_fn(params={"name": name_or_id})
+    if not matches:
+        raise OrcaCLIError(
+            f"{kind} '{name_or_id}' not found — pass the ID or a unique name."
+        )
+    if len(matches) > 1:
+        ids = ", ".join(m.get("id", "?") for m in matches[:3])
+        raise OrcaCLIError(
+            f"{kind} '{name_or_id}' is ambiguous ({len(matches)} matches: "
+            f"{ids}…). Use the ID."
+        )
+    return matches[0]["id"]
+
+
+def _resolve_image_ref(client, value: str) -> str:
+    # Lazy service instantiation: ImageService.__init__ reads client.image_url,
+    # which is a MagicMock in some boot-mode tests that never need a lookup.
+    if _looks_like_id(value):
+        return value
+    # Glance accepts ?name= server-side.
+    return _resolve_name_or_id(value, "Image", ImageService(client).find)
+
+
+def _resolve_flavor_ref(client, value: str) -> str:
+    if _looks_like_id(value):
+        return value
+    # Nova's /flavors/detail rejects the ``name`` filter parameter
+    # ("Additional properties are not allowed") so we fetch the list and
+    # filter client-side. Flavor catalogues are tiny, this is cheap.
+    def _client_side_filter(*, params=None):
+        wanted = (params or {}).get("name")
+        return [f for f in ComputeService(client).find_flavors()
+                if f.get("name") == wanted]
+    return _resolve_name_or_id(value, "Flavor", _client_side_filter)
+
+
+def _resolve_network_ref(client, value: str) -> str:
+    if _looks_like_id(value):
+        return value
+    # Neutron accepts ?name= server-side.
+    return _resolve_name_or_id(value, "Network", NetworkService(client).find)
 
 
 @click.group()
@@ -439,8 +514,15 @@ def server_create(
                 "Use -i / --interactive for the guided wizard."
             )
 
+    # Resolve human-readable names to UUIDs — Nova rejects names.
+    assert image_id is not None and flavor_id is not None  # noqa: S101 — validated above
+    image_id = _resolve_image_ref(client, image_id)
+    flavor_id = _resolve_flavor_ref(client, flavor_id)
+    if network_id:
+        network_id = _resolve_network_ref(client, network_id)
+
     use_bfv = _resolve_boot_mode(
-        client, flavor_id or "", boot_from_image, boot_from_volume,
+        client, flavor_id, boot_from_image, boot_from_volume,
     )
 
     body: dict = {

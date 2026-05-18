@@ -12,6 +12,7 @@ VOL_ID = "22223333-4444-5555-6666-777788889999"
 PORT_ID = "33334444-5555-6666-7777-888899990000"
 NET_ID = "44445555-6666-7777-8888-999900001111"
 IMG_ID = "55556666-7777-8888-9999-000011112222"
+FLAVOR_ID = "66667777-8888-9999-aaaa-bbbbccccdddd"
 
 
 def _srv(srv_id=SRV_ID, name="web-1", status="ACTIVE"):
@@ -39,6 +40,8 @@ def _srv(srv_id=SRV_ID, name="web-1", status="ACTIVE"):
 def _setup_mock(mock_client):
     mock_client.compute_url = "https://nova.example.com/v2.1"
     mock_client.volume_url = "https://cinder.example.com/v3"
+    mock_client.image_url = "https://glance.example.com"
+    mock_client.network_url = "https://neutron.example.com"
 
     posted = {}
     put_data = {}
@@ -169,14 +172,14 @@ class TestServerCreate:
 
         result = invoke(["server", "create",
                          "--name", "my-vm",
-                         "--flavor", "flav-1",
+                         "--flavor", FLAVOR_ID,
                          "--image", IMG_ID,
                          "--disk-size", "30"])
         assert result.exit_code == 0
         assert "created" in result.output.lower()
         body = state["posted"]["last_body"]["server"]
         assert body["name"] == "my-vm"
-        assert body["flavorRef"] == "flav-1"
+        assert body["flavorRef"] == FLAVOR_ID
 
     def test_create_with_options(self, invoke, config_dir, mock_client, sample_profile):
         save_profile("p", sample_profile)
@@ -185,7 +188,7 @@ class TestServerCreate:
 
         result = invoke(["server", "create",
                          "--name", "my-vm",
-                         "--flavor", "flav-1",
+                         "--flavor", FLAVOR_ID,
                          "--image", IMG_ID,
                          "--network", NET_ID,
                          "--key-name", "my-key",
@@ -194,6 +197,69 @@ class TestServerCreate:
         body = state["posted"]["last_body"]["server"]
         assert body["networks"] == [{"uuid": NET_ID}]
         assert body["key_name"] == "my-key"
+
+    def test_create_resolves_image_name_to_id(self, invoke, config_dir,
+                                               mock_client, sample_profile):
+        """``--image NAME`` is resolved to the UUID before posting to Nova."""
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        state = _setup_mock(mock_client)
+
+        # Image-lookup + flavor with disk>0 so the body uses imageRef
+        # (BFV would put the resolved ID under block_device_mapping_v2).
+        orig_get = mock_client.get
+
+        def _get(url, **kwargs):
+            if "/images" in url and kwargs.get("params", {}).get("name") == "ubuntu-22.04":
+                return {"images": [{"id": IMG_ID, "name": "ubuntu-22.04"}]}
+            if f"flavors/{FLAVOR_ID}" in url:
+                return {"flavor": {"id": FLAVOR_ID, "disk": 10}}
+            return orig_get(url, **kwargs)
+        mock_client.get = _get
+
+        result = invoke(["server", "create",
+                         "--name", "my-vm",
+                         "--flavor", FLAVOR_ID,
+                         "--image", "ubuntu-22.04"])
+        assert result.exit_code == 0
+        body = state["posted"]["last_body"]["server"]
+        assert body["imageRef"] == IMG_ID  # resolved name → UUID
+
+    def test_create_rejects_unknown_image_name(self, invoke, config_dir,
+                                                 mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        _setup_mock(mock_client)
+        # No image matches "nonexistent".
+        result = invoke(["server", "create",
+                         "--name", "my-vm",
+                         "--flavor", FLAVOR_ID,
+                         "--image", "nonexistent"])
+        assert result.exit_code != 0
+        assert "not found" in result.output.lower()
+
+    def test_create_rejects_ambiguous_image_name(self, invoke, config_dir,
+                                                  mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        _setup_mock(mock_client)
+        orig_get = mock_client.get
+
+        def _get(url, **kwargs):
+            if "/images" in url and kwargs.get("params", {}).get("name") == "ubuntu":
+                return {"images": [
+                    {"id": IMG_ID, "name": "ubuntu"},
+                    {"id": "99999999-9999-9999-9999-999999999999", "name": "ubuntu"},
+                ]}
+            return orig_get(url, **kwargs)
+        mock_client.get = _get
+
+        result = invoke(["server", "create",
+                         "--name", "my-vm",
+                         "--flavor", FLAVOR_ID,
+                         "--image", "ubuntu"])
+        assert result.exit_code != 0
+        assert "ambiguous" in result.output.lower()
 
 
 # ══════════════════════════════════════════════════════════════════════════

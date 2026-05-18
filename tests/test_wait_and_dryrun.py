@@ -225,13 +225,17 @@ class TestServerDeleteWait:
 
 class TestServerCreateWait:
 
+    # Pass UUIDs so the name→ID resolver short-circuits without lookup.
+    _FLV = "11111111-1111-1111-1111-111111111111"
+    _IMG = "22222222-2222-2222-2222-222222222222"
+
     def test_no_wait_prints_hint(self, invoke, mock_client):
         mock_client.post.return_value = {"server": {"id": "srv-new", "adminPass": ""}}
         result = invoke([
             "server", "create",
             "--name", "my-vm",
-            "--flavor", "flv-1",
-            "--image", "img-1",
+            "--flavor", self._FLV,
+            "--image", self._IMG,
         ])
         assert result.exit_code == 0
         assert "srv-new" in result.output
@@ -243,8 +247,8 @@ class TestServerCreateWait:
             result = invoke([
                 "server", "create",
                 "--name", "my-vm",
-                "--flavor", "flv-1",
-                "--image", "img-1",
+                "--flavor", self._FLV,
+                "--image", self._IMG,
                 "--wait",
             ])
         assert result.exit_code == 0

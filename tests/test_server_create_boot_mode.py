@@ -10,11 +10,21 @@ FLAVOR_DISKLESS = "flav-disk-0"
 
 
 def _mock_create_with_flavors(mock_client, flavors):
-    """Wire a mock_client that answers GET /flavors/<id> and POST /servers."""
+    """Wire a mock_client that answers GET /flavors/<id> and POST /servers.
+
+    Also answers GET /flavors/detail?name=X for the name→ID resolver
+    so the test flavor strings (``flav-disk-20``) keep working even
+    though they're not UUIDs.
+    """
     mock_client.compute_url = "https://nova.example.com/v2.1"
     state = {"posted": {}}
 
     def _get(url, **kwargs):
+        # Nova doesn't support ?name= on /flavors/detail so the resolver
+        # fetches the full list and filters client-side. Return everything.
+        if "/flavors/detail" in url:
+            return {"flavors": [{"id": fid, "name": fid, **body}
+                                 for fid, body in flavors.items()]}
         for fid, body in flavors.items():
             if url.endswith(f"/flavors/{fid}"):
                 return {"flavor": {"id": fid, **body}}
@@ -168,6 +178,11 @@ class TestExplicitFlags:
 
 class TestFlavorLookupFailure:
 
+    # Use real UUIDs so the name→ID resolver short-circuits — the *point* of
+    # these tests is the flavor-detail GET failing (Nova partially down),
+    # not the resolver path.
+    _FLV_UUID = "77777777-7777-7777-7777-777777777777"
+
     def test_unreachable_flavor_respects_boot_from_image_flag(
         self, invoke, config_dir, mock_client, sample_profile, monkeypatch,
     ):
@@ -182,7 +197,7 @@ class TestFlavorLookupFailure:
 
         result = invoke(["server", "create",
                          "--name", "vm7",
-                         "--flavor", FLAVOR_WITH_DISK,
+                         "--flavor", self._FLV_UUID,
                          "--image", IMG_ID,
                          "--boot-from-image"])
 
@@ -205,7 +220,7 @@ class TestFlavorLookupFailure:
 
         result = invoke(["server", "create",
                          "--name", "vm8",
-                         "--flavor", FLAVOR_WITH_DISK,
+                         "--flavor", self._FLV_UUID,
                          "--image", IMG_ID])
 
         assert result.exit_code == 0, result.output
