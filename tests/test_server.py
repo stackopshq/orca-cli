@@ -468,6 +468,109 @@ class TestServerVolumes:
         assert result.exit_code == 0
         assert "/dev/vda" in result.output
 
+    def test_volume_set_delete_on_termination(self, invoke, config_dir,
+                                              mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.put = MagicMock(return_value={"volumeAttachment": {}})
+
+        result = invoke(["server", "volume", "set", SRV_ID, VOL_ID,
+                         "--delete-on-termination"])
+        assert result.exit_code == 0
+        url, kwargs = mock_client.put.call_args.args[0], mock_client.put.call_args.kwargs
+        assert f"/servers/{SRV_ID}/os-volume_attachments/{VOL_ID}" in url
+        assert kwargs["json"]["volumeAttachment"]["delete_on_termination"] is True
+
+    def test_volume_set_preserve_on_termination(self, invoke, config_dir,
+                                                mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.put = MagicMock(return_value={"volumeAttachment": {}})
+
+        invoke(["server", "volume", "set", SRV_ID, VOL_ID,
+                "--preserve-on-termination"])
+        body = mock_client.put.call_args.kwargs["json"]["volumeAttachment"]
+        assert body["delete_on_termination"] is False
+
+    def test_volume_set_nothing_to_update(self, invoke, config_dir,
+                                          mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.put = MagicMock()
+
+        result = invoke(["server", "volume", "set", SRV_ID, VOL_ID])
+        assert result.exit_code == 0
+        assert "Nothing to update" in result.output
+        mock_client.put.assert_not_called()
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Backup (Nova createBackup with rotation)
+# ══════════════════════════════════════════════════════════════════════════
+
+
+class TestServerBackup:
+
+    def test_backup_defaults(self, invoke, config_dir, mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.post = MagicMock(return_value=None)
+
+        result = invoke(["server", "backup", SRV_ID, "--name", "nightly"])
+        assert result.exit_code == 0
+        url, kwargs = mock_client.post.call_args.args[0], mock_client.post.call_args.kwargs
+        assert f"/servers/{SRV_ID}/action" in url
+        body = kwargs["json"]["createBackup"]
+        assert body == {"name": "nightly", "backup_type": "daily", "rotation": 7}
+
+    def test_backup_custom_type_and_rotation(self, invoke, config_dir,
+                                              mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.post = MagicMock(return_value=None)
+
+        invoke(["server", "backup", SRV_ID, "--name", "weekly",
+                "--type", "weekly", "--rotation", "4"])
+        body = mock_client.post.call_args.kwargs["json"]["createBackup"]
+        assert body["backup_type"] == "weekly"
+        assert body["rotation"] == 4
+
+    def test_backup_with_properties(self, invoke, config_dir,
+                                    mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.post = MagicMock(return_value=None)
+
+        invoke(["server", "backup", SRV_ID, "--name", "x",
+                "--property", "purpose=audit", "--property", "team=ops"])
+        body = mock_client.post.call_args.kwargs["json"]["createBackup"]
+        assert body["metadata"] == {"purpose": "audit", "team": "ops"}
+
+    def test_backup_rejects_malformed_property(self, invoke, config_dir,
+                                                mock_client, sample_profile):
+        from unittest.mock import MagicMock
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.post = MagicMock(return_value=None)
+
+        result = invoke(["server", "backup", SRV_ID, "--name", "x",
+                         "--property", "missing-equals"])
+        assert result.exit_code != 0
+        mock_client.post.assert_not_called()
+
 
 # ══════════════════════════════════════════════════════════════════════════
 #  Interface attachments

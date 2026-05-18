@@ -160,6 +160,24 @@ class ServerService:
             f"{self._base}/{server_id}/os-volume_attachments/{volume_id}"
         )
 
+    def update_volume_attachment(self, server_id: str, volume_id: str, *,
+                                 delete_on_termination: bool | None = None,
+                                 ) -> dict:
+        """PUT /servers/{id}/os-volume_attachments/{volume_id}.
+
+        Only ``delete_on_termination`` is exposed today — it's the one field
+        users actually flip after attach. Microversion 2.85 required (Yoga+);
+        older clouds will return 400.
+        """
+        attachment: dict[str, Any] = {}
+        if delete_on_termination is not None:
+            attachment["delete_on_termination"] = delete_on_termination
+        data = self._client.put(
+            f"{self._base}/{server_id}/os-volume_attachments/{volume_id}",
+            json={"volumeAttachment": attachment},
+        )
+        return data.get("volumeAttachment", data) if data else {}
+
     # ── network interface attachments ──────────────────────────────────
 
     def attach_interface(self, server_id: str, *,
@@ -257,6 +275,25 @@ class ServerService:
         if metadata:
             body["metadata"] = metadata
         self.action(server_id, {"createImage": body})
+
+    def create_backup(self, server_id: str, *, name: str, backup_type: str,
+                      rotation: int,
+                      metadata: dict[str, str] | None = None) -> None:
+        """Schedule a Nova-managed backup snapshot with rotation.
+
+        Nova creates an image of the instance, tags it with the
+        ``backup_type`` and keeps only the *rotation* most recent
+        backups of that type. Use ``create_image`` for a one-shot
+        snapshot without rotation semantics.
+        """
+        body: dict[str, Any] = {
+            "name": name,
+            "backup_type": backup_type,
+            "rotation": rotation,
+        }
+        if metadata:
+            body["metadata"] = metadata
+        self.action(server_id, {"createBackup": body})
 
     def add_security_group(self, server_id: str, sg_name: str) -> None:
         self.action(server_id, {"addSecurityGroup": {"name": sg_name}})

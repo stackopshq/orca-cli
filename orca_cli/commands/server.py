@@ -837,6 +837,33 @@ def server_list_volumes(ctx: click.Context, server_id: str, output_format: str, 
     )
 
 
+@server_volume.command("set")
+@click.argument("server_id", callback=validate_id)
+@click.argument("volume_id", callback=validate_id)
+@click.option("--delete-on-termination/--preserve-on-termination",
+              "delete_on_termination", default=None,
+              help="Whether deleting the server should also delete this volume "
+                   "attachment. Requires Nova microversion 2.85 (Yoga+).")
+@click.pass_context
+def server_volume_set(ctx: click.Context, server_id: str, volume_id: str,
+                      delete_on_termination: bool | None) -> None:
+    """Update a volume attachment (flip delete-on-termination).
+
+    \b
+    Examples:
+      orca server volume set <server-id> <volume-id> --delete-on-termination
+      orca server volume set <server-id> <volume-id> --preserve-on-termination
+    """
+    if delete_on_termination is None:
+        console.print("[yellow]Nothing to update — provide a flag.[/yellow]")
+        return
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).update_volume_attachment(
+        server_id, volume_id, delete_on_termination=delete_on_termination,
+    )
+    state = "delete-on-termination" if delete_on_termination else "preserve-on-termination"
+    console.print(f"[green]Attachment {volume_id} on {server_id} set to {state}.[/green]")
+
+
 # ── network interface attachments ─────────────────────────────────────────
 
 @server.command("attach-interface", deprecated=True)
@@ -1276,6 +1303,53 @@ def server_ssh(ctx: click.Context, server_id: str, remote_args: tuple,
     if dry_run:
         return
     os.execvp("ssh", cmd)  # pragma: no cover
+
+
+# ── backup (Nova createBackup, with rotation) ────────────────────────────
+
+@server.command("backup")
+@click.argument("server_id", callback=validate_id)
+@click.option("--name", required=True, help="Backup image name.")
+@click.option("--type", "backup_type", default="daily", show_default=True,
+              help="Backup type tag (e.g. ``daily``, ``weekly``). Nova rotates "
+                   "backups *per type* independently.")
+@click.option("--rotation", type=int, default=7, show_default=True,
+              help="Keep at most this many backups of the same type — Nova "
+                   "deletes the oldest beyond it.")
+@click.option("--property", "properties", multiple=True, metavar="KEY=VALUE",
+              help="Image metadata (repeatable).")
+@click.pass_context
+def server_backup(ctx: click.Context, server_id: str, name: str,
+                  backup_type: str, rotation: int,
+                  properties: tuple[str, ...]) -> None:
+    """Create a Nova-managed backup image with rotation.
+
+    Unlike ``orca server snapshot`` / ``server image create`` (one-shot
+    snapshot), this triggers Nova's ``createBackup`` action which tags
+    the produced image with the backup type and keeps only the *rotation*
+    most recent images of that type.
+
+    \b
+    Examples:
+      orca server backup <server-id> --name nightly --rotation 7
+      orca server backup <server-id> --name weekly --type weekly --rotation 4
+    """
+    metadata: dict[str, str] = {}
+    for kv in properties:
+        if "=" not in kv:
+            raise OrcaCLIError(f"Expected KEY=VALUE, got {kv!r}")
+        k, v = kv.split("=", 1)
+        metadata[k] = v
+
+    ServerService(ctx.find_object(OrcaContext).ensure_client()).create_backup(
+        server_id,
+        name=name, backup_type=backup_type, rotation=rotation,
+        metadata=metadata or None,
+    )
+    console.print(
+        f"[green]Backup '{name}' (type={backup_type}, keep last {rotation}) "
+        f"requested for {server_id}.[/green]"
+    )
 
 
 # ── snapshot (server + volumes) ──────────────────────────────────────────
