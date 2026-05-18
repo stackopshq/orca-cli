@@ -158,6 +158,10 @@ def network_update(ctx: click.Context, network_id: str, name: str | None, admin_
     console.print(f"[green]Network {network_id} updated.[/green]")
 
 
+# OSC-parity alias: ``openstack network set`` ≡ orca ``network update``.
+network.add_command(network_update, name="set")
+
+
 @network.command("delete")
 @click.argument("network_id", callback=validate_id, shell_complete=complete_networks)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
@@ -349,6 +353,10 @@ def port_update(ctx: click.Context, port_id: str, name: str | None, admin_state:
     console.print(f"[green]Port {port_id} updated.[/green]")
 
 
+# OSC-parity alias: ``openstack port set`` ≡ orca ``network port update``.
+network_port.add_command(port_update, name="set")
+
+
 @network_port.command("delete")
 @click.argument("port_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
@@ -441,6 +449,10 @@ def router_update(ctx: click.Context, router_id: str, name: str | None, external
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     svc.update_router(router_id, body)
     console.print(f"[green]Router {router_id} updated.[/green]")
+
+
+# OSC-parity alias: ``openstack router set`` ≡ orca ``network router update``.
+network_router.add_command(router_update, name="set")
 
 
 @network_router.command("delete")
@@ -811,6 +823,10 @@ def network_subnet_update(ctx: click.Context, subnet_id: str, name: str | None,
     console.print(f"[green]Subnet {subnet_id} updated.[/green]")
 
 
+# OSC-parity alias: ``openstack subnet set`` ≡ orca ``network subnet update``.
+network_subnet.add_command(network_subnet_update, name="set")
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  network agent-*
 # ══════════════════════════════════════════════════════════════════════════
@@ -1019,6 +1035,10 @@ def network_rbac_update(ctx: click.Context, rbac_id: str, target_project: str) -
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     svc.update_rbac_policy(rbac_id, {"target_tenant": target_project})
     console.print(f"[green]RBAC policy {rbac_id} updated.[/green]")
+
+
+# OSC-parity alias: ``openstack network rbac set`` ≡ orca's ``rbac update``.
+network_rbac.add_command(network_rbac_update, name="set")
 
 
 # ══════════════════════════════════════════════════════════════════════════

@@ -109,6 +109,10 @@ def sg_update(ctx: click.Context, group_id: str, name: str | None, description: 
     console.print(f"[green]Security group {group_id} updated.[/green]")
 
 
+# OSC-parity alias: ``openstack security group set`` ≡ orca ``security-group update``.
+security_group.add_command(sg_update, name="set")
+
+
 @security_group.command("delete")
 @click.argument("group_id", callback=validate_id)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
