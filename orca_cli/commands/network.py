@@ -263,19 +263,187 @@ def subnet_delete(ctx: click.Context, subnet_id: str, yes: bool) -> None:
     console.print(f"[green]Subnet {subnet_id} deleted.[/green]")
 
 
+@network_subnet.command("inspect")
+@click.argument("subnet_id", callback=validate_id)
+@click.pass_context
+def subnet_inspect(ctx: click.Context, subnet_id: str) -> None:
+    """Full inspection of a subnet — fields + IP usage + attached ports + servers.
+
+    Cross-references three Neutron endpoints so you don't have to run
+    ``subnet show`` + ``port list`` + ``ip-availability show`` by hand:
+
+    1. ``GET /subnets/{id}``                         — the subnet fields
+    2. ``GET /network-ip-availabilities/{network_id}``  — IP usage per subnet
+    3. ``GET /ports?fixed_ips=subnet_id=<id>``       — who actually uses each IP
+
+    For each port, follow ``device_id`` when ``device_owner`` is
+    ``compute:*`` to surface the server name (single Nova ``servers/{id}``
+    GET per attached VM).
+
+    \b
+    Example:
+      orca network subnet inspect <subnet-id>
+    """
+    from orca_cli.services.server import ServerService
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    server_svc = ServerService(ctx.find_object(OrcaContext).ensure_client())
+
+    sub = svc.get_subnet(subnet_id)
+    if not sub or not sub.get("id"):
+        raise OrcaCLIError(f"Subnet {subnet_id} not found.")
+
+    network_id = sub.get("network_id", "")
+
+    # IP availability — best-effort. Some clouds disable the extension.
+    used = total = None
+    try:
+        ipa = svc.get_ip_availability(network_id)
+        for s in ipa.get("subnet_ip_availability", []) or []:
+            if s.get("subnet_id") == subnet_id:
+                used = s.get("used_ips")
+                total = s.get("total_ips")
+                break
+    except Exception:
+        pass  # extension absent → leave used/total None
+
+    ports = svc.find_ports(params={"fixed_ips": f"subnet_id={subnet_id}"})
+
+    # Resolve server names for compute:* ports (cache to avoid duplicate GETs).
+    server_cache: dict = {}
+    def _server_name(device_id: str) -> str:
+        if not device_id:
+            return ""
+        if device_id not in server_cache:
+            try:
+                srv = server_svc.get(device_id)
+                server_cache[device_id] = srv.get("name", device_id[:8])
+            except Exception:
+                server_cache[device_id] = device_id[:8]
+        return server_cache[device_id]
+
+    # ── 1. Subnet header ───────────────────────────────────────────
+    console.print()
+    console.print(f"[bold cyan]Subnet[/bold cyan] {sub.get('name') or '—'} "
+                  f"[dim]({subnet_id})[/dim]")
+    console.print(f"  CIDR             : [bold]{sub.get('cidr', '—')}[/bold]")
+    console.print(f"  Gateway          : {sub.get('gateway_ip') or '—'}")
+    console.print(f"  IP version       : {sub.get('ip_version', '—')}")
+    console.print(f"  DHCP             : {'enabled' if sub.get('enable_dhcp') else 'disabled'}")
+    dns = sub.get("dns_nameservers") or []
+    console.print(f"  DNS              : {', '.join(dns) if dns else '—'}")
+    pools = sub.get("allocation_pools") or []
+    if pools:
+        pool_str = "; ".join(f"{p.get('start')}-{p.get('end')}" for p in pools)
+        console.print(f"  Allocation pools : {pool_str}")
+    console.print(f"  Network          : {network_id}")
+
+    # ── 2. IP usage ────────────────────────────────────────────────
+    console.print()
+    if used is not None and total is not None:
+        pct = (used * 100 // total) if total else 0
+        color = "red" if pct >= 90 else ("yellow" if pct >= 70 else "green")
+        console.print(
+            f"[bold cyan]IP usage[/bold cyan]       : "
+            f"[{color}]{used} / {total} ({pct}%)[/{color}]"
+        )
+    else:
+        console.print(
+            "[bold cyan]IP usage[/bold cyan]       : "
+            "[dim](ip-availability extension not exposed by this cloud)[/dim]"
+        )
+
+    # ── 3. Attached ports ──────────────────────────────────────────
+    console.print()
+    console.print(f"[bold cyan]Attached ports[/bold cyan]   : {len(ports)} total")
+
+    from rich.table import Table
+    t = Table(show_header=True, header_style="bold")
+    t.add_column("Fixed IP", style="bold")
+    t.add_column("Port ID", style="cyan", no_wrap=True)
+    t.add_column("Status")
+    t.add_column("MAC")
+    t.add_column("Device owner")
+    t.add_column("Attached resource")
+
+    # Sort by IP for readability.
+    def _sort_key(p):
+        ips = p.get("fixed_ips") or []
+        for f in ips:
+            if f.get("subnet_id") == subnet_id:
+                addr = f.get("ip_address", "")
+                try:
+                    return tuple(int(x) for x in addr.split("."))
+                except Exception:
+                    return (999, 999, 999, 999)
+        return (999, 999, 999, 999)
+
+    for p in sorted(ports, key=_sort_key):
+        fixed_ip = "—"
+        for f in p.get("fixed_ips") or []:
+            if f.get("subnet_id") == subnet_id:
+                fixed_ip = f.get("ip_address", "—")
+                break
+        owner = p.get("device_owner", "") or "—"
+        dev_id = p.get("device_id", "") or ""
+        if owner.startswith("compute:"):
+            attached = f"server {_server_name(dev_id)} ({dev_id[:8]})"
+        elif owner.startswith("network:"):
+            attached = f"{owner.split(':', 1)[1]} {dev_id[:8]}" if dev_id else "—"
+        else:
+            attached = dev_id[:8] if dev_id else "—"
+        t.add_row(
+            fixed_ip,
+            p.get("id", "")[:8] + "…",
+            p.get("status", "—"),
+            p.get("mac_address", "—"),
+            owner,
+            attached,
+        )
+    console.print(t)
+    console.print()
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  Ports
 # ══════════════════════════════════════════════════════════════════════════
 
 @network_port.command("list")
 @click.option("--network-id", default=None, help="Filter by network ID.")
+@click.option("--subnet-id", "--subnet", "subnet_id", default=None,
+              help="Filter to ports that have a fixed IP in this subnet.")
+@click.option("--device-owner", default=None,
+              help="Filter by device owner (e.g. ``compute:nova``, "
+                   "``network:router_interface``, ``network:dhcp``).")
+@click.option("--device-id", default=None,
+              help="Filter by the attached resource ID (server, router, ...).")
 @output_options
 @click.pass_context
-def port_list(ctx: click.Context, network_id: str | None, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
-    """List ports."""
+def port_list(ctx: click.Context, network_id: str | None,
+              subnet_id: str | None, device_owner: str | None,
+              device_id: str | None, output_format: str,
+              columns: tuple[str, ...], fit_width: bool,
+              max_width: int | None, noindent: bool) -> None:
+    """List ports.
+
+    \b
+    Examples:
+      orca network port list
+      orca network port list --network-id <net-id>
+      orca network port list --subnet <subnet-id>
+      orca network port list --device-owner compute:nova
+    """
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
-    params = {"network_id": network_id} if network_id else None
-    ports = svc.find_ports(params=params)
+    params: dict = {}
+    if network_id:
+        params["network_id"] = network_id
+    if subnet_id:
+        # Neutron accepts ``fixed_ips=subnet_id=<id>`` as a multi-value filter.
+        params["fixed_ips"] = f"subnet_id={subnet_id}"
+    if device_owner:
+        params["device_owner"] = device_owner
+    if device_id:
+        params["device_id"] = device_id
+    ports = svc.find_ports(params=params or None)
 
     print_list(
         ports,

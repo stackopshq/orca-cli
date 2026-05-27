@@ -247,6 +247,146 @@ class TestSubnets:
         assert "deleted" in result.output.lower()
 
 
+class TestSubnetInspect:
+    """``orca network subnet inspect`` — cross-references subnet + IP
+    availability + ports + server names."""
+
+    SUB = "11111111-1111-1111-1111-111111111111"
+    NET = "22222222-2222-2222-2222-222222222222"
+    SRV = "33333333-3333-3333-3333-333333333333"
+    PORT = "44444444-4444-4444-4444-444444444444"
+    DHCP_PORT = "55555555-5555-5555-5555-555555555555"
+
+    def _wire(self, mock_client):
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+
+        def _get(url, **kw):
+            if f"/subnets/{self.SUB}" in url:
+                return {"subnet": {
+                    "id": self.SUB, "name": "audit-sub",
+                    "cidr": "10.0.0.0/24", "gateway_ip": "10.0.0.1",
+                    "ip_version": 4, "enable_dhcp": True,
+                    "dns_nameservers": ["8.8.8.8"],
+                    "allocation_pools": [{"start": "10.0.0.2", "end": "10.0.0.254"}],
+                    "network_id": self.NET,
+                }}
+            if "/network-ip-availabilities/" in url:
+                return {"network_ip_availability": {
+                    "network_id": self.NET,
+                    "subnet_ip_availability": [{
+                        "subnet_id": self.SUB, "used_ips": 2, "total_ips": 253,
+                        "cidr": "10.0.0.0/24",
+                    }],
+                }}
+            if "/ports" in url and "subnet_id" in str(kw.get("params", {})):
+                return {"ports": [
+                    {"id": self.DHCP_PORT, "status": "ACTIVE",
+                     "mac_address": "fa:16:3e:00:00:01",
+                     "device_owner": "network:distributed",
+                     "device_id": "ovnmeta-1",
+                     "fixed_ips": [{"ip_address": "10.0.0.2", "subnet_id": self.SUB}]},
+                    {"id": self.PORT, "status": "ACTIVE",
+                     "mac_address": "fa:16:3e:00:00:02",
+                     "device_owner": "compute:nova",
+                     "device_id": self.SRV,
+                     "fixed_ips": [{"ip_address": "10.0.0.42", "subnet_id": self.SUB}]},
+                ]}
+            if f"/servers/{self.SRV}" in url:
+                return {"server": {"id": self.SRV, "name": "audit-vm"}}
+            return {}
+        mock_client.get = _get
+
+    def test_inspect_renders_subnet_ip_usage_and_ports(self, invoke, config_dir,
+                                                       mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        self._wire(mock_client)
+        result = invoke(["network", "subnet", "inspect", self.SUB])
+        assert result.exit_code == 0
+        # Subnet header
+        assert "audit-sub" in result.output
+        assert "10.0.0.0/24" in result.output
+        # IP availability surfaced
+        assert "2 / 253" in result.output
+        # Both ports listed with their IPs
+        assert "10.0.0.2" in result.output
+        assert "10.0.0.42" in result.output
+        # compute:* port resolved to server name
+        assert "audit-vm" in result.output
+        # network:* port shown with the owner suffix (after the colon)
+        assert "distributed" in result.output
+
+    def test_inspect_handles_missing_ip_availability(self, invoke, config_dir,
+                                                      mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+
+        def _get(url, **kw):
+            if f"/subnets/{self.SUB}" in url:
+                return {"subnet": {"id": self.SUB, "name": "x",
+                                    "cidr": "10.0.0.0/24",
+                                    "network_id": self.NET, "ip_version": 4,
+                                    "enable_dhcp": False}}
+            if "/network-ip-availabilities/" in url:
+                from orca_cli.core.exceptions import APIError
+                raise APIError(404, "extension not enabled")
+            if "/ports" in url:
+                return {"ports": []}
+            return {}
+        mock_client.get = _get
+        result = invoke(["network", "subnet", "inspect", self.SUB])
+        assert result.exit_code == 0
+        assert "extension not exposed" in result.output
+
+    def test_inspect_rejects_unknown_subnet(self, invoke, config_dir,
+                                             mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.get = lambda url, **kw: {}  # empty body → no subnet
+        result = invoke(["network", "subnet", "inspect", self.SUB])
+        assert result.exit_code != 0
+        assert "not found" in result.output.lower()
+
+
+class TestPortListFilters:
+    """New ``--subnet`` / ``--device-owner`` / ``--device-id`` filters."""
+
+    NET = "22222222-2222-2222-2222-222222222222"
+    SUB = "11111111-1111-1111-1111-111111111111"
+
+    def test_filter_by_subnet_uses_fixed_ips_param(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.get = MagicMock(return_value={"ports": []})
+        result = invoke(["network", "port", "list", "--subnet", self.SUB])
+        assert result.exit_code == 0
+        params = mock_client.get.call_args.kwargs.get("params")
+        assert params == {"fixed_ips": f"subnet_id={self.SUB}"}
+
+    def test_filter_by_device_owner_and_device_id(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.get = MagicMock(return_value={"ports": []})
+        invoke(["network", "port", "list",
+                "--device-owner", "compute:nova",
+                "--device-id", "srv-1"])
+        params = mock_client.get.call_args.kwargs.get("params")
+        assert params["device_owner"] == "compute:nova"
+        assert params["device_id"] == "srv-1"
+
+    def test_no_filter_sends_no_params(self, invoke, mock_client):
+        from unittest.mock import MagicMock
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.get = MagicMock(return_value={"ports": []})
+        invoke(["network", "port", "list"])
+        assert mock_client.get.call_args.kwargs.get("params") is None
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  Ports
 # ══════════════════════════════════════════════════════════════════════════
