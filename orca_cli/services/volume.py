@@ -522,6 +522,12 @@ class VolumeService:
         data = self._client.get(f"{self._base}/os-hosts", params=params)
         return data.get("hosts", [])
 
+    # Cinder admin endpoints need an explicit micro-version negotiation,
+    # otherwise the server falls back to 3.0 and returns 500 on /clusters,
+    # /os-services/get-log, /resource_filters, etc. 3.70 covers every
+    # admin route orca currently surfaces (introduced in Wallaby).
+    _MV_ADMIN: dict[str, str] = {"OpenStack-API-Version": "volume 3.70"}
+
     # ────────────────────────────────────────────────────────────────────
     #  Active/active clusters — Cinder admin, micro-version >= 3.7
     #  (OSC: ``openstack block storage cluster …``)
@@ -535,16 +541,19 @@ class VolumeService:
         if binary:
             params["binary"] = binary
         path = f"{self._base}/clusters/detail" if detail else f"{self._base}/clusters"
-        data = self._client.get(path, params=params or None)
+        data = self._client.get(path, params=params or None,
+                                headers=self._MV_ADMIN)
         return data.get("clusters", [])
 
     def get_cluster(self, name: str, *, binary: str | None = None) -> dict:
         params = {"binary": binary} if binary else None
-        data = self._client.get(f"{self._base}/clusters/{name}", params=params)
+        data = self._client.get(f"{self._base}/clusters/{name}", params=params,
+                                headers=self._MV_ADMIN)
         return data.get("cluster", {})
 
     def update_cluster(self, name: str, body: dict[str, Any]) -> dict:
-        data = self._client.put(f"{self._base}/clusters/{name}", json=body)
+        data = self._client.put(f"{self._base}/clusters/{name}", json=body,
+                                headers=self._MV_ADMIN)
         return data.get("cluster", {})
 
     # ────────────────────────────────────────────────────────────────────
@@ -563,7 +572,8 @@ class VolumeService:
         if prefix:
             body["prefix"] = prefix
         data = self._client.put(f"{self._base}/os-services/get-log",
-                                json={"os-services_get-log": body})
+                                json={"os-services_get-log": body},
+                                headers=self._MV_ADMIN)
         return data.get("log_levels", [])
 
     def set_log_levels(self, level: str, *, binary: str | None = None,
@@ -577,7 +587,8 @@ class VolumeService:
         if prefix:
             body["prefix"] = prefix
         self._client.put(f"{self._base}/os-services/set-log",
-                         json={"os-services_set-log": body})
+                         json={"os-services_set-log": body},
+                         headers=self._MV_ADMIN)
 
     # ────────────────────────────────────────────────────────────────────
     #  Resource filters — Cinder admin, micro-version >= 3.33
@@ -586,7 +597,8 @@ class VolumeService:
 
     def find_resource_filters(self, *, resource: str | None = None) -> list[dict]:
         params = {"resource": resource} if resource else None
-        data = self._client.get(f"{self._base}/resource_filters", params=params)
+        data = self._client.get(f"{self._base}/resource_filters", params=params,
+                                headers=self._MV_ADMIN)
         return data.get("resource_filters", [])
 
     # ────────────────────────────────────────────────────────────────────
@@ -604,7 +616,8 @@ class VolumeService:
             params["cluster"] = cluster
         path = (f"{self._base}/manageable_volumes/detail"
                 if detail else f"{self._base}/manageable_volumes")
-        data = self._client.get(path, params=params or None)
+        data = self._client.get(path, params=params or None,
+                                headers=self._MV_ADMIN)
         return data.get("manageable-volumes", [])
 
     def find_manageable_snapshots(self, host: str | None = None,
@@ -617,5 +630,6 @@ class VolumeService:
             params["cluster"] = cluster
         path = (f"{self._base}/manageable_snapshots/detail"
                 if detail else f"{self._base}/manageable_snapshots")
-        data = self._client.get(path, params=params or None)
+        data = self._client.get(path, params=params or None,
+                                headers=self._MV_ADMIN)
         return data.get("manageable-snapshots", [])
