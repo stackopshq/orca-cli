@@ -21,7 +21,14 @@ def floating_ip(ctx: click.Context) -> None:
 @floating_ip.command("list")
 @output_options
 @click.pass_context
-def fip_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def fip_list(
+    ctx: click.Context,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List floating IPs."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
 
@@ -35,7 +42,10 @@ def fip_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], f
             ("Status", "status", {"style": "green"}),
         ],
         title="Floating IPs",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No floating IPs found.",
     )
@@ -69,16 +79,41 @@ def fip_delete(ctx: click.Context, floating_ip_id: str, yes: bool) -> None:
 @click.argument("floating_ip_id", callback=validate_id)
 @output_options
 @click.pass_context
-def fip_show(ctx: click.Context, floating_ip_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def fip_show(
+    ctx: click.Context,
+    floating_ip_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show floating IP details."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     fip = svc.get_floating_ip(floating_ip_id)
 
-    fields = [(key, str(fip.get(key, "") or "")) for key in
-              ["id", "floating_ip_address", "fixed_ip_address", "floating_network_id",
-               "port_id", "router_id", "status", "created_at"]]
+    fields = [
+        (key, str(fip.get(key, "") or ""))
+        for key in [
+            "id",
+            "floating_ip_address",
+            "fixed_ip_address",
+            "floating_network_id",
+            "port_id",
+            "router_id",
+            "status",
+            "created_at",
+        ]
+    ]
 
-    print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @floating_ip.command("associate")
@@ -114,6 +149,7 @@ def fip_disassociate(ctx: click.Context, floating_ip_id: str) -> None:
 
 # ── set ──────────────────────────────────────────────────────────────────
 
+
 @floating_ip.command("set")
 @click.argument("floating_ip_id", callback=validate_id)
 @click.option("--port", "port_id", default=None, help="Associate with port ID.")
@@ -122,9 +158,15 @@ def fip_disassociate(ctx: click.Context, floating_ip_id: str) -> None:
 @click.option("--qos-policy", "qos_policy_id", default=None, help="Attach QoS policy ID.")
 @click.option("--no-qos-policy", is_flag=True, default=False, help="Remove attached QoS policy.")
 @click.pass_context
-def fip_set(ctx: click.Context, floating_ip_id: str, port_id: str | None,
-            fixed_ip_address: str | None, description: str | None,
-            qos_policy_id: str | None, no_qos_policy: bool) -> None:
+def fip_set(
+    ctx: click.Context,
+    floating_ip_id: str,
+    port_id: str | None,
+    fixed_ip_address: str | None,
+    description: str | None,
+    qos_policy_id: str | None,
+    no_qos_policy: bool,
+) -> None:
     """Set floating IP properties.
 
     \b
@@ -160,6 +202,7 @@ def fip_set(ctx: click.Context, floating_ip_id: str, port_id: str | None,
 
 # ── unset ─────────────────────────────────────────────────────────────────
 
+
 @floating_ip.command("unset")
 @click.argument("floating_ip_id", callback=validate_id)
 @click.option("--port", is_flag=True, default=False, help="Disassociate port.")
@@ -190,12 +233,23 @@ def fip_unset(ctx: click.Context, floating_ip_id: str, port: bool, qos_policy: b
 
 # ── bulk-release ─────────────────────────────────────────────────────────
 
+
 @floating_ip.command("bulk-release")
-@click.option("--status", "-s", "target_status", default="DOWN",
-              show_default=True,
-              help="Release floating IPs with this status (DOWN, ERROR, etc.).")
-@click.option("--unassociated", "-u", is_flag=True, default=False,
-              help="Release all unassociated floating IPs (no port_id), regardless of status.")
+@click.option(
+    "--status",
+    "-s",
+    "target_status",
+    default="DOWN",
+    show_default=True,
+    help="Release floating IPs with this status (DOWN, ERROR, etc.).",
+)
+@click.option(
+    "--unassociated",
+    "-u",
+    is_flag=True,
+    default=False,
+    help="Release all unassociated floating IPs (no port_id), regardless of status.",
+)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
 def fip_bulk_release(ctx: click.Context, target_status: str, unassociated: bool, yes: bool) -> None:
@@ -281,6 +335,7 @@ def fip_bulk_release(ctx: click.Context, target_status: str, unassociated: bool,
 #  Port forwarding (FIP DNAT)
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @floating_ip.group("port-forwarding")
 def fip_port_forwarding() -> None:
     """Manage port-forwarding rules attached to a floating IP."""
@@ -308,8 +363,11 @@ def pf_list(ctx, fip_id, output_format, columns, fit_width, max_width, noindent)
             ("Internal Port ID", "internal_port_id"),
         ],
         title=f"Port forwardings on FIP {fip_id}",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg="No port forwarding rules.",
     )
 
@@ -323,26 +381,26 @@ def pf_show(ctx, fip_id, pf_id, output_format, columns, fit_width, max_width, no
     """Show a port-forwarding rule."""
     data = _pf_svc(ctx).get_port_forwarding(fip_id, pf_id)
     fields = [(k, str(v)) for k, v in data.items()]
-    print_detail(fields, output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @fip_port_forwarding.command("create")
 @click.argument("fip_id", callback=validate_id)
-@click.option("--internal-port-id", required=True,
-              help="Port to forward traffic to.")
-@click.option("--internal-ip-address", required=True,
-              help="Fixed IP of the internal port to target.")
-@click.option("--internal-port", type=int, required=True,
-              help="Internal TCP/UDP port.")
-@click.option("--external-port", type=int, required=True,
-              help="External TCP/UDP port (on the floating IP).")
-@click.option("--protocol", type=click.Choice(["tcp", "udp"]),
-              default="tcp", show_default=True)
+@click.option("--internal-port-id", required=True, help="Port to forward traffic to.")
+@click.option("--internal-ip-address", required=True, help="Fixed IP of the internal port to target.")
+@click.option("--internal-port", type=int, required=True, help="Internal TCP/UDP port.")
+@click.option("--external-port", type=int, required=True, help="External TCP/UDP port (on the floating IP).")
+@click.option("--protocol", type=click.Choice(["tcp", "udp"]), default="tcp", show_default=True)
 @click.option("--description", default=None, help="Free-text description.")
 @click.pass_context
-def pf_create(ctx, fip_id, internal_port_id, internal_ip_address,
-              internal_port, external_port, protocol, description):
+def pf_create(ctx, fip_id, internal_port_id, internal_ip_address, internal_port, external_port, protocol, description):
     """Create a port-forwarding rule.
 
     \b
@@ -374,8 +432,9 @@ def pf_create(ctx, fip_id, internal_port_id, internal_ip_address,
 @click.option("--protocol", type=click.Choice(["tcp", "udp"]), default=None)
 @click.option("--description", default=None)
 @click.pass_context
-def pf_set(ctx, fip_id, pf_id, internal_port_id, internal_ip_address,
-           internal_port, external_port, protocol, description):
+def pf_set(
+    ctx, fip_id, pf_id, internal_port_id, internal_ip_address, internal_port, external_port, protocol, description
+):
     """Update a port-forwarding rule."""
     body: dict = {}
     if internal_port_id:
@@ -408,3 +467,38 @@ def pf_delete(ctx, fip_id, pf_id, yes):
         click.confirm(f"Delete port forwarding {pf_id} on FIP {fip_id}?", abort=True)
     _pf_svc(ctx).delete_port_forwarding(fip_id, pf_id)
     console.print(f"[green]Port forwarding {pf_id} deleted.[/green]")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Pool listing (OSC parity — ``openstack floating ip pool list``)
+# ══════════════════════════════════════════════════════════════════════════
+
+
+@floating_ip.group("pool")
+def fip_pool() -> None:
+    """Inspect the pools (external networks) that floating IPs can come from."""
+
+
+@fip_pool.command("list")
+@output_options
+@click.pass_context
+def fip_pool_list(ctx, output_format, columns, fit_width, max_width, noindent):
+    """List external networks usable as floating-IP pools."""
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    nets = svc.find_external_networks()
+    print_list(
+        nets,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Name", "name", {"style": "bold"}),
+            ("Status", "status", {"style": "green"}),
+            ("Shared", "shared"),
+        ],
+        title="Floating-IP pools (external networks)",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No external networks available as floating-IP pools.",
+    )

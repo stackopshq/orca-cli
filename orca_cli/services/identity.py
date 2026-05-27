@@ -48,8 +48,7 @@ class IdentityService:
 
     # ── projects ───────────────────────────────────────────────────────
 
-    def find_projects(self, *,
-                      params: dict[str, Any] | None = None) -> list[Project]:
+    def find_projects(self, *, params: dict[str, Any] | None = None) -> list[Project]:
         data = self._client.get(f"{self._v3}/projects", params=params)
         return data.get("projects", [])
 
@@ -58,14 +57,11 @@ class IdentityService:
         return data.get("project", data)
 
     def create_project(self, body: dict[str, Any]) -> Project:
-        data = self._client.post(f"{self._v3}/projects",
-                                 json={"project": body})
+        data = self._client.post(f"{self._v3}/projects", json={"project": body})
         return data.get("project", data) if data else {}
 
-    def update_project(self, project_id: str,
-                       body: dict[str, Any]) -> Project:
-        data = self._client.patch(f"{self._v3}/projects/{project_id}",
-                                  json={"project": body})
+    def update_project(self, project_id: str, body: dict[str, Any]) -> Project:
+        data = self._client.patch(f"{self._v3}/projects/{project_id}", json={"project": body})
         return data.get("project", data) if data else {}
 
     def delete_project(self, project_id: str) -> None:
@@ -73,8 +69,7 @@ class IdentityService:
 
     # ── users ──────────────────────────────────────────────────────────
 
-    def find_users(self, *,
-                   params: dict[str, Any] | None = None) -> list[User]:
+    def find_users(self, *, params: dict[str, Any] | None = None) -> list[User]:
         data = self._client.get(f"{self._v3}/users", params=params)
         return data.get("users", [])
 
@@ -83,13 +78,11 @@ class IdentityService:
         return data.get("user", data)
 
     def create_user(self, body: dict[str, Any]) -> User:
-        data = self._client.post(f"{self._v3}/users",
-                                 json={"user": body})
+        data = self._client.post(f"{self._v3}/users", json={"user": body})
         return data.get("user", data) if data else {}
 
     def update_user(self, user_id: str, body: dict[str, Any]) -> User:
-        data = self._client.patch(f"{self._v3}/users/{user_id}",
-                                  json={"user": body})
+        data = self._client.patch(f"{self._v3}/users/{user_id}", json={"user": body})
         return data.get("user", data) if data else {}
 
     def delete_user(self, user_id: str) -> None:
@@ -105,8 +98,7 @@ class IdentityService:
 
     # ── roles ──────────────────────────────────────────────────────────
 
-    def find_roles(self, *,
-                   params: dict[str, Any] | None = None) -> list[Role]:
+    def find_roles(self, *, params: dict[str, Any] | None = None) -> list[Role]:
         data = self._client.get(f"{self._v3}/roles", params=params)
         return data.get("roles", [])
 
@@ -115,39 +107,30 @@ class IdentityService:
         return data.get("role", data)
 
     def create_role(self, body: dict[str, Any]) -> Role:
-        data = self._client.post(f"{self._v3}/roles",
-                                 json={"role": body})
+        data = self._client.post(f"{self._v3}/roles", json={"role": body})
         return data.get("role", data) if data else {}
 
     def update_role(self, role_id: str, body: dict[str, Any]) -> Role:
-        data = self._client.patch(f"{self._v3}/roles/{role_id}",
-                                  json={"role": body})
+        data = self._client.patch(f"{self._v3}/roles/{role_id}", json={"role": body})
         return data.get("role", data) if data else {}
 
     def delete_role(self, role_id: str) -> None:
         self._client.delete(f"{self._v3}/roles/{role_id}")
 
-    def grant_role(self, *, scope_type: str, scope_id: str,
-                   actor_type: str, actor_id: str, role_id: str) -> None:
+    def grant_role(self, *, scope_type: str, scope_id: str, actor_type: str, actor_id: str, role_id: str) -> None:
         """``scope_type`` is ``projects`` or ``domains``,
         ``actor_type`` is ``users`` or ``groups``."""
-        self._client.put(
-            f"{self._v3}/{scope_type}/{scope_id}/"
-            f"{actor_type}/{actor_id}/roles/{role_id}"
-        )
+        self._client.put(f"{self._v3}/{scope_type}/{scope_id}/{actor_type}/{actor_id}/roles/{role_id}")
 
-    def revoke_role(self, *, scope_type: str, scope_id: str,
-                    actor_type: str, actor_id: str, role_id: str) -> None:
-        self._client.delete(
-            f"{self._v3}/{scope_type}/{scope_id}/"
-            f"{actor_type}/{actor_id}/roles/{role_id}"
-        )
+    def revoke_role(self, *, scope_type: str, scope_id: str, actor_type: str, actor_id: str, role_id: str) -> None:
+        self._client.delete(f"{self._v3}/{scope_type}/{scope_id}/{actor_type}/{actor_id}/roles/{role_id}")
 
     def find_role_assignments(
-        self, *, params: dict[str, Any] | None = None,
+        self,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[RoleAssignment]:
-        data = self._client.get(f"{self._v3}/role_assignments",
-                                params=params)
+        data = self._client.get(f"{self._v3}/role_assignments", params=params)
         return data.get("role_assignments", [])
 
     def find_role_inferences(self) -> list[RoleInference]:
@@ -158,19 +141,14 @@ class IdentityService:
         # Keystone exposes inference creation/deletion under /v3/roles/...,
         # not /v3/role_inferences/... — the latter is the read-only listing
         # endpoint. See https://docs.openstack.org/api-ref/identity/v3/
-        self._client.put(
-            f"{self._v3}/roles/{prior_id}/implies/{implied_id}"
-        )
+        self._client.put(f"{self._v3}/roles/{prior_id}/implies/{implied_id}")
 
     def delete_role_inference(self, prior_id: str, implied_id: str) -> None:
-        self._client.delete(
-            f"{self._v3}/roles/{prior_id}/implies/{implied_id}"
-        )
+        self._client.delete(f"{self._v3}/roles/{prior_id}/implies/{implied_id}")
 
     # ── domains ────────────────────────────────────────────────────────
 
-    def find_domains(self, *,
-                     params: dict[str, Any] | None = None) -> list[Domain]:
+    def find_domains(self, *, params: dict[str, Any] | None = None) -> list[Domain]:
         data = self._client.get(f"{self._v3}/domains", params=params)
         return data.get("domains", [])
 
@@ -179,13 +157,11 @@ class IdentityService:
         return data.get("domain", data)
 
     def create_domain(self, body: dict[str, Any]) -> Domain:
-        data = self._client.post(f"{self._v3}/domains",
-                                 json={"domain": body})
+        data = self._client.post(f"{self._v3}/domains", json={"domain": body})
         return data.get("domain", data) if data else {}
 
     def update_domain(self, domain_id: str, body: dict[str, Any]) -> Domain:
-        data = self._client.patch(f"{self._v3}/domains/{domain_id}",
-                                  json={"domain": body})
+        data = self._client.patch(f"{self._v3}/domains/{domain_id}", json={"domain": body})
         return data.get("domain", data) if data else {}
 
     def delete_domain(self, domain_id: str) -> None:
@@ -193,8 +169,7 @@ class IdentityService:
 
     # ── groups ─────────────────────────────────────────────────────────
 
-    def find_groups(self, *,
-                    params: dict[str, Any] | None = None) -> list[Group]:
+    def find_groups(self, *, params: dict[str, Any] | None = None) -> list[Group]:
         data = self._client.get(f"{self._v3}/groups", params=params)
         return data.get("groups", [])
 
@@ -203,27 +178,21 @@ class IdentityService:
         return data.get("group", data)
 
     def create_group(self, body: dict[str, Any]) -> Group:
-        data = self._client.post(f"{self._v3}/groups",
-                                 json={"group": body})
+        data = self._client.post(f"{self._v3}/groups", json={"group": body})
         return data.get("group", data) if data else {}
 
     def update_group(self, group_id: str, body: dict[str, Any]) -> Group:
-        data = self._client.patch(f"{self._v3}/groups/{group_id}",
-                                  json={"group": body})
+        data = self._client.patch(f"{self._v3}/groups/{group_id}", json={"group": body})
         return data.get("group", data) if data else {}
 
     def delete_group(self, group_id: str) -> None:
         self._client.delete(f"{self._v3}/groups/{group_id}")
 
     def add_group_user(self, group_id: str, user_id: str) -> None:
-        self._client.put(
-            f"{self._v3}/groups/{group_id}/users/{user_id}"
-        )
+        self._client.put(f"{self._v3}/groups/{group_id}/users/{user_id}")
 
     def remove_group_user(self, group_id: str, user_id: str) -> None:
-        self._client.delete(
-            f"{self._v3}/groups/{group_id}/users/{user_id}"
-        )
+        self._client.delete(f"{self._v3}/groups/{group_id}/users/{user_id}")
 
     def list_group_users(self, group_id: str) -> list[User]:
         data = self._client.get(f"{self._v3}/groups/{group_id}/users")
@@ -232,7 +201,9 @@ class IdentityService:
     # ── credentials (no /v3) ───────────────────────────────────────────
 
     def find_credentials(
-        self, *, params: dict[str, Any] | None = None,
+        self,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[Credential]:
         data = self._client.get(f"{self._base}/credentials", params=params)
         return data.get("credentials", [])
@@ -242,14 +213,11 @@ class IdentityService:
         return data.get("credential", data)
 
     def create_credential(self, body: dict[str, Any]) -> Credential:
-        data = self._client.post(f"{self._base}/credentials",
-                                 json={"credential": body})
+        data = self._client.post(f"{self._base}/credentials", json={"credential": body})
         return data.get("credential", data) if data else {}
 
-    def update_credential(self, cred_id: str,
-                          body: dict[str, Any]) -> Credential:
-        data = self._client.patch(f"{self._base}/credentials/{cred_id}",
-                                  json={"credential": body})
+    def update_credential(self, cred_id: str, body: dict[str, Any]) -> Credential:
+        data = self._client.patch(f"{self._base}/credentials/{cred_id}", json={"credential": body})
         return data.get("credential", data) if data else {}
 
     def delete_credential(self, cred_id: str) -> None:
@@ -258,23 +226,24 @@ class IdentityService:
     # ── application credentials (/v3, per-user) ────────────────────────
 
     def find_application_credentials(
-        self, user_id: str,
+        self,
+        user_id: str,
     ) -> list[ApplicationCredential]:
-        data = self._client.get(
-            f"{self._v3}/users/{user_id}/application_credentials"
-        )
+        data = self._client.get(f"{self._v3}/users/{user_id}/application_credentials")
         return data.get("application_credentials", [])
 
     def get_application_credential(
-        self, user_id: str, cred_id: str,
+        self,
+        user_id: str,
+        cred_id: str,
     ) -> ApplicationCredential:
-        data = self._client.get(
-            f"{self._v3}/users/{user_id}/application_credentials/{cred_id}"
-        )
+        data = self._client.get(f"{self._v3}/users/{user_id}/application_credentials/{cred_id}")
         return data.get("application_credential", data)
 
     def create_application_credential(
-        self, user_id: str, body: dict[str, Any],
+        self,
+        user_id: str,
+        body: dict[str, Any],
     ) -> ApplicationCredential:
         data = self._client.post(
             f"{self._v3}/users/{user_id}/application_credentials",
@@ -283,16 +252,18 @@ class IdentityService:
         return data.get("application_credential", data) if data else {}
 
     def delete_application_credential(
-        self, user_id: str, cred_id: str,
+        self,
+        user_id: str,
+        cred_id: str,
     ) -> None:
-        self._client.delete(
-            f"{self._v3}/users/{user_id}/application_credentials/{cred_id}"
-        )
+        self._client.delete(f"{self._v3}/users/{user_id}/application_credentials/{cred_id}")
 
     # ── endpoints (no /v3) ─────────────────────────────────────────────
 
     def find_endpoints(
-        self, *, params: dict[str, Any] | None = None,
+        self,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[Endpoint]:
         data = self._client.get(f"{self._base}/endpoints", params=params)
         return data.get("endpoints", [])
@@ -302,14 +273,11 @@ class IdentityService:
         return data.get("endpoint", data)
 
     def create_endpoint(self, body: dict[str, Any]) -> Endpoint:
-        data = self._client.post(f"{self._base}/endpoints",
-                                 json={"endpoint": body})
+        data = self._client.post(f"{self._base}/endpoints", json={"endpoint": body})
         return data.get("endpoint", data) if data else {}
 
-    def update_endpoint(self, endpoint_id: str,
-                        body: dict[str, Any]) -> Endpoint:
-        data = self._client.patch(f"{self._base}/endpoints/{endpoint_id}",
-                                  json={"endpoint": body})
+    def update_endpoint(self, endpoint_id: str, body: dict[str, Any]) -> Endpoint:
+        data = self._client.patch(f"{self._base}/endpoints/{endpoint_id}", json={"endpoint": body})
         return data.get("endpoint", data) if data else {}
 
     def delete_endpoint(self, endpoint_id: str) -> None:
@@ -318,7 +286,9 @@ class IdentityService:
     # ── endpoint groups (/v3) ──────────────────────────────────────────
 
     def find_endpoint_groups(
-        self, *, params: dict[str, Any] | None = None,
+        self,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[EndpointGroup]:
         data = self._client.get(f"{self._v3}/OS-EP-FILTER/endpoint_groups", params=params)
         return data.get("endpoint_groups", [])
@@ -328,63 +298,46 @@ class IdentityService:
         return data.get("endpoint_group", data)
 
     def create_endpoint_group(self, body: dict[str, Any]) -> EndpointGroup:
-        data = self._client.post(f"{self._v3}/OS-EP-FILTER/endpoint_groups",
-                                 json={"endpoint_group": body})
+        data = self._client.post(f"{self._v3}/OS-EP-FILTER/endpoint_groups", json={"endpoint_group": body})
         return data.get("endpoint_group", data) if data else {}
 
-    def update_endpoint_group(self, eg_id: str,
-                              body: dict[str, Any]) -> EndpointGroup:
-        data = self._client.patch(f"{self._v3}/OS-EP-FILTER/endpoint_groups/{eg_id}",
-                                  json={"endpoint_group": body})
+    def update_endpoint_group(self, eg_id: str, body: dict[str, Any]) -> EndpointGroup:
+        data = self._client.patch(f"{self._v3}/OS-EP-FILTER/endpoint_groups/{eg_id}", json={"endpoint_group": body})
         return data.get("endpoint_group", data) if data else {}
 
     def delete_endpoint_group(self, eg_id: str) -> None:
         self._client.delete(f"{self._v3}/OS-EP-FILTER/endpoint_groups/{eg_id}")
 
     def add_endpoint_group_project(self, eg_id: str, project_id: str) -> None:
-        self._client.put(
-            f"{self._v3}/OS-EP-FILTER/endpoint_groups/{eg_id}/projects/{project_id}"
-        )
+        self._client.put(f"{self._v3}/OS-EP-FILTER/endpoint_groups/{eg_id}/projects/{project_id}")
 
-    def remove_endpoint_group_project(self, eg_id: str,
-                                      project_id: str) -> None:
-        self._client.delete(
-            f"{self._v3}/OS-EP-FILTER/endpoint_groups/{eg_id}/projects/{project_id}"
-        )
+    def remove_endpoint_group_project(self, eg_id: str, project_id: str) -> None:
+        self._client.delete(f"{self._v3}/OS-EP-FILTER/endpoint_groups/{eg_id}/projects/{project_id}")
 
     # ── individual endpoint ↔ project filtering (OS-EP-FILTER) ──────────
     # Independent of endpoint *groups*: this is the per-endpoint filter
     # that restricts which projects can see a single catalogue endpoint.
 
     def add_endpoint_project(self, project_id: str, endpoint_id: str) -> None:
-        self._client.put(
-            f"{self._v3}/OS-EP-FILTER/projects/{project_id}"
-            f"/endpoints/{endpoint_id}"
-        )
+        self._client.put(f"{self._v3}/OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}")
 
-    def remove_endpoint_project(self, project_id: str,
-                                endpoint_id: str) -> None:
-        self._client.delete(
-            f"{self._v3}/OS-EP-FILTER/projects/{project_id}"
-            f"/endpoints/{endpoint_id}"
-        )
+    def remove_endpoint_project(self, project_id: str, endpoint_id: str) -> None:
+        self._client.delete(f"{self._v3}/OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}")
 
     def list_endpoint_projects(self, endpoint_id: str) -> list[Project]:
-        data = self._client.get(
-            f"{self._v3}/OS-EP-FILTER/endpoints/{endpoint_id}/projects"
-        )
+        data = self._client.get(f"{self._v3}/OS-EP-FILTER/endpoints/{endpoint_id}/projects")
         return data.get("projects", [])
 
     def list_project_endpoints(self, project_id: str) -> list[Endpoint]:
-        data = self._client.get(
-            f"{self._v3}/OS-EP-FILTER/projects/{project_id}/endpoints"
-        )
+        data = self._client.get(f"{self._v3}/OS-EP-FILTER/projects/{project_id}/endpoints")
         return data.get("endpoints", [])
 
     # ── services (no /v3) ──────────────────────────────────────────────
 
     def find_services(
-        self, *, params: dict[str, Any] | None = None,
+        self,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[Service]:
         data = self._client.get(f"{self._base}/services", params=params)
         return data.get("services", [])
@@ -394,14 +347,11 @@ class IdentityService:
         return data.get("service", data)
 
     def create_service(self, body: dict[str, Any]) -> Service:
-        data = self._client.post(f"{self._base}/services",
-                                 json={"service": body})
+        data = self._client.post(f"{self._base}/services", json={"service": body})
         return data.get("service", data) if data else {}
 
-    def update_service(self, service_id: str,
-                       body: dict[str, Any]) -> Service:
-        data = self._client.patch(f"{self._base}/services/{service_id}",
-                                  json={"service": body})
+    def update_service(self, service_id: str, body: dict[str, Any]) -> Service:
+        data = self._client.patch(f"{self._base}/services/{service_id}", json={"service": body})
         return data.get("service", data) if data else {}
 
     def delete_service(self, service_id: str) -> None:
@@ -410,7 +360,9 @@ class IdentityService:
     # ── regions (no /v3) ───────────────────────────────────────────────
 
     def find_regions(
-        self, *, params: dict[str, Any] | None = None,
+        self,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[Region]:
         data = self._client.get(f"{self._base}/regions", params=params)
         return data.get("regions", [])
@@ -420,13 +372,11 @@ class IdentityService:
         return data.get("region", data)
 
     def create_region(self, body: dict[str, Any]) -> Region:
-        data = self._client.post(f"{self._base}/regions",
-                                 json={"region": body})
+        data = self._client.post(f"{self._base}/regions", json={"region": body})
         return data.get("region", data) if data else {}
 
     def update_region(self, region_id: str, body: dict[str, Any]) -> Region:
-        data = self._client.patch(f"{self._base}/regions/{region_id}",
-                                  json={"region": body})
+        data = self._client.patch(f"{self._base}/regions/{region_id}", json={"region": body})
         return data.get("region", data) if data else {}
 
     def delete_region(self, region_id: str) -> None:
@@ -435,7 +385,9 @@ class IdentityService:
     # ── policies (/v3) ─────────────────────────────────────────────────
 
     def find_policies(
-        self, *, params: dict[str, Any] | None = None,
+        self,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[Policy]:
         data = self._client.get(f"{self._v3}/policies", params=params)
         return data.get("policies", [])
@@ -445,13 +397,11 @@ class IdentityService:
         return data.get("policy", data)
 
     def create_policy(self, body: dict[str, Any]) -> Policy:
-        data = self._client.post(f"{self._v3}/policies",
-                                 json={"policy": body})
+        data = self._client.post(f"{self._v3}/policies", json={"policy": body})
         return data.get("policy", data) if data else {}
 
     def update_policy(self, policy_id: str, body: dict[str, Any]) -> Policy:
-        data = self._client.patch(f"{self._v3}/policies/{policy_id}",
-                                  json={"policy": body})
+        data = self._client.patch(f"{self._v3}/policies/{policy_id}", json={"policy": body})
         return data.get("policy", data) if data else {}
 
     def delete_policy(self, policy_id: str) -> None:
@@ -468,7 +418,9 @@ class IdentityService:
         return data.get("identity_provider", data)
 
     def create_identity_provider(
-        self, idp_id: str, body: dict[str, Any],
+        self,
+        idp_id: str,
+        body: dict[str, Any],
     ) -> IdentityProvider:
         # Keystone federation uses PUT for upsert creation.
         data = self._client.put(
@@ -478,7 +430,9 @@ class IdentityService:
         return data.get("identity_provider", data) if data else {}
 
     def update_identity_provider(
-        self, idp_id: str, body: dict[str, Any],
+        self,
+        idp_id: str,
+        body: dict[str, Any],
     ) -> IdentityProvider:
         data = self._client.patch(
             f"{self._v3}/OS-FEDERATION/identity_providers/{idp_id}",
@@ -492,21 +446,22 @@ class IdentityService:
     # ── federation: protocols ──────────────────────────────────────────
 
     def find_federation_protocols(self, idp_id: str) -> list[FederationProtocol]:
-        data = self._client.get(
-            f"{self._v3}/OS-FEDERATION/identity_providers/{idp_id}/protocols"
-        )
+        data = self._client.get(f"{self._v3}/OS-FEDERATION/identity_providers/{idp_id}/protocols")
         return data.get("protocols", [])
 
     def get_federation_protocol(
-        self, idp_id: str, proto_id: str,
+        self,
+        idp_id: str,
+        proto_id: str,
     ) -> FederationProtocol:
-        data = self._client.get(
-            f"{self._v3}/OS-FEDERATION/identity_providers/{idp_id}/protocols/{proto_id}"
-        )
+        data = self._client.get(f"{self._v3}/OS-FEDERATION/identity_providers/{idp_id}/protocols/{proto_id}")
         return data.get("protocol", data)
 
     def create_federation_protocol(
-        self, idp_id: str, proto_id: str, body: dict[str, Any],
+        self,
+        idp_id: str,
+        proto_id: str,
+        body: dict[str, Any],
     ) -> FederationProtocol:
         data = self._client.put(
             f"{self._v3}/OS-FEDERATION/identity_providers/{idp_id}/protocols/{proto_id}",
@@ -515,7 +470,10 @@ class IdentityService:
         return data.get("protocol", data) if data else {}
 
     def update_federation_protocol(
-        self, idp_id: str, proto_id: str, body: dict[str, Any],
+        self,
+        idp_id: str,
+        proto_id: str,
+        body: dict[str, Any],
     ) -> FederationProtocol:
         data = self._client.patch(
             f"{self._v3}/OS-FEDERATION/identity_providers/{idp_id}/protocols/{proto_id}",
@@ -524,11 +482,11 @@ class IdentityService:
         return data.get("protocol", data) if data else {}
 
     def delete_federation_protocol(
-        self, idp_id: str, proto_id: str,
+        self,
+        idp_id: str,
+        proto_id: str,
     ) -> None:
-        self._client.delete(
-            f"{self._v3}/OS-FEDERATION/identity_providers/{idp_id}/protocols/{proto_id}"
-        )
+        self._client.delete(f"{self._v3}/OS-FEDERATION/identity_providers/{idp_id}/protocols/{proto_id}")
 
     # ── federation: mappings ───────────────────────────────────────────
 
@@ -540,16 +498,12 @@ class IdentityService:
         data = self._client.get(f"{self._v3}/OS-FEDERATION/mappings/{mapping_id}")
         return data.get("mapping", data)
 
-    def create_mapping(self, mapping_id: str,
-                       body: dict[str, Any]) -> Mapping:
-        data = self._client.put(f"{self._v3}/OS-FEDERATION/mappings/{mapping_id}",
-                                json={"mapping": body})
+    def create_mapping(self, mapping_id: str, body: dict[str, Any]) -> Mapping:
+        data = self._client.put(f"{self._v3}/OS-FEDERATION/mappings/{mapping_id}", json={"mapping": body})
         return data.get("mapping", data) if data else {}
 
-    def update_mapping(self, mapping_id: str,
-                       body: dict[str, Any]) -> Mapping:
-        data = self._client.patch(f"{self._v3}/OS-FEDERATION/mappings/{mapping_id}",
-                                  json={"mapping": body})
+    def update_mapping(self, mapping_id: str, body: dict[str, Any]) -> Mapping:
+        data = self._client.patch(f"{self._v3}/OS-FEDERATION/mappings/{mapping_id}", json={"mapping": body})
         return data.get("mapping", data) if data else {}
 
     def delete_mapping(self, mapping_id: str) -> None:
@@ -566,7 +520,9 @@ class IdentityService:
         return data.get("service_provider", data)
 
     def create_service_provider(
-        self, sp_id: str, body: dict[str, Any],
+        self,
+        sp_id: str,
+        body: dict[str, Any],
     ) -> ServiceProvider:
         data = self._client.put(
             f"{self._v3}/OS-FEDERATION/service_providers/{sp_id}",
@@ -575,7 +531,9 @@ class IdentityService:
         return data.get("service_provider", data) if data else {}
 
     def update_service_provider(
-        self, sp_id: str, body: dict[str, Any],
+        self,
+        sp_id: str,
+        body: dict[str, Any],
     ) -> ServiceProvider:
         data = self._client.patch(
             f"{self._v3}/OS-FEDERATION/service_providers/{sp_id}",
@@ -588,10 +546,8 @@ class IdentityService:
 
     # ── trusts (OS-TRUST extension) ────────────────────────────────────
 
-    def find_trusts(self, *,
-                    params: dict[str, Any] | None = None) -> list[Trust]:
-        data = self._client.get(f"{self._base}/OS-TRUST/trusts",
-                                params=params)
+    def find_trusts(self, *, params: dict[str, Any] | None = None) -> list[Trust]:
+        data = self._client.get(f"{self._base}/OS-TRUST/trusts", params=params)
         return data.get("trusts", [])
 
     def get_trust(self, trust_id: str) -> Trust:
@@ -599,8 +555,7 @@ class IdentityService:
         return data.get("trust", data)
 
     def create_trust(self, body: dict[str, Any]) -> Trust:
-        data = self._client.post(f"{self._base}/OS-TRUST/trusts",
-                                 json={"trust": body})
+        data = self._client.post(f"{self._base}/OS-TRUST/trusts", json={"trust": body})
         return data.get("trust", data) if data else {}
 
     def delete_trust(self, trust_id: str) -> None:
@@ -622,23 +577,20 @@ class IdentityService:
         return data.get("access_rules", [])
 
     def get_access_rule(self, user_id: str, rule_id: str) -> AccessRule:
-        data = self._client.get(
-            f"{self._v3}/users/{user_id}/access_rules/{rule_id}"
-        )
+        data = self._client.get(f"{self._v3}/users/{user_id}/access_rules/{rule_id}")
         return data.get("access_rule", data)
 
     def delete_access_rule(self, user_id: str, rule_id: str) -> None:
-        self._client.delete(
-            f"{self._v3}/users/{user_id}/access_rules/{rule_id}"
-        )
+        self._client.delete(f"{self._v3}/users/{user_id}/access_rules/{rule_id}")
 
     # ── registered limits (Keystone enforcement defaults) ──────────────
 
     def find_registered_limits(
-        self, *, params: dict[str, Any] | None = None,
+        self,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[RegisteredLimit]:
-        data = self._client.get(f"{self._v3}/registered_limits",
-                                params=params)
+        data = self._client.get(f"{self._v3}/registered_limits", params=params)
         return data.get("registered_limits", [])
 
     def get_registered_limit(self, limit_id: str) -> RegisteredLimit:
@@ -646,7 +598,8 @@ class IdentityService:
         return data.get("registered_limit", data)
 
     def create_registered_limits(
-        self, items: list[dict[str, Any]],
+        self,
+        items: list[dict[str, Any]],
     ) -> list[RegisteredLimit]:
         """Keystone POST accepts a list of registered limits at once."""
         data = self._client.post(
@@ -656,7 +609,9 @@ class IdentityService:
         return data.get("registered_limits", []) if data else []
 
     def update_registered_limit(
-        self, limit_id: str, body: dict[str, Any],
+        self,
+        limit_id: str,
+        body: dict[str, Any],
     ) -> RegisteredLimit:
         data = self._client.patch(
             f"{self._v3}/registered_limits/{limit_id}",
@@ -670,7 +625,9 @@ class IdentityService:
     # ── project-scoped limits (overrides) ──────────────────────────────
 
     def find_limits(
-        self, *, params: dict[str, Any] | None = None,
+        self,
+        *,
+        params: dict[str, Any] | None = None,
     ) -> list[Limit]:
         data = self._client.get(f"{self._v3}/limits", params=params)
         return data.get("limits", [])
@@ -680,21 +637,55 @@ class IdentityService:
         return data.get("limit", data)
 
     def create_limits(
-        self, items: list[dict[str, Any]],
+        self,
+        items: list[dict[str, Any]],
     ) -> list[Limit]:
         """Keystone POST accepts a list of limits at once."""
         data = self._client.post(
-            f"{self._v3}/limits", json={"limits": items},
+            f"{self._v3}/limits",
+            json={"limits": items},
         )
         return data.get("limits", []) if data else []
 
     def update_limit(
-        self, limit_id: str, body: dict[str, Any],
+        self,
+        limit_id: str,
+        body: dict[str, Any],
     ) -> Limit:
         data = self._client.patch(
-            f"{self._v3}/limits/{limit_id}", json={"limit": body},
+            f"{self._v3}/limits/{limit_id}",
+            json={"limit": body},
         )
         return data.get("limit", data) if data else {}
 
     def delete_limit(self, limit_id: str) -> None:
         self._client.delete(f"{self._v3}/limits/{limit_id}")
+
+    # ── versions, federation-aware listings (OSC parity, lot 2) ───────
+
+    def find_versions(self) -> list[dict]:
+        """List Keystone API versions exposed by the catalog endpoint.
+
+        Hits the unversioned root of identity_url (drops the ``/v3`` suffix)
+        and returns the ``versions`` array Keystone advertises.
+        """
+        import re
+
+        root = re.sub(r"/v3/?$", "", self._client.identity_url)
+        data = self._client.get(root)
+        v = data.get("versions", data)
+        if isinstance(v, dict):
+            return v.get("values", [])
+        return v if isinstance(v, list) else []
+
+    def find_user_domains(self, user_id: str | None = None) -> list[dict]:
+        """List domains a user can scope to. Defaults to current user."""
+        uid = user_id or (self._client.token_data or {}).get("user", {}).get("id", "")
+        data = self._client.get(f"{self._v3}/users/{uid}/domains")
+        return data.get("domains", [])
+
+    def find_user_projects(self, user_id: str | None = None) -> list[dict]:
+        """List projects a user can scope to. Defaults to current user."""
+        uid = user_id or (self._client.token_data or {}).get("user", {}).get("id", "")
+        data = self._client.get(f"{self._v3}/users/{uid}/projects")
+        return data.get("projects", [])

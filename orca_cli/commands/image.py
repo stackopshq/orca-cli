@@ -29,16 +29,37 @@ _PROPERTY_KEY_RE = re.compile(r"^[A-Za-z0-9_:.\-]{1,255}$")
 
 # Standard top-level Glance v2 image fields. Anything else returned by the
 # API is treated as a custom image property by ``image show``.
-_STANDARD_IMAGE_FIELDS: frozenset[str] = frozenset({
-    "id", "name", "status", "visibility", "owner", "protected",
-    "disk_format", "container_format", "size", "virtual_size",
-    "min_disk", "min_ram",
-    "checksum", "os_hash_algo", "os_hash_value",
-    "direct_url", "stores", "file", "locations", "self", "schema",
-    "created_at", "updated_at",
-    "tags", "image_type",
-    "os_hidden", "hidden",
-})
+_STANDARD_IMAGE_FIELDS: frozenset[str] = frozenset(
+    {
+        "id",
+        "name",
+        "status",
+        "visibility",
+        "owner",
+        "protected",
+        "disk_format",
+        "container_format",
+        "size",
+        "virtual_size",
+        "min_disk",
+        "min_ram",
+        "checksum",
+        "os_hash_algo",
+        "os_hash_value",
+        "direct_url",
+        "stores",
+        "file",
+        "locations",
+        "self",
+        "schema",
+        "created_at",
+        "updated_at",
+        "tags",
+        "image_type",
+        "os_hidden",
+        "hidden",
+    }
+)
 
 
 def _validate_property_key(key: str) -> str:
@@ -50,8 +71,9 @@ def _validate_property_key(key: str) -> str:
     return key
 
 
-def _parse_property(_ctx: click.Context, _param: click.Parameter,
-                    values: tuple[str, ...]) -> tuple[tuple[str, str], ...]:
+def _parse_property(
+    _ctx: click.Context, _param: click.Parameter, values: tuple[str, ...]
+) -> tuple[tuple[str, str], ...]:
     """Click callback for ``--property KEY=VALUE`` (repeatable).
 
     Splits on the first ``=`` so values may themselves contain ``=``.
@@ -68,8 +90,7 @@ def _parse_property(_ctx: click.Context, _param: click.Parameter,
     return tuple(parsed)
 
 
-def _parse_remove_property(_ctx: click.Context, _param: click.Parameter,
-                           values: tuple[str, ...]) -> tuple[str, ...]:
+def _parse_remove_property(_ctx: click.Context, _param: click.Parameter, values: tuple[str, ...]) -> tuple[str, ...]:
     """Click callback for ``--remove-property KEY`` (repeatable)."""
     return tuple(_validate_property_key(k) for k in values)
 
@@ -82,15 +103,24 @@ def image(ctx: click.Context) -> None:
 
 
 @image.command("list")
-@click.option("--visibility",
-              type=click.Choice(["public", "private", "shared", "community", "all"]),
-              default="all", show_default=True,
-              help="Filter by image visibility. Glance defaults to 'all' the caller can see.")
+@click.option(
+    "--visibility",
+    type=click.Choice(["public", "private", "shared", "community", "all"]),
+    default="all",
+    show_default=True,
+    help="Filter by image visibility. Glance defaults to 'all' the caller can see.",
+)
 @output_options
 @click.pass_context
-def image_list(ctx: click.Context, visibility: str, output_format: str,
-               columns: tuple[str, ...], fit_width: bool, max_width: int | None,
-               noindent: bool) -> None:
+def image_list(
+    ctx: click.Context,
+    visibility: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List available images.
 
     \b
@@ -112,14 +142,21 @@ def image_list(ctx: click.Context, visibility: str, output_format: str,
         ("Visibility", lambda img: img.get("visibility", "") or "—"),
         ("Min Disk (GB)", "min_disk", {"justify": "right"}),
         ("Min RAM (MB)", "min_ram", {"justify": "right"}),
-        ("Size (MB)", lambda img: str(round(img["size"] / 1024 / 1024)) if img.get("size") else "", {"justify": "right"}),
+        (
+            "Size (MB)",
+            lambda img: str(round(img["size"] / 1024 / 1024)) if img.get("size") else "",
+            {"justify": "right"},
+        ),
     ]
 
     print_list(
         images,
         column_defs,
         title="Images",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No images found.",
     )
@@ -129,7 +166,15 @@ def image_list(ctx: click.Context, visibility: str, output_format: str,
 @click.argument("image_id", shell_complete=complete_images)
 @output_options
 @click.pass_context
-def image_show(ctx: click.Context, image_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def image_show(
+    ctx: click.Context,
+    image_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show image details, including custom properties and integrity hashes.
 
     \b
@@ -142,10 +187,24 @@ def image_show(ctx: click.Context, image_id: str, output_format: str, columns: t
     img = ImageService(ctx.find_object(OrcaContext).ensure_client()).get(image_id)
 
     standard_keys = [
-        "id", "name", "status", "visibility", "owner", "protected",
-        "min_disk", "min_ram", "size", "disk_format", "container_format",
-        "checksum", "os_hash_algo", "os_hash_value", "direct_url",
-        "tags", "created_at", "updated_at",
+        "id",
+        "name",
+        "status",
+        "visibility",
+        "owner",
+        "protected",
+        "min_disk",
+        "min_ram",
+        "size",
+        "disk_format",
+        "container_format",
+        "checksum",
+        "os_hash_algo",
+        "os_hash_value",
+        "direct_url",
+        "tags",
+        "created_at",
+        "updated_at",
     ]
 
     # Pretty-printed view used by the ``table`` and ``value`` formats.
@@ -194,8 +253,14 @@ def image_show(ctx: click.Context, image_id: str, output_format: str, columns: t
         return
 
     # table
-    print_detail(fields, output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
     if properties:
         prop_table = Table(title="Properties", show_header=True, show_lines=False)
         prop_table.add_column("Key", style="bold cyan", no_wrap=True)
@@ -210,20 +275,53 @@ def image_show(ctx: click.Context, image_id: str, output_format: str, columns: t
 
 @image.command("create")
 @click.argument("name")
-@click.option("--disk-format", type=click.Choice(["raw", "qcow2", "vmdk", "vdi", "vhd", "vhdx", "iso", "aki", "ari", "ami"], case_sensitive=False), default="qcow2", show_default=True, help="Disk format.")
-@click.option("--container-format", type=click.Choice(["bare", "ovf", "ova", "aki", "ari", "ami", "docker"], case_sensitive=False), default="bare", show_default=True, help="Container format.")
+@click.option(
+    "--disk-format",
+    type=click.Choice(["raw", "qcow2", "vmdk", "vdi", "vhd", "vhdx", "iso", "aki", "ari", "ami"], case_sensitive=False),
+    default="qcow2",
+    show_default=True,
+    help="Disk format.",
+)
+@click.option(
+    "--container-format",
+    type=click.Choice(["bare", "ovf", "ova", "aki", "ari", "ami", "docker"], case_sensitive=False),
+    default="bare",
+    show_default=True,
+    help="Container format.",
+)
 @click.option("--min-disk", type=int, default=0, show_default=True, help="Min disk (GB).")
 @click.option("--min-ram", type=int, default=0, show_default=True, help="Min RAM (MB).")
-@click.option("--visibility", type=click.Choice(["private", "shared", "community", "public"], case_sensitive=False), default="private", show_default=True, help="Visibility.")
-@click.option("--file", "file_path", type=click.Path(exists=True), default=None, help="Upload image data from file immediately.")
-@click.option("--property", "properties", multiple=True, callback=_parse_property,
-              metavar="KEY=VALUE",
-              help="Custom image property to set on creation (e.g. os_distro=ubuntu). "
-                   "Repeatable. Values may contain '='; only the first '=' splits.")
+@click.option(
+    "--visibility",
+    type=click.Choice(["private", "shared", "community", "public"], case_sensitive=False),
+    default="private",
+    show_default=True,
+    help="Visibility.",
+)
+@click.option(
+    "--file", "file_path", type=click.Path(exists=True), default=None, help="Upload image data from file immediately."
+)
+@click.option(
+    "--property",
+    "properties",
+    multiple=True,
+    callback=_parse_property,
+    metavar="KEY=VALUE",
+    help="Custom image property to set on creation (e.g. os_distro=ubuntu). "
+    "Repeatable. Values may contain '='; only the first '=' splits.",
+)
 @click.pass_context
-def image_create(ctx: click.Context, name: str, disk_format: str, container_format: str,
-                 min_disk: int, min_ram: int, visibility: str, file_path: str | None,
-                 properties: tuple[tuple[str, str], ...]) -> None:
+def image_create(
+    ctx: click.Context,
+    name: str,
+    disk_format: str,
+    container_format: str,
+    min_disk: int,
+    min_ram: int,
+    visibility: str,
+    file_path: str | None,
+    properties: tuple[tuple[str, str], ...],
+) -> None:
     """Create a new image (and optionally upload data).
 
     \b
@@ -266,23 +364,47 @@ def image_create(ctx: click.Context, name: str, disk_format: str, container_form
 @click.option("--name", default=None, help="New name.")
 @click.option("--min-disk", type=int, default=None, help="New min disk (GB).")
 @click.option("--min-ram", type=int, default=None, help="New min RAM (MB).")
-@click.option("--visibility", type=click.Choice(["private", "shared", "community", "public"], case_sensitive=False), default=None, help="New visibility.")
-@click.option("--property", "properties", multiple=True, callback=_parse_property,
-              metavar="KEY=VALUE",
-              help="Set or replace a custom image property (KEY=VALUE). "
-                   "Repeatable. Untouched properties are preserved.")
-@click.option("--remove-property", "remove_properties", multiple=True,
-              callback=_parse_remove_property, metavar="KEY",
-              help="Remove a custom image property by key. Repeatable. "
-                   "Errors if the key is absent (use --ignore-missing for idempotent runs).")
-@click.option("--ignore-missing", is_flag=True, default=False,
-              help="With --remove-property: silently skip keys that aren't on the image.")
+@click.option(
+    "--visibility",
+    type=click.Choice(["private", "shared", "community", "public"], case_sensitive=False),
+    default=None,
+    help="New visibility.",
+)
+@click.option(
+    "--property",
+    "properties",
+    multiple=True,
+    callback=_parse_property,
+    metavar="KEY=VALUE",
+    help="Set or replace a custom image property (KEY=VALUE). Repeatable. Untouched properties are preserved.",
+)
+@click.option(
+    "--remove-property",
+    "remove_properties",
+    multiple=True,
+    callback=_parse_remove_property,
+    metavar="KEY",
+    help="Remove a custom image property by key. Repeatable. "
+    "Errors if the key is absent (use --ignore-missing for idempotent runs).",
+)
+@click.option(
+    "--ignore-missing",
+    is_flag=True,
+    default=False,
+    help="With --remove-property: silently skip keys that aren't on the image.",
+)
 @click.pass_context
-def image_update(ctx: click.Context, image_id: str, name: str | None,
-                 min_disk: int | None, min_ram: int | None, visibility: str | None,
-                 properties: tuple[tuple[str, str], ...],
-                 remove_properties: tuple[str, ...],
-                 ignore_missing: bool) -> None:
+def image_update(
+    ctx: click.Context,
+    image_id: str,
+    name: str | None,
+    min_disk: int | None,
+    min_ram: int | None,
+    visibility: str | None,
+    properties: tuple[tuple[str, str], ...],
+    remove_properties: tuple[str, ...],
+    ignore_missing: bool,
+) -> None:
     """Update image properties (JSON-Patch).
 
     Builds one atomic JSON-Patch document from all flags. ``--property`` emits
@@ -341,8 +463,12 @@ def image_update(ctx: click.Context, image_id: str, name: str | None,
 
 
 def _stream_upload_with_progress(
-    service: ImageService, *,
-    image_id: str, path: Path, description: str, mode: str,
+    service: ImageService,
+    *,
+    image_id: str,
+    path: Path,
+    description: str,
+    mode: str,
 ) -> None:
     """Stream ``path`` to Glance with a progress bar.
 
@@ -392,8 +518,7 @@ def image_upload(ctx: click.Context, image_id: str, file_path: str) -> None:
     """
     service = ImageService(ctx.find_object(OrcaContext).ensure_client())
     p = Path(file_path)
-    _stream_upload_with_progress(service, image_id=image_id, path=p,
-                                 description=f"Uploading {p.name}", mode="upload")
+    _stream_upload_with_progress(service, image_id=image_id, path=p, description=f"Uploading {p.name}", mode="upload")
     console.print("[green]Upload complete.[/green]")
 
 
@@ -419,8 +544,7 @@ def image_stage(ctx: click.Context, image_id: str, file_path: str) -> None:
     """
     service = ImageService(ctx.find_object(OrcaContext).ensure_client())
     p = Path(file_path)
-    _stream_upload_with_progress(service, image_id=image_id, path=p,
-                                 description=f"Staging {p.name}", mode="stage")
+    _stream_upload_with_progress(service, image_id=image_id, path=p, description=f"Staging {p.name}", mode="stage")
     console.print(f"[green]Staging complete for image {image_id}.[/green]")
     console.print(f"[dim]Run: orca image import {image_id} --method glance-direct[/dim]")
 
@@ -462,16 +586,19 @@ def image_download(ctx: click.Context, image_id: str, output_path: str) -> None:
         if resp.status_code == 403:
             raise PermissionDeniedError()
         if not resp.is_success:
-            raise APIError(resp.status_code, resp.text[:300] if hasattr(resp, 'text') else "Download failed")
+            raise APIError(resp.status_code, resp.text[:300] if hasattr(resp, "text") else "Download failed")
 
-        with open(out, "wb") as f, Progress(
-            "[cyan]{task.description}",
-            BarColumn(),
-            DownloadColumn(),
-            TransferSpeedColumn(),
-            TimeRemainingColumn(),
-            console=console,
-        ) as progress:
+        with (
+            open(out, "wb") as f,
+            Progress(
+                "[cyan]{task.description}",
+                BarColumn(),
+                DownloadColumn(),
+                TransferSpeedColumn(),
+                TimeRemainingColumn(),
+                console=console,
+            ) as progress,
+        ):
             task = progress.add_task("Downloading", total=total or None)
             for chunk in resp.iter_bytes(chunk_size=CHUNK_SIZE):
                 f.write(chunk)
@@ -609,10 +736,17 @@ def image_shrink(ctx: click.Context, image_id: str, yes: bool) -> None:
         with service.stream_download(image_id) as resp:
             if not resp.is_success:
                 raise APIError(resp.status_code, "Download failed")
-            with open(raw_path, "wb") as f, Progress(
-                "[cyan]{task.description}", BarColumn(), DownloadColumn(),
-                TransferSpeedColumn(), TimeRemainingColumn(), console=console,
-            ) as progress:
+            with (
+                open(raw_path, "wb") as f,
+                Progress(
+                    "[cyan]{task.description}",
+                    BarColumn(),
+                    DownloadColumn(),
+                    TransferSpeedColumn(),
+                    TimeRemainingColumn(),
+                    console=console,
+                ) as progress,
+            ):
                 task = progress.add_task("Downloading", total=original_size or None)
                 for chunk in resp.iter_bytes(chunk_size=CHUNK_SIZE):
                     f.write(chunk)
@@ -622,7 +756,8 @@ def image_shrink(ctx: click.Context, image_id: str, yes: bool) -> None:
         console.print("[bold]2/3[/bold] Converting to qcow2 with compression...")
         result = subprocess.run(
             ["qemu-img", "convert", "-c", "-O", "qcow2", str(raw_path), str(qcow2_path)],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         if result.returncode != 0:
             raise OrcaCLIError(f"qemu-img failed: {result.stderr.strip()}")
@@ -633,14 +768,16 @@ def image_shrink(ctx: click.Context, image_id: str, yes: bool) -> None:
 
         # Upload as new image
         console.print("[bold]3/3[/bold] Uploading compressed image...")
-        new_meta = service.create({
-            "name": f"{name} (shrunk)",
-            "disk_format": "qcow2",
-            "container_format": meta.get("container_format", "bare"),
-            "min_disk": meta.get("min_disk", 0),
-            "min_ram": meta.get("min_ram", 0),
-            "visibility": meta.get("visibility", "private"),
-        })
+        new_meta = service.create(
+            {
+                "name": f"{name} (shrunk)",
+                "disk_format": "qcow2",
+                "container_format": meta.get("container_format", "bare"),
+                "min_disk": meta.get("min_disk", 0),
+                "min_ram": meta.get("min_ram", 0),
+                "visibility": meta.get("visibility", "private"),
+            }
+        )
         new_id = new_meta.get("id", "")
 
         with open(qcow2_path, "rb") as f:
@@ -655,11 +792,9 @@ def image_shrink(ctx: click.Context, image_id: str, yes: bool) -> None:
 
 
 @image.command("unused")
-@click.option("--delete", "-d", "do_delete", is_flag=True, default=False,
-              help="Actually delete unused images.")
+@click.option("--delete", "-d", "do_delete", is_flag=True, default=False, help="Actually delete unused images.")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation (with --delete).")
-@click.option("--include-snapshots", is_flag=True, default=False,
-              help="Include snapshot images in the scan.")
+@click.option("--include-snapshots", is_flag=True, default=False, help="Include snapshot images in the scan.")
 @click.pass_context
 def image_unused(ctx: click.Context, do_delete: bool, yes: bool, include_snapshots: bool) -> None:
     """Find images not used by any server instance.
@@ -736,8 +871,7 @@ def image_unused(ctx: click.Context, do_delete: bool, yes: bool, include_snapsho
     console.print(f"\n[bold]Total reclaimable:[/bold] {_human_size(total_size)}")
 
     if not do_delete:
-        console.print(f"\n[yellow]{len(unused)} unused image(s). "
-                       "Use --delete to remove them.[/yellow]\n")
+        console.print(f"\n[yellow]{len(unused)} unused image(s). Use --delete to remove them.[/yellow]\n")
         return
 
     if not yes:
@@ -768,6 +902,7 @@ def image_unused(ctx: click.Context, do_delete: bool, yes: bool, include_snapsho
 #  Image Member Sharing (Glance v2)
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @image.group("member")
 def image_member() -> None:
     """Manage Glance image members (sharing)."""
@@ -777,9 +912,15 @@ def image_member() -> None:
 @click.argument("image_id", shell_complete=complete_images)
 @output_options
 @click.pass_context
-def image_member_list(ctx: click.Context, image_id: str, output_format: str,
-                      columns: tuple[str, ...], fit_width: bool,
-                      max_width: int | None, noindent: bool) -> None:
+def image_member_list(
+    ctx: click.Context,
+    image_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List all projects that have access to a shared image.
 
     The image must have visibility=shared.
@@ -795,8 +936,11 @@ def image_member_list(ctx: click.Context, image_id: str, output_format: str,
             ("Schema", "schema"),
         ],
         title=f"Members of image {image_id}",
-        output_format=output_format, columns=columns,
-        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        columns=columns,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         empty_msg="No members found. Make sure the image has visibility=shared.",
     )
 
@@ -806,9 +950,16 @@ def image_member_list(ctx: click.Context, image_id: str, output_format: str,
 @click.argument("member_id", metavar="PROJECT_ID")
 @output_options
 @click.pass_context
-def image_member_show(ctx: click.Context, image_id: str, member_id: str,
-                      output_format: str, columns: tuple[str, ...],
-                      fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def image_member_show(
+    ctx: click.Context,
+    image_id: str,
+    member_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show a specific project's membership status for a shared image."""
     m = ImageService(ctx.find_object(OrcaContext).ensure_client()).get_member(image_id, member_id)
     fields = [
@@ -819,8 +970,14 @@ def image_member_show(ctx: click.Context, image_id: str, member_id: str,
         ("Updated", m.get("updated_at", "—")),
         ("Schema", m.get("schema", "—")),
     ]
-    print_detail(fields, output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @image_member.command("create")
@@ -839,12 +996,8 @@ def image_member_create(ctx: click.Context, image_id: str, member_id: str) -> No
     """
     m = ImageService(ctx.find_object(OrcaContext).ensure_client()).add_member(image_id, member_id)
     status = m.get("status", "pending") if isinstance(m, dict) else "pending"
-    console.print(
-        f"[green]Image {image_id} shared with project {member_id} (status: {status}).[/green]"
-    )
-    console.print(
-        f"[dim]The project must run: orca image member-set {image_id} {member_id} --status accepted[/dim]"
-    )
+    console.print(f"[green]Image {image_id} shared with project {member_id} (status: {status}).[/green]")
+    console.print(f"[dim]The project must run: orca image member-set {image_id} {member_id} --status accepted[/dim]")
 
 
 @image_member.command("delete")
@@ -864,7 +1017,8 @@ def image_member_delete(ctx: click.Context, image_id: str, member_id: str, yes: 
 @click.argument("image_id", shell_complete=complete_images)
 @click.argument("member_id", metavar="PROJECT_ID")
 @click.option(
-    "--status", required=True,
+    "--status",
+    required=True,
     type=click.Choice(["accepted", "rejected", "pending"], case_sensitive=False),
     help="New membership status.",
 )
@@ -880,7 +1034,9 @@ def image_member_set(ctx: click.Context, image_id: str, member_id: str, status: 
       orca image member-set <image-id> <project-id> --status rejected
     """
     ImageService(ctx.find_object(OrcaContext).ensure_client()).set_member_status(
-        image_id, member_id, status,
+        image_id,
+        member_id,
+        status,
     )
     labels = {"accepted": "green", "rejected": "red", "pending": "yellow"}
     color = labels.get(status, "white")
@@ -923,19 +1079,23 @@ def image_share_and_accept(ctx: click.Context, image_id: str, member_id: str, ye
 #  image import  (Glance v2 import API)
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @image.command("import")
 @click.argument("image_id", shell_complete=complete_images)
-@click.option("--method", "import_method",
-              type=click.Choice(["web-download", "glance-direct", "copy-image"]),
-              default="web-download", show_default=True,
-              help="Import method.")
-@click.option("--uri", default=None,
-              help="Source URI (required for web-download).")
-@click.option("--store", "stores", multiple=True,
-              help="Target store(s) for copy-image (repeatable).")
+@click.option(
+    "--method",
+    "import_method",
+    type=click.Choice(["web-download", "glance-direct", "copy-image"]),
+    default="web-download",
+    show_default=True,
+    help="Import method.",
+)
+@click.option("--uri", default=None, help="Source URI (required for web-download).")
+@click.option("--store", "stores", multiple=True, help="Target store(s) for copy-image (repeatable).")
 @click.pass_context
-def image_import(ctx: click.Context, image_id: str, import_method: str,
-                 uri: str | None, stores: tuple[str, ...]) -> None:
+def image_import(
+    ctx: click.Context, image_id: str, import_method: str, uri: str | None, stores: tuple[str, ...]
+) -> None:
     """Import image data using the Glance v2 import API.
 
     \b
@@ -954,7 +1114,10 @@ def image_import(ctx: click.Context, image_id: str, import_method: str,
         raise OrcaCLIError("--uri is required for web-download.")
 
     ImageService(ctx.find_object(OrcaContext).ensure_client()).import_(
-        image_id, import_method, uri=uri, stores=list(stores) if stores else None,
+        image_id,
+        import_method,
+        uri=uri,
+        stores=list(stores) if stores else None,
     )
     console.print(f"[green]Import triggered for image {image_id} (method: {import_method}).[/green]")
     if import_method == "web-download":
@@ -966,6 +1129,7 @@ def image_import(ctx: click.Context, image_id: str, import_method: str,
 #  image cache  (Glance v2 cache management — admin)
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @image.group("cache")
 def image_cache() -> None:
     """Manage the Glance image cache (admin)."""
@@ -974,8 +1138,14 @@ def image_cache() -> None:
 @image_cache.command("list")
 @output_options
 @click.pass_context
-def image_cache_list(ctx: click.Context, output_format: str, columns: tuple[str, ...],
-                     fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def image_cache_list(
+    ctx: click.Context,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List cached and queued images (admin)."""
     data = ImageService(ctx.find_object(OrcaContext).ensure_client()).list_cache()
 
@@ -990,8 +1160,11 @@ def image_cache_list(ctx: click.Context, output_format: str, columns: tuple[str,
             ("State", "state", {"style": "green"}),
         ],
         title="Image Cache",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg="Cache is empty.",
     )
 
@@ -1039,13 +1212,20 @@ def image_stores() -> None:
 
 
 @image_stores.command("info")
-@click.option("--detail", is_flag=True, default=False,
-              help="Show store properties (admin only, requires Glance ≥ 2.15).")
+@click.option(
+    "--detail", is_flag=True, default=False, help="Show store properties (admin only, requires Glance ≥ 2.15)."
+)
 @output_options
 @click.pass_context
-def image_stores_info(ctx: click.Context, detail: bool, output_format: str,
-                      columns: tuple[str, ...], fit_width: bool,
-                      max_width: int | None, noindent: bool) -> None:
+def image_stores_info(
+    ctx: click.Context,
+    detail: bool,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List available Glance storage backends (multi-store only).
 
     \b
@@ -1067,8 +1247,11 @@ def image_stores_info(ctx: click.Context, detail: bool, output_format: str,
         stores,
         column_defs,
         title="Image Stores",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg="No stores found (multi-backend may not be enabled).",
     )
 
@@ -1084,20 +1267,36 @@ def image_task() -> None:
 
 
 @image_task.command("list")
-@click.option("--type", "task_type", default=None,
-              type=click.Choice(["import", "export", "clone"], case_sensitive=False),
-              help="Filter by task type.")
-@click.option("--status", "task_status", default=None,
-              type=click.Choice(["pending", "processing", "success", "failure"], case_sensitive=False),
-              help="Filter by task status.")
+@click.option(
+    "--type",
+    "task_type",
+    default=None,
+    type=click.Choice(["import", "export", "clone"], case_sensitive=False),
+    help="Filter by task type.",
+)
+@click.option(
+    "--status",
+    "task_status",
+    default=None,
+    type=click.Choice(["pending", "processing", "success", "failure"], case_sensitive=False),
+    help="Filter by task status.",
+)
 @output_options
 @click.pass_context
-def image_task_list(ctx: click.Context, task_type: str | None, task_status: str | None,
-                    output_format: str, columns: tuple[str, ...], fit_width: bool,
-                    max_width: int | None, noindent: bool) -> None:
+def image_task_list(
+    ctx: click.Context,
+    task_type: str | None,
+    task_status: str | None,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List Glance async tasks."""
     tasks = ImageService(ctx.find_object(OrcaContext).ensure_client()).list_tasks(
-        task_type=task_type, status=task_status,
+        task_type=task_type,
+        status=task_status,
     )
 
     print_list(
@@ -1111,8 +1310,11 @@ def image_task_list(ctx: click.Context, task_type: str | None, task_status: str 
             ("Expires", "expires_at"),
         ],
         title="Image Tasks",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg="No tasks found.",
     )
 
@@ -1121,9 +1323,15 @@ def image_task_list(ctx: click.Context, task_type: str | None, task_status: str 
 @click.argument("task_id")
 @output_options
 @click.pass_context
-def image_task_show(ctx: click.Context, task_id: str, output_format: str,
-                    columns: tuple[str, ...], fit_width: bool,
-                    max_width: int | None, noindent: bool) -> None:
+def image_task_show(
+    ctx: click.Context,
+    task_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show details of a Glance async task."""
     t = ImageService(ctx.find_object(OrcaContext).ensure_client()).get_task(task_id)
     fields = [
@@ -1138,8 +1346,14 @@ def image_task_show(ctx: click.Context, task_id: str, output_format: str,
         ("Updated", t.get("updated_at", "—")),
         ("Expires", t.get("expires_at", "—")),
     ]
-    print_detail(fields, output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -1163,8 +1377,7 @@ def image_metadef_namespace() -> None:
 @image_metadef_namespace.command("list")
 @output_options
 @click.pass_context
-def metadef_namespace_list(ctx,
-                           output_format, columns, fit_width, max_width, noindent):
+def metadef_namespace_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List metadef namespaces."""
     svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
     items = svc.find_metadef_namespaces()
@@ -1173,15 +1386,21 @@ def metadef_namespace_list(ctx,
         return
     print_list(
         items,
-        [("Namespace", "namespace"),
-         ("Display Name", "display_name"),
-         ("Visibility", "visibility"),
-         ("Resource Types",
-          lambda ns: ", ".join(rt.get("name", "")
-                               for rt in (ns.get("resource_type_associations") or [])))],
+        [
+            ("Namespace", "namespace"),
+            ("Display Name", "display_name"),
+            ("Visibility", "visibility"),
+            (
+                "Resource Types",
+                lambda ns: ", ".join(rt.get("name", "") for rt in (ns.get("resource_type_associations") or [])),
+            ),
+        ],
         title="Metadef Namespaces",
-        output_format=output_format, columns=columns,
-        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        columns=columns,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
     )
 
 
@@ -1199,16 +1418,12 @@ def metadef_namespace_show(ctx, namespace):
 @click.argument("namespace")
 @click.option("--display-name", default=None, help="Human-readable name.")
 @click.option("--description", default=None, help="Description.")
-@click.option("--visibility", default="private",
-              type=click.Choice(["private", "public"]), show_default=True)
-@click.option("--protected", is_flag=True, default=False,
-              help="Prevent deletion via API.")
+@click.option("--visibility", default="private", type=click.Choice(["private", "public"]), show_default=True)
+@click.option("--protected", is_flag=True, default=False, help="Prevent deletion via API.")
 @click.pass_context
-def metadef_namespace_create(ctx, namespace, display_name, description,
-                              visibility, protected):
+def metadef_namespace_create(ctx, namespace, display_name, description, visibility, protected):
     """Create a metadef namespace."""
-    body: dict = {"namespace": namespace, "visibility": visibility,
-                  "protected": protected}
+    body: dict = {"namespace": namespace, "visibility": visibility, "protected": protected}
     if display_name:
         body["display_name"] = display_name
     if description:
@@ -1222,12 +1437,10 @@ def metadef_namespace_create(ctx, namespace, display_name, description,
 @click.argument("namespace")
 @click.option("--display-name", default=None)
 @click.option("--description", default=None)
-@click.option("--visibility", default=None,
-              type=click.Choice(["private", "public"]))
+@click.option("--visibility", default=None, type=click.Choice(["private", "public"]))
 @click.option("--protected/--no-protected", default=None)
 @click.pass_context
-def metadef_namespace_set(ctx, namespace, display_name, description,
-                           visibility, protected):
+def metadef_namespace_set(ctx, namespace, display_name, description, visibility, protected):
     """Update a metadef namespace."""
     body: dict = {"namespace": namespace}
     if display_name is not None:
@@ -1271,8 +1484,7 @@ def image_metadef_object() -> None:
 @click.argument("namespace")
 @output_options
 @click.pass_context
-def metadef_object_list(ctx, namespace,
-                        output_format, columns, fit_width, max_width, noindent):
+def metadef_object_list(ctx, namespace, output_format, columns, fit_width, max_width, noindent):
     """List objects in a namespace."""
     svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
     items = svc.find_metadef_objects(namespace)
@@ -1283,8 +1495,11 @@ def metadef_object_list(ctx, namespace,
         items,
         [("Name", "name"), ("Description", "description")],
         title=f"Metadef objects in {namespace}",
-        output_format=output_format, columns=columns,
-        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        columns=columns,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
     )
 
 
@@ -1303,8 +1518,7 @@ def metadef_object_show(ctx, namespace, object_name):
 @click.argument("namespace")
 @click.argument("name")
 @click.option("--description", default=None)
-@click.option("--required", multiple=True,
-              help="Required property name (repeatable).")
+@click.option("--required", multiple=True, help="Required property name (repeatable).")
 @click.pass_context
 def metadef_object_create(ctx, namespace, name, description, required):
     """Create a metadef object (a grouping of related properties)."""
@@ -1322,8 +1536,7 @@ def metadef_object_create(ctx, namespace, name, description, required):
 @click.argument("namespace")
 @click.argument("object_name")
 @click.option("--description", default=None)
-@click.option("--required", multiple=True,
-              help="Replace required list (repeatable).")
+@click.option("--required", multiple=True, help="Replace required list (repeatable).")
 @click.pass_context
 def metadef_object_update(ctx, namespace, object_name, description, required):
     """Update a metadef object."""
@@ -1349,7 +1562,8 @@ def metadef_object_delete(ctx, namespace, object_name, yes):
     """Delete a metadef object."""
     if not yes:
         click.confirm(
-            f"Delete object '{object_name}' from '{namespace}'?", abort=True,
+            f"Delete object '{object_name}' from '{namespace}'?",
+            abort=True,
         )
     svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
     svc.delete_metadef_object(namespace, object_name)
@@ -1368,8 +1582,7 @@ def image_metadef_property() -> None:
 @click.argument("namespace")
 @output_options
 @click.pass_context
-def metadef_property_list(ctx, namespace,
-                          output_format, columns, fit_width, max_width, noindent):
+def metadef_property_list(ctx, namespace, output_format, columns, fit_width, max_width, noindent):
     """List properties in a namespace."""
     svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
     items = svc.find_metadef_properties(namespace)
@@ -1378,11 +1591,13 @@ def metadef_property_list(ctx, namespace,
         return
     print_list(
         items,
-        [("Name", "name"), ("Type", "type"),
-         ("Title", "title"), ("Description", "description")],
+        [("Name", "name"), ("Type", "type"), ("Title", "title"), ("Description", "description")],
         title=f"Metadef properties in {namespace}",
-        output_format=output_format, columns=columns,
-        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        columns=columns,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
     )
 
 
@@ -1400,16 +1615,18 @@ def metadef_property_show(ctx, namespace, name):
 @image_metadef_property.command("create")
 @click.argument("namespace")
 @click.argument("name")
-@click.option("--type", "ptype", required=True,
-              type=click.Choice(["string", "integer", "number",
-                                  "boolean", "array"]),
-              help="JSON Schema type.")
+@click.option(
+    "--type",
+    "ptype",
+    required=True,
+    type=click.Choice(["string", "integer", "number", "boolean", "array"]),
+    help="JSON Schema type.",
+)
 @click.option("--title", default=None)
 @click.option("--description", default=None)
 @click.option("--default", default=None)
 @click.pass_context
-def metadef_property_create(ctx, namespace, name, ptype, title,
-                             description, default):
+def metadef_property_create(ctx, namespace, name, ptype, title, description, default):
     """Define a property schema in a namespace."""
     body: dict = {"name": name, "type": ptype}
     if title:
@@ -1426,15 +1643,12 @@ def metadef_property_create(ctx, namespace, name, ptype, title,
 @image_metadef_property.command("set")
 @click.argument("namespace")
 @click.argument("name")
-@click.option("--type", "ptype", default=None,
-              type=click.Choice(["string", "integer", "number",
-                                  "boolean", "array"]))
+@click.option("--type", "ptype", default=None, type=click.Choice(["string", "integer", "number", "boolean", "array"]))
 @click.option("--title", default=None)
 @click.option("--description", default=None)
 @click.option("--default", default=None)
 @click.pass_context
-def metadef_property_set(ctx, namespace, name, ptype, title,
-                          description, default):
+def metadef_property_set(ctx, namespace, name, ptype, title, description, default):
     """Update a metadef property."""
     body: dict = {"name": name}
     if ptype is not None:
@@ -1462,7 +1676,8 @@ def metadef_property_delete(ctx, namespace, name, yes):
     """Delete a metadef property."""
     if not yes:
         click.confirm(
-            f"Delete property '{name}' from '{namespace}'?", abort=True,
+            f"Delete property '{name}' from '{namespace}'?",
+            abort=True,
         )
     svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
     svc.delete_metadef_property(namespace, name)
@@ -1480,8 +1695,7 @@ def image_metadef_resource_type() -> None:
 @image_metadef_resource_type.command("list")
 @output_options
 @click.pass_context
-def metadef_resource_type_list(ctx,
-                                output_format, columns, fit_width, max_width, noindent):
+def metadef_resource_type_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List all Glance resource types globally."""
     svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
     items = svc.find_metadef_resource_types()
@@ -1489,10 +1703,14 @@ def metadef_resource_type_list(ctx,
         console.print("No resource types found.")
         return
     print_list(
-        items, [("Name", "name"), ("Created", "created_at")],
+        items,
+        [("Name", "name"), ("Created", "created_at")],
         title="Glance Resource Types",
-        output_format=output_format, columns=columns,
-        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        columns=columns,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
     )
 
 
@@ -1500,8 +1718,7 @@ def metadef_resource_type_list(ctx,
 @click.argument("namespace")
 @output_options
 @click.pass_context
-def metadef_rt_assoc_list(ctx, namespace,
-                          output_format, columns, fit_width, max_width, noindent):
+def metadef_rt_assoc_list(ctx, namespace, output_format, columns, fit_width, max_width, noindent):
     """List resource type associations on a namespace."""
     svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
     items = svc.find_metadef_resource_type_associations(namespace)
@@ -1510,19 +1727,20 @@ def metadef_rt_assoc_list(ctx, namespace,
         return
     print_list(
         items,
-        [("Name", "name"), ("Prefix", "prefix"),
-         ("Property Prefix", "properties_target")],
+        [("Name", "name"), ("Prefix", "prefix"), ("Property Prefix", "properties_target")],
         title=f"Resource type associations in {namespace}",
-        output_format=output_format, columns=columns,
-        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        columns=columns,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
     )
 
 
 @image_metadef_resource_type.command("association-create")
 @click.argument("namespace")
 @click.argument("resource_type")
-@click.option("--prefix", default=None,
-              help="Property prefix (e.g. 'hw_').")
+@click.option("--prefix", default=None, help="Property prefix (e.g. 'hw_').")
 @click.pass_context
 def metadef_rt_assoc_create(ctx, namespace, resource_type, prefix):
     """Associate a resource type with a namespace."""
@@ -1531,8 +1749,7 @@ def metadef_rt_assoc_create(ctx, namespace, resource_type, prefix):
         body["prefix"] = prefix
     svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
     svc.create_metadef_resource_type_association(namespace, body)
-    console.print(f"[green]Resource type '{resource_type}' associated with "
-                  f"'{namespace}'.[/green]")
+    console.print(f"[green]Resource type '{resource_type}' associated with '{namespace}'.[/green]")
 
 
 @image_metadef_resource_type.command("association-delete")
@@ -1554,34 +1771,20 @@ def metadef_rt_assoc_delete(ctx, namespace, resource_type, yes):
 
 # ── ADR-0008 deprecated aliases (backward compatibility) ────────────────
 
-add_command_with_alias(image, image_tag_add,
-                        legacy_name="tag-add", primary_path="image tag add")
-add_command_with_alias(image, image_tag_delete,
-                        legacy_name="tag-delete", primary_path="image tag delete")
-add_command_with_alias(image, image_member_list,
-                        legacy_name="member-list", primary_path="image member list")
-add_command_with_alias(image, image_member_show,
-                        legacy_name="member-show", primary_path="image member show")
-add_command_with_alias(image, image_member_create,
-                        legacy_name="member-create", primary_path="image member create")
-add_command_with_alias(image, image_member_delete,
-                        legacy_name="member-delete", primary_path="image member delete")
-add_command_with_alias(image, image_member_set,
-                        legacy_name="member-set", primary_path="image member set")
-add_command_with_alias(image, image_cache_list,
-                        legacy_name="cache-list", primary_path="image cache list")
-add_command_with_alias(image, image_cache_queue,
-                        legacy_name="cache-queue", primary_path="image cache queue")
-add_command_with_alias(image, image_cache_delete,
-                        legacy_name="cache-delete", primary_path="image cache delete")
-add_command_with_alias(image, image_cache_clear,
-                        legacy_name="cache-clear", primary_path="image cache clear")
-add_command_with_alias(image, image_stores_info,
-                        legacy_name="stores-info", primary_path="image stores info")
-add_command_with_alias(image, image_task_list,
-                        legacy_name="task-list", primary_path="image task list")
-add_command_with_alias(image, image_task_show,
-                        legacy_name="task-show", primary_path="image task show")
+add_command_with_alias(image, image_tag_add, legacy_name="tag-add", primary_path="image tag add")
+add_command_with_alias(image, image_tag_delete, legacy_name="tag-delete", primary_path="image tag delete")
+add_command_with_alias(image, image_member_list, legacy_name="member-list", primary_path="image member list")
+add_command_with_alias(image, image_member_show, legacy_name="member-show", primary_path="image member show")
+add_command_with_alias(image, image_member_create, legacy_name="member-create", primary_path="image member create")
+add_command_with_alias(image, image_member_delete, legacy_name="member-delete", primary_path="image member delete")
+add_command_with_alias(image, image_member_set, legacy_name="member-set", primary_path="image member set")
+add_command_with_alias(image, image_cache_list, legacy_name="cache-list", primary_path="image cache list")
+add_command_with_alias(image, image_cache_queue, legacy_name="cache-queue", primary_path="image cache queue")
+add_command_with_alias(image, image_cache_delete, legacy_name="cache-delete", primary_path="image cache delete")
+add_command_with_alias(image, image_cache_clear, legacy_name="cache-clear", primary_path="image cache clear")
+add_command_with_alias(image, image_stores_info, legacy_name="stores-info", primary_path="image stores info")
+add_command_with_alias(image, image_task_list, legacy_name="task-list", primary_path="image task list")
+add_command_with_alias(image, image_task_show, legacy_name="task-show", primary_path="image task show")
 
 
 # ── OSC-parity aliases (Glance) ──────────────────────────────────────────

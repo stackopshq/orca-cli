@@ -12,8 +12,8 @@ from orca_cli.core.validators import validate_id
 from orca_cli.services.network import NetworkService
 
 _RULE_TYPES = {
-    "bandwidth-limit":   "bandwidth_limit_rules",
-    "dscp-marking":      "dscp_marking_rules",
+    "bandwidth-limit": "bandwidth_limit_rules",
+    "dscp-marking": "dscp_marking_rules",
     "minimum-bandwidth": "minimum_bandwidth_rules",
     "minimum-packet-rate": "minimum_packet_rate_rules",
 }
@@ -26,6 +26,7 @@ def qos_policy() -> None:
 
 
 # ── Policy CRUD ────────────────────────────────────────────────────────────
+
 
 @qos_policy.group("policy")
 def qos_policy_group() -> None:
@@ -50,8 +51,11 @@ def qos_policy_list(ctx, shared, output_format, columns, fit_width, max_width, n
             ("Description", lambda p: (p.get("description") or "")[:40]),
         ],
         title="QoS Policies",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg="No QoS policies found.",
     )
 
@@ -65,18 +69,19 @@ def qos_policy_show(ctx, policy_id, output_format, columns, fit_width, max_width
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     p = svc.get_qos_policy(policy_id)
     print_detail(
-        [(k, str(p.get(k, "") or "")) for k in
-         ["id", "name", "shared", "is_default", "description", "project_id"]],
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        [(k, str(p.get(k, "") or "")) for k in ["id", "name", "shared", "is_default", "description", "project_id"]],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
     )
 
 
 @qos_policy_group.command("create")
 @click.option("--name", required=True, help="Policy name.")
 @click.option("--shared", is_flag=True, default=False, help="Share with all projects.")
-@click.option("--default", "is_default", is_flag=True, default=False,
-              help="Set as default policy.")
+@click.option("--default", "is_default", is_flag=True, default=False, help="Set as default policy.")
 @click.option("--description", default=None, help="Description.")
 @click.pass_context
 def qos_policy_create(ctx, name, shared, is_default, description):
@@ -94,8 +99,7 @@ def qos_policy_create(ctx, name, shared, is_default, description):
 @click.option("--name", default=None, help="New name.")
 @click.option("--description", default=None, help="New description.")
 @click.option("--shared/--no-shared", default=None, help="Share or un-share.")
-@click.option("--default/--no-default", "is_default", default=None,
-              help="Set or unset as default.")
+@click.option("--default/--no-default", "is_default", default=None, help="Set or unset as default.")
 @click.pass_context
 def qos_policy_set(ctx, policy_id, name, description, shared, is_default):
     """Update a QoS policy."""
@@ -131,6 +135,7 @@ def qos_policy_delete(ctx, policy_id, yes):
 
 # ── Rules ─────────────────────────────────────────────────────────────────
 
+
 @qos_policy.group("rule")
 def qos_rule() -> None:
     """Manage QoS rules attached to a policy."""
@@ -138,14 +143,17 @@ def qos_rule() -> None:
 
 @qos_rule.command("list")
 @click.argument("policy_id", callback=validate_id)
-@click.option("--type", "rule_type",
-              type=click.Choice(list(_RULE_TYPES)),
-              default="bandwidth-limit", show_default=True,
-              help="Rule type.")
+@click.option(
+    "--type",
+    "rule_type",
+    type=click.Choice(list(_RULE_TYPES)),
+    default="bandwidth-limit",
+    show_default=True,
+    help="Rule type.",
+)
 @output_options
 @click.pass_context
-def qos_rule_list(ctx, policy_id, rule_type,
-                  output_format, columns, fit_width, max_width, noindent):
+def qos_rule_list(ctx, policy_id, rule_type, output_format, columns, fit_width, max_width, noindent):
     """List QoS rules for a policy."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     rules = svc.find_qos_rules(policy_id, _RULE_TYPES[rule_type])
@@ -160,32 +168,37 @@ def qos_rule_list(ctx, policy_id, rule_type,
             ("Min Kbps", lambda r: str(r.get("min_kbps", "—"))),
         ],
         title=f"QoS {rule_type} rules for policy {policy_id}",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg=f"No {rule_type} rules.",
     )
 
 
 @qos_rule.command("create")
 @click.argument("policy_id", callback=validate_id)
-@click.option("--type", "rule_type",
-              type=click.Choice(list(_RULE_TYPES)),
-              default="bandwidth-limit", show_default=True,
-              help="Rule type.")
-@click.option("--max-kbps", type=int, default=None,
-              help="Maximum bandwidth in kbps (bandwidth-limit).")
-@click.option("--max-burst-kbps", type=int, default=None,
-              help="Maximum burst bandwidth in kbps (bandwidth-limit).")
-@click.option("--direction",
-              type=click.Choice(["ingress", "egress"]), default="egress",
-              help="Traffic direction (bandwidth-limit, minimum-bandwidth).")
-@click.option("--dscp-mark", type=int, default=None,
-              help="DSCP mark value 0-56 (dscp-marking).")
-@click.option("--min-kbps", type=int, default=None,
-              help="Minimum bandwidth in kbps (minimum-bandwidth).")
+@click.option(
+    "--type",
+    "rule_type",
+    type=click.Choice(list(_RULE_TYPES)),
+    default="bandwidth-limit",
+    show_default=True,
+    help="Rule type.",
+)
+@click.option("--max-kbps", type=int, default=None, help="Maximum bandwidth in kbps (bandwidth-limit).")
+@click.option("--max-burst-kbps", type=int, default=None, help="Maximum burst bandwidth in kbps (bandwidth-limit).")
+@click.option(
+    "--direction",
+    type=click.Choice(["ingress", "egress"]),
+    default="egress",
+    help="Traffic direction (bandwidth-limit, minimum-bandwidth).",
+)
+@click.option("--dscp-mark", type=int, default=None, help="DSCP mark value 0-56 (dscp-marking).")
+@click.option("--min-kbps", type=int, default=None, help="Minimum bandwidth in kbps (minimum-bandwidth).")
 @click.pass_context
-def qos_rule_create(ctx, policy_id, rule_type, max_kbps, max_burst_kbps,
-                    direction, dscp_mark, min_kbps):
+def qos_rule_create(ctx, policy_id, rule_type, max_kbps, max_burst_kbps, direction, dscp_mark, min_kbps):
     """Create a QoS rule.
 
     \b
@@ -222,10 +235,14 @@ def qos_rule_create(ctx, policy_id, rule_type, max_kbps, max_burst_kbps,
 @qos_rule.command("delete")
 @click.argument("policy_id", callback=validate_id)
 @click.argument("rule_id", callback=validate_id)
-@click.option("--type", "rule_type",
-              type=click.Choice(list(_RULE_TYPES)),
-              default="bandwidth-limit", show_default=True,
-              help="Rule type.")
+@click.option(
+    "--type",
+    "rule_type",
+    type=click.Choice(list(_RULE_TYPES)),
+    default="bandwidth-limit",
+    show_default=True,
+    help="Rule type.",
+)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
 def qos_rule_delete(ctx, policy_id, rule_id, rule_type, yes):
@@ -240,43 +257,54 @@ def qos_rule_delete(ctx, policy_id, rule_id, rule_type, yes):
 @qos_rule.command("show")
 @click.argument("policy_id", callback=validate_id)
 @click.argument("rule_id", callback=validate_id)
-@click.option("--type", "rule_type",
-              type=click.Choice(list(_RULE_TYPES)),
-              default="bandwidth-limit", show_default=True,
-              help="Rule type.")
+@click.option(
+    "--type",
+    "rule_type",
+    type=click.Choice(list(_RULE_TYPES)),
+    default="bandwidth-limit",
+    show_default=True,
+    help="Rule type.",
+)
 @output_options
 @click.pass_context
-def qos_rule_show(ctx, policy_id, rule_id, rule_type,
-                  output_format, columns, fit_width, max_width, noindent):
+def qos_rule_show(ctx, policy_id, rule_id, rule_type, output_format, columns, fit_width, max_width, noindent):
     """Show details of a QoS rule."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     data = svc.get_qos_rule(policy_id, _RULE_TYPES[rule_type], rule_id)
     fields = [(k, str(v)) for k, v in data.items()]
-    print_detail(fields, output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @qos_rule.command("set")
 @click.argument("policy_id", callback=validate_id)
 @click.argument("rule_id", callback=validate_id)
-@click.option("--type", "rule_type",
-              type=click.Choice(list(_RULE_TYPES)),
-              default="bandwidth-limit", show_default=True,
-              help="Rule type.")
-@click.option("--max-kbps", type=int, default=None,
-              help="New max bandwidth in kbps (bandwidth-limit).")
-@click.option("--max-burst-kbps", type=int, default=None,
-              help="New max burst bandwidth in kbps (bandwidth-limit).")
-@click.option("--direction",
-              type=click.Choice(["ingress", "egress"]), default=None,
-              help="New traffic direction (bandwidth-limit, minimum-bandwidth).")
-@click.option("--dscp-mark", type=int, default=None,
-              help="New DSCP mark value (dscp-marking).")
-@click.option("--min-kbps", type=int, default=None,
-              help="New min bandwidth in kbps (minimum-bandwidth).")
+@click.option(
+    "--type",
+    "rule_type",
+    type=click.Choice(list(_RULE_TYPES)),
+    default="bandwidth-limit",
+    show_default=True,
+    help="Rule type.",
+)
+@click.option("--max-kbps", type=int, default=None, help="New max bandwidth in kbps (bandwidth-limit).")
+@click.option("--max-burst-kbps", type=int, default=None, help="New max burst bandwidth in kbps (bandwidth-limit).")
+@click.option(
+    "--direction",
+    type=click.Choice(["ingress", "egress"]),
+    default=None,
+    help="New traffic direction (bandwidth-limit, minimum-bandwidth).",
+)
+@click.option("--dscp-mark", type=int, default=None, help="New DSCP mark value (dscp-marking).")
+@click.option("--min-kbps", type=int, default=None, help="New min bandwidth in kbps (minimum-bandwidth).")
 @click.pass_context
-def qos_rule_set(ctx, policy_id, rule_id, rule_type, max_kbps, max_burst_kbps,
-                 direction, dscp_mark, min_kbps):
+def qos_rule_set(ctx, policy_id, rule_id, rule_type, max_kbps, max_burst_kbps, direction, dscp_mark, min_kbps):
     """Update an existing QoS rule.
 
     \b
@@ -304,19 +332,63 @@ def qos_rule_set(ctx, policy_id, rule_id, rule_type, max_kbps, max_burst_kbps,
 
 # ── ADR-0008 deprecated aliases (backward compatibility) ────────────────
 
-add_command_with_alias(qos_policy, qos_policy_list,
-                        legacy_name="policy-list", primary_path="qos policy list")
-add_command_with_alias(qos_policy, qos_policy_show,
-                        legacy_name="policy-show", primary_path="qos policy show")
-add_command_with_alias(qos_policy, qos_policy_create,
-                        legacy_name="policy-create", primary_path="qos policy create")
-add_command_with_alias(qos_policy, qos_policy_set,
-                        legacy_name="policy-set", primary_path="qos policy set")
-add_command_with_alias(qos_policy, qos_policy_delete,
-                        legacy_name="policy-delete", primary_path="qos policy delete")
-add_command_with_alias(qos_policy, qos_rule_list,
-                        legacy_name="rule-list", primary_path="qos rule list")
-add_command_with_alias(qos_policy, qos_rule_create,
-                        legacy_name="rule-create", primary_path="qos rule create")
-add_command_with_alias(qos_policy, qos_rule_delete,
-                        legacy_name="rule-delete", primary_path="qos rule delete")
+add_command_with_alias(qos_policy, qos_policy_list, legacy_name="policy-list", primary_path="qos policy list")
+add_command_with_alias(qos_policy, qos_policy_show, legacy_name="policy-show", primary_path="qos policy show")
+add_command_with_alias(qos_policy, qos_policy_create, legacy_name="policy-create", primary_path="qos policy create")
+add_command_with_alias(qos_policy, qos_policy_set, legacy_name="policy-set", primary_path="qos policy set")
+add_command_with_alias(qos_policy, qos_policy_delete, legacy_name="policy-delete", primary_path="qos policy delete")
+add_command_with_alias(qos_policy, qos_rule_list, legacy_name="rule-list", primary_path="qos rule list")
+add_command_with_alias(qos_policy, qos_rule_create, legacy_name="rule-create", primary_path="qos rule create")
+add_command_with_alias(qos_policy, qos_rule_delete, legacy_name="rule-delete", primary_path="qos rule delete")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Read-only introspection: QoS rule types (OSC parity, lot 2)
+# ══════════════════════════════════════════════════════════════════════════
+
+
+@qos_policy.group("rule-type")
+def qos_rule_type() -> None:
+    """Inspect QoS rule types Neutron knows how to enforce (read-only)."""
+
+
+def _net(ctx: click.Context) -> NetworkService:
+    return NetworkService(ctx.find_object(OrcaContext).ensure_client())
+
+
+@qos_rule_type.command("list")
+@output_options
+@click.pass_context
+def qos_rule_type_list(ctx, output_format, columns, fit_width, max_width, noindent):
+    """List supported QoS rule types."""
+    items = _net(ctx).find_qos_rule_types()
+    print_list(
+        items,
+        [
+            ("Type", "type", {"style": "bold cyan"}),
+        ],
+        title="QoS rule types",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No QoS rule types reported.",
+    )
+
+
+@qos_rule_type.command("show")
+@click.argument("rule_type")
+@output_options
+@click.pass_context
+def qos_rule_type_show(ctx, rule_type, output_format, columns, fit_width, max_width, noindent):
+    """Show the directions a QoS rule type supports."""
+    data = _net(ctx).get_qos_rule_type(rule_type)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )

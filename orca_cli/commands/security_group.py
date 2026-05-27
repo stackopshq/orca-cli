@@ -21,7 +21,14 @@ def security_group(ctx: click.Context) -> None:
 @security_group.command("list")
 @output_options
 @click.pass_context
-def sg_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def sg_list(
+    ctx: click.Context,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List security groups."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
 
@@ -34,7 +41,10 @@ def sg_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fi
             ("Rules", lambda sg: str(len(sg.get("security_group_rules", []))), {"justify": "right"}),
         ],
         title="Security Groups",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No security groups found.",
     )
@@ -44,7 +54,15 @@ def sg_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fi
 @click.argument("group_id", callback=validate_id)
 @output_options
 @click.pass_context
-def sg_show(ctx: click.Context, group_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def sg_show(
+    ctx: click.Context,
+    group_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show security group details and rules."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     sg = svc.get_security_group(group_id)
@@ -72,7 +90,10 @@ def sg_show(ctx: click.Context, group_id: str, output_format: str, columns: tupl
             ("Remote IP / Group", lambda r: r.get("remote_ip_prefix") or r.get("remote_group_id") or "any"),
         ],
         title="Rules",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No rules.",
     )
@@ -141,9 +162,17 @@ def security_group_rule() -> None:
 @click.option("--remote-group", default=None, help="Remote security group ID.")
 @click.option("--ethertype", type=click.Choice(["IPv4", "IPv6"]), default="IPv4", show_default=True)
 @click.pass_context
-def sg_rule_add(ctx: click.Context, group_id: str, direction: str, protocol: str | None,
-                port_min: int | None, port_max: int | None,
-                remote_ip: str | None, remote_group: str | None, ethertype: str) -> None:
+def sg_rule_add(
+    ctx: click.Context,
+    group_id: str,
+    direction: str,
+    protocol: str | None,
+    port_min: int | None,
+    port_max: int | None,
+    remote_ip: str | None,
+    remote_group: str | None,
+    ethertype: str,
+) -> None:
     """Add a rule to a security group.
 
     \b
@@ -250,18 +279,22 @@ security_group_rule.add_command(sg_rule_add, name="create")
 
 
 @security_group_rule.command("list")
-@click.option("--group-id", "group_id", default=None,
-              help="Filter rules to a single security group.")
-@click.option("--direction", type=click.Choice(["ingress", "egress"]), default=None,
-              help="Filter by direction.")
+@click.option("--group-id", "group_id", default=None, help="Filter rules to a single security group.")
+@click.option("--direction", type=click.Choice(["ingress", "egress"]), default=None, help="Filter by direction.")
 @click.option("--protocol", default=None, help="Filter by protocol.")
 @output_options
 @click.pass_context
-def sg_rule_list(ctx: click.Context, group_id: str | None,
-                 direction: str | None, protocol: str | None,
-                 output_format: str, columns: tuple[str, ...],
-                 fit_width: bool, max_width: int | None,
-                 noindent: bool) -> None:
+def sg_rule_list(
+    ctx: click.Context,
+    group_id: str | None,
+    direction: str | None,
+    protocol: str | None,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List security group rules (across all groups, or filtered).
 
     \b
@@ -304,8 +337,11 @@ def sg_rule_list(ctx: click.Context, group_id: str | None,
             ("Remote", _remote),
         ],
         title="Security group rules",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg="No security group rules.",
     )
 
@@ -314,32 +350,43 @@ def sg_rule_list(ctx: click.Context, group_id: str | None,
 @click.argument("rule_id", callback=validate_id)
 @output_options
 @click.pass_context
-def sg_rule_show(ctx: click.Context, rule_id: str,
-                 output_format: str, columns: tuple[str, ...],
-                 fit_width: bool, max_width: int | None,
-                 noindent: bool) -> None:
+def sg_rule_show(
+    ctx: click.Context,
+    rule_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show a security group rule's details."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     data = svc.get_security_group_rule(rule_id)
     fields = [(k, str(v) if v is not None else "—") for k, v in data.items()]
-    print_detail(fields, output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
     console.print(f"[green]Rule {rule_id} deleted.[/green]")
 
 
-add_command_with_alias(security_group, sg_rule_add,
-                        legacy_name="rule-add",
-                        primary_path="security-group rule add")
-add_command_with_alias(security_group, sg_rule_delete,
-                        legacy_name="rule-delete",
-                        primary_path="security-group rule delete")
+add_command_with_alias(security_group, sg_rule_add, legacy_name="rule-add", primary_path="security-group rule add")
+add_command_with_alias(
+    security_group, sg_rule_delete, legacy_name="rule-delete", primary_path="security-group rule delete"
+)
 
 
 # ── cleanup ──────────────────────────────────────────────────────────────
 
+
 @security_group.command("cleanup")
-@click.option("--delete", "-d", "do_delete", is_flag=True, default=False,
-              help="Actually delete the unused security groups.")
+@click.option(
+    "--delete", "-d", "do_delete", is_flag=True, default=False, help="Actually delete the unused security groups."
+)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation (with --delete).")
 @click.pass_context
 def sg_cleanup(ctx: click.Context, do_delete: bool, yes: bool) -> None:
@@ -369,10 +416,7 @@ def sg_cleanup(ctx: click.Context, do_delete: bool, yes: bool) -> None:
             used_sg_ids.add(sg_id)
 
     # Find orphans (skip "default")
-    orphans = [
-        sg for sg in sgs
-        if sg["id"] not in used_sg_ids and sg.get("name") != "default"
-    ]
+    orphans = [sg for sg in sgs if sg["id"] not in used_sg_ids and sg.get("name") != "default"]
 
     if not orphans:
         console.print("[green]No orphaned security groups found.[/green]")
@@ -398,8 +442,7 @@ def sg_cleanup(ctx: click.Context, do_delete: bool, yes: bool) -> None:
     console.print(table)
 
     if not do_delete:
-        console.print(f"\n[yellow]{len(orphans)} unused security group(s). "
-                       "Use --delete to remove them.[/yellow]\n")
+        console.print(f"\n[yellow]{len(orphans)} unused security group(s). Use --delete to remove them.[/yellow]\n")
         return
 
     if not yes:

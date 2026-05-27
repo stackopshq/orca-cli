@@ -11,6 +11,8 @@ from typing import Any
 
 import click
 
+from orca_cli.commands.event import event_list as _event_list
+from orca_cli.commands.event import event_show as _event_show
 from orca_cli.core import cache
 from orca_cli.core.aliases import add_command_with_alias
 from orca_cli.core.completions import (
@@ -47,9 +49,7 @@ def _resolve_boot_mode(
     refuses a boot-from-image.
     """
     if boot_from_image and boot_from_volume:
-        raise OrcaCLIError(
-            "--boot-from-image and --boot-from-volume are mutually exclusive."
-        )
+        raise OrcaCLIError("--boot-from-image and --boot-from-volume are mutually exclusive.")
     if boot_from_volume:
         return True
     try:
@@ -92,8 +92,7 @@ def _looks_like_id(value: str) -> bool:
     return bool(_ID_LIKE_RE.match(value))
 
 
-def _resolve_name_or_id(name_or_id: str, kind: str,
-                        find_fn) -> str:
+def _resolve_name_or_id(name_or_id: str, kind: str, find_fn) -> str:
     """Return *name_or_id* if it already looks like an ID, else look it up.
 
     *find_fn* is called with ``params={"name": ...}`` and must return a list
@@ -104,15 +103,10 @@ def _resolve_name_or_id(name_or_id: str, kind: str,
         return name_or_id
     matches = find_fn(params={"name": name_or_id})
     if not matches:
-        raise OrcaCLIError(
-            f"{kind} '{name_or_id}' not found — pass the ID or a unique name."
-        )
+        raise OrcaCLIError(f"{kind} '{name_or_id}' not found — pass the ID or a unique name.")
     if len(matches) > 1:
         ids = ", ".join(m.get("id", "?") for m in matches[:3])
-        raise OrcaCLIError(
-            f"{kind} '{name_or_id}' is ambiguous ({len(matches)} matches: "
-            f"{ids}…). Use the ID."
-        )
+        raise OrcaCLIError(f"{kind} '{name_or_id}' is ambiguous ({len(matches)} matches: {ids}…). Use the ID.")
     return matches[0]["id"]
 
 
@@ -128,13 +122,14 @@ def _resolve_image_ref(client, value: str) -> str:
 def _resolve_flavor_ref(client, value: str) -> str:
     if _looks_like_id(value):
         return value
+
     # Nova's /flavors/detail rejects the ``name`` filter parameter
     # ("Additional properties are not allowed") so we fetch the list and
     # filter client-side. Flavor catalogues are tiny, this is cheap.
     def _client_side_filter(*, params=None):
         wanted = (params or {}).get("name")
-        return [f for f in ComputeService(client).find_flavors()
-                if f.get("name") == wanted]
+        return [f for f in ComputeService(client).find_flavors() if f.get("name") == wanted]
+
     return _resolve_name_or_id(value, "Flavor", _client_side_filter)
 
 
@@ -207,11 +202,20 @@ def server_volume() -> None:
 
 # ── list ──────────────────────────────────────────────────────────────────
 
+
 @server.command("list")
 @click.option("--limit", default=50, show_default=True, help="Max number of servers to return.")
 @output_options
 @click.pass_context
-def server_list(ctx: click.Context, limit: int, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def server_list(
+    ctx: click.Context,
+    limit: int,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List servers."""
     service = ServerService(ctx.find_object(OrcaContext).ensure_client())
     servers = service.find(limit=limit)
@@ -239,7 +243,10 @@ def server_list(ctx: click.Context, limit: int, output_format: str, columns: tup
         servers,
         column_defs,
         title="Servers",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No servers found.",
     )
@@ -247,11 +254,20 @@ def server_list(ctx: click.Context, limit: int, output_format: str, columns: tup
 
 # ── show ──────────────────────────────────────────────────────────────────
 
+
 @server.command("show")
 @click.argument("server_id", callback=validate_id)
 @output_options
 @click.pass_context
-def server_show(ctx: click.Context, server_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def server_show(
+    ctx: click.Context,
+    server_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show server details."""
     service = ServerService(ctx.find_object(OrcaContext).ensure_client())
     srv = service.get(server_id)
@@ -379,32 +395,58 @@ def server_show(ctx: click.Context, server_id: str, output_format: str, columns:
     else:
         fields.append(("Volumes Attached", ""))
 
-    print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 # ── create ────────────────────────────────────────────────────────────────
 
+
 @server.command("create")
 @click.option("--name", default=None, help="Server name.")
-@click.option("--flavor", "flavor_id", default=None, shell_complete=complete_flavors,
-              help="Flavor ID (see 'orca flavor list').")
-@click.option("--image", "image_id", default=None, shell_complete=complete_images,
-              help="Image ID (see 'orca image list').")
+@click.option(
+    "--flavor", "flavor_id", default=None, shell_complete=complete_flavors, help="Flavor ID (see 'orca flavor list')."
+)
+@click.option(
+    "--image", "image_id", default=None, shell_complete=complete_images, help="Image ID (see 'orca image list')."
+)
 @click.option("--disk-size", type=int, default=20, show_default=True, help="Boot volume size in GB.")
-@click.option("--network", "network_id", default=None, shell_complete=complete_networks,
-              help="Network ID (see 'orca network list').")
-@click.option("--key-name", default=None, shell_complete=complete_keypairs,
-              help="SSH key pair name (see 'orca keypair list').")
-@click.option("--security-group", "security_groups", multiple=True, shell_complete=complete_security_groups,
-              help="Security group name (repeatable).")
-@click.option("--boot-from-image", is_flag=True,
-              help="Force boot from the image on the compute's local disk "
-                   "(requires flavor disk > 0).")
-@click.option("--boot-from-volume", is_flag=True,
-              help="Force boot from a Cinder volume created from the image.")
+@click.option(
+    "--network",
+    "network_id",
+    default=None,
+    shell_complete=complete_networks,
+    help="Network ID (see 'orca network list').",
+)
+@click.option(
+    "--key-name", default=None, shell_complete=complete_keypairs, help="SSH key pair name (see 'orca keypair list')."
+)
+@click.option(
+    "--security-group",
+    "security_groups",
+    multiple=True,
+    shell_complete=complete_security_groups,
+    help="Security group name (repeatable).",
+)
+@click.option(
+    "--boot-from-image",
+    is_flag=True,
+    help="Force boot from the image on the compute's local disk (requires flavor disk > 0).",
+)
+@click.option("--boot-from-volume", is_flag=True, help="Force boot from a Cinder volume created from the image.")
 @click.option("--wait", is_flag=True, help="Wait until the server reaches ACTIVE status.")
-@click.option("--interactive", "-i", is_flag=True,
-              help="Step-by-step wizard — browse images, flavors, and networks interactively.")
+@click.option(
+    "--interactive",
+    "-i",
+    is_flag=True,
+    help="Step-by-step wizard — browse images, flavors, and networks interactively.",
+)
 @click.pass_context
 def server_create(
     ctx: click.Context,
@@ -490,9 +532,13 @@ def server_create(
 
         # CLI equivalent
         cmd = wiz.build_server_command(
-            name=name or "", image_id=image_id or "", flavor_id=flavor_id or "",
-            disk_size=disk_size, network_id=network_id,
-            key_name=key_name, security_groups=sg_list,
+            name=name or "",
+            image_id=image_id or "",
+            flavor_id=flavor_id or "",
+            disk_size=disk_size,
+            network_id=network_id,
+            key_name=key_name,
+            security_groups=sg_list,
         )
         console.print(f"\n[dim]Equivalent command:[/dim]\n[dim]{cmd}[/dim]\n")
 
@@ -510,8 +556,7 @@ def server_create(
             missing.append("--image")
         if missing:
             raise OrcaCLIError(
-                f"Missing required option(s): {', '.join(missing)}. "
-                "Use -i / --interactive for the guided wizard."
+                f"Missing required option(s): {', '.join(missing)}. Use -i / --interactive for the guided wizard."
             )
 
     # Resolve human-readable names to UUIDs — Nova rejects names.
@@ -522,7 +567,10 @@ def server_create(
         network_id = _resolve_network_ref(client, network_id)
 
     use_bfv = _resolve_boot_mode(
-        client, flavor_id, boot_from_image, boot_from_volume,
+        client,
+        flavor_id,
+        boot_from_image,
+        boot_from_volume,
     )
 
     body: dict = {
@@ -583,6 +631,7 @@ def server_create(
 
 # ── delete ────────────────────────────────────────────────────────────────
 
+
 @server.command("delete")
 @click.argument("server_id", callback=validate_id, shell_complete=complete_servers)
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
@@ -614,8 +663,10 @@ def server_delete(ctx: click.Context, server_id: str, yes: bool, dry_run: bool, 
 
     if wait:
         wait_for_resource(
-            client, f"{client.compute_url}/servers/{server_id}",
-            "server", "DELETED",
+            client,
+            f"{client.compute_url}/servers/{server_id}",
+            "server",
+            "DELETED",
             label=f"Server {server_id}",
             delete_mode=True,
         )
@@ -624,6 +675,7 @@ def server_delete(ctx: click.Context, server_id: str, yes: bool, dry_run: bool, 
 
 
 # ── start / stop / reboot ─────────────────────────────────────────────────
+
 
 def _server_action(ctx: click.Context, server_id: str, action: dict, label: str) -> None:
     service = ServerService(ctx.find_object(OrcaContext).ensure_client())
@@ -640,8 +692,9 @@ def server_start(ctx: click.Context, server_id: str, wait: bool) -> None:
     _server_action(ctx, server_id, {"os-start": None}, "Start")
     if wait:
         client = ctx.find_object(OrcaContext).ensure_client()
-        wait_for_resource(client, f"{client.compute_url}/servers/{server_id}",
-                          "server", "ACTIVE", label=f"Server {server_id}")
+        wait_for_resource(
+            client, f"{client.compute_url}/servers/{server_id}", "server", "ACTIVE", label=f"Server {server_id}"
+        )
 
 
 @server.command("stop")
@@ -653,8 +706,9 @@ def server_stop(ctx: click.Context, server_id: str, wait: bool) -> None:
     _server_action(ctx, server_id, {"os-stop": None}, "Stop")
     if wait:
         client = ctx.find_object(OrcaContext).ensure_client()
-        wait_for_resource(client, f"{client.compute_url}/servers/{server_id}",
-                          "server", "SHUTOFF", label=f"Server {server_id}")
+        wait_for_resource(
+            client, f"{client.compute_url}/servers/{server_id}", "server", "SHUTOFF", label=f"Server {server_id}"
+        )
 
 
 @server.command("reboot")
@@ -669,11 +723,13 @@ def server_reboot(ctx: click.Context, server_id: str, hard: bool, wait: bool) ->
     reboot_type = "HARD" if hard else "SOFT"
     console.print(f"[green]Reboot ({reboot_type}) request sent for {server_id}.[/green]")
     if wait:
-        wait_for_resource(client, f"{client.compute_url}/servers/{server_id}",
-                          "server", "ACTIVE", label=f"Server {server_id}")
+        wait_for_resource(
+            client, f"{client.compute_url}/servers/{server_id}", "server", "ACTIVE", label=f"Server {server_id}"
+        )
 
 
 # ── pause / unpause ──────────────────────────────────────────────────────
+
 
 @server.command("pause")
 @click.argument("server_id", callback=validate_id)
@@ -693,6 +749,7 @@ def server_unpause(ctx: click.Context, server_id: str) -> None:
 
 # ── suspend / resume ─────────────────────────────────────────────────────
 
+
 @server.command("suspend")
 @click.argument("server_id", callback=validate_id)
 @click.pass_context
@@ -711,6 +768,7 @@ def server_resume(ctx: click.Context, server_id: str) -> None:
 
 # ── lock / unlock ─────────────────────────────────────────────────────────
 
+
 @server.command("lock")
 @click.argument("server_id", callback=validate_id)
 @click.pass_context
@@ -728,6 +786,7 @@ def server_unlock(ctx: click.Context, server_id: str) -> None:
 
 
 # ── rescue / unrescue ─────────────────────────────────────────────────────
+
 
 @server.command("rescue")
 @click.argument("server_id", callback=validate_id)
@@ -753,6 +812,7 @@ def server_unrescue(ctx: click.Context, server_id: str) -> None:
 
 # ── shelve / unshelve ─────────────────────────────────────────────────────
 
+
 @server.command("shelve")
 @click.argument("server_id", callback=validate_id, shell_complete=complete_servers)
 @click.option("--wait", is_flag=True, help="Wait until the server reaches SHELVED_OFFLOADED status.")
@@ -762,8 +822,13 @@ def server_shelve(ctx: click.Context, server_id: str, wait: bool) -> None:
     _server_action(ctx, server_id, {"shelve": None}, "Shelve")
     if wait:
         client = ctx.find_object(OrcaContext).ensure_client()
-        wait_for_resource(client, f"{client.compute_url}/servers/{server_id}",
-                          "server", "SHELVED_OFFLOADED", label=f"Server {server_id}")
+        wait_for_resource(
+            client,
+            f"{client.compute_url}/servers/{server_id}",
+            "server",
+            "SHELVED_OFFLOADED",
+            label=f"Server {server_id}",
+        )
 
 
 @server.command("unshelve")
@@ -775,11 +840,13 @@ def server_unshelve(ctx: click.Context, server_id: str, wait: bool) -> None:
     _server_action(ctx, server_id, {"unshelve": None}, "Unshelve")
     if wait:
         client = ctx.find_object(OrcaContext).ensure_client()
-        wait_for_resource(client, f"{client.compute_url}/servers/{server_id}",
-                          "server", "ACTIVE", label=f"Server {server_id}")
+        wait_for_resource(
+            client, f"{client.compute_url}/servers/{server_id}", "server", "ACTIVE", label=f"Server {server_id}"
+        )
 
 
 # ── resize / confirm / revert ─────────────────────────────────────────────
+
 
 @server.command("resize")
 @click.argument("server_id", callback=validate_id)
@@ -809,6 +876,7 @@ def server_revert_resize(ctx: click.Context, server_id: str) -> None:
 
 # ── rebuild ───────────────────────────────────────────────────────────────
 
+
 @server.command("rebuild")
 @click.argument("server_id", callback=validate_id)
 @click.option("--image", required=True, help="New image ID.")
@@ -816,7 +884,9 @@ def server_revert_resize(ctx: click.Context, server_id: str) -> None:
 @click.option("--password", "admin_pass", default=None, help="New admin password (optional).")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
-def server_rebuild(ctx: click.Context, server_id: str, image: str, new_name: str | None, admin_pass: str | None, yes: bool) -> None:
+def server_rebuild(
+    ctx: click.Context, server_id: str, image: str, new_name: str | None, admin_pass: str | None, yes: bool
+) -> None:
     """Rebuild a server with a new image (reinstall)."""
     if not yes:
         click.confirm(f"Rebuild server {server_id}? This will reinstall the OS.", abort=True)
@@ -830,6 +900,7 @@ def server_rebuild(ctx: click.Context, server_id: str, image: str, new_name: str
 
 # ── rename ────────────────────────────────────────────────────────────────
 
+
 @server.command("rename")
 @click.argument("server_id", callback=validate_id)
 @click.argument("new_name")
@@ -841,6 +912,7 @@ def server_rename(ctx: click.Context, server_id: str, new_name: str) -> None:
 
 
 # ── create-image (snapshot) ───────────────────────────────────────────────
+
 
 @server_image.command("create")
 @click.argument("server_id", callback=validate_id)
@@ -864,6 +936,7 @@ def server_create_image(ctx: click.Context, server_id: str, image_name: str) -> 
 
 
 # ── volume attachments ────────────────────────────────────────────────────
+
 
 @server_add.command("volume")
 @click.argument("server_id", callback=validate_id)
@@ -898,7 +971,15 @@ def server_detach_volume(ctx: click.Context, server_id: str, volume_id: str) -> 
 @click.argument("server_id", callback=validate_id)
 @output_options
 @click.pass_context
-def server_list_volumes(ctx: click.Context, server_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def server_list_volumes(
+    ctx: click.Context,
+    server_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List volumes attached to a server."""
     service = ServerService(ctx.find_object(OrcaContext).ensure_client())
     attachments = service.list_volume_attachments(server_id)
@@ -913,7 +994,10 @@ def server_list_volumes(ctx: click.Context, server_id: str, output_format: str, 
         attachments,
         column_defs,
         title=f"Volumes attached to {server_id}",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No volumes attached.",
     )
@@ -922,13 +1006,15 @@ def server_list_volumes(ctx: click.Context, server_id: str, output_format: str, 
 @server_volume.command("set")
 @click.argument("server_id", callback=validate_id)
 @click.argument("volume_id", callback=validate_id)
-@click.option("--delete-on-termination/--preserve-on-termination",
-              "delete_on_termination", default=None,
-              help="Whether deleting the server should also delete this volume "
-                   "attachment. Requires Nova microversion 2.85 (Yoga+).")
+@click.option(
+    "--delete-on-termination/--preserve-on-termination",
+    "delete_on_termination",
+    default=None,
+    help="Whether deleting the server should also delete this volume "
+    "attachment. Requires Nova microversion 2.85 (Yoga+).",
+)
 @click.pass_context
-def server_volume_set(ctx: click.Context, server_id: str, volume_id: str,
-                      delete_on_termination: bool | None) -> None:
+def server_volume_set(ctx: click.Context, server_id: str, volume_id: str, delete_on_termination: bool | None) -> None:
     """Update a volume attachment (flip delete-on-termination).
 
     \b
@@ -940,7 +1026,9 @@ def server_volume_set(ctx: click.Context, server_id: str, volume_id: str,
         console.print("[yellow]Nothing to update — provide a flag.[/yellow]")
         return
     ServerService(ctx.find_object(OrcaContext).ensure_client()).update_volume_attachment(
-        server_id, volume_id, delete_on_termination=delete_on_termination,
+        server_id,
+        volume_id,
+        delete_on_termination=delete_on_termination,
     )
     state = "delete-on-termination" if delete_on_termination else "preserve-on-termination"
     console.print(f"[green]Attachment {volume_id} on {server_id} set to {state}.[/green]")
@@ -948,14 +1036,16 @@ def server_volume_set(ctx: click.Context, server_id: str, volume_id: str,
 
 # ── network interface attachments ─────────────────────────────────────────
 
+
 @server.command("attach-interface", deprecated=True)
 @click.argument("server_id", callback=validate_id)
 @click.option("--port-id", default=None, help="Existing port ID to attach.")
 @click.option("--net-id", default=None, help="Network ID (creates a new port automatically).")
 @click.option("--fixed-ip", default=None, help="Fixed IP for the new port (requires --net-id).")
 @click.pass_context
-def server_attach_interface(ctx: click.Context, server_id: str, port_id: str | None,
-                            net_id: str | None, fixed_ip: str | None) -> None:
+def server_attach_interface(
+    ctx: click.Context, server_id: str, port_id: str | None, net_id: str | None, fixed_ip: str | None
+) -> None:
     """Attach a network interface to a server (deprecated façade).
 
     \b
@@ -974,13 +1064,13 @@ def server_attach_interface(ctx: click.Context, server_id: str, port_id: str | N
         suggestion = f"server add network {server_id} {net_id}"
     click.secho(
         f"warning: 'server attach-interface' is deprecated; use 'orca {suggestion}' instead.",
-        fg="yellow", err=True,
+        fg="yellow",
+        err=True,
     )
 
     service = ServerService(ctx.find_object(OrcaContext).ensure_client())
     fixed_ips = [{"ip_address": fixed_ip}] if (net_id and fixed_ip) else None
-    att = service.attach_interface(server_id, port_id=port_id, net_id=net_id,
-                                   fixed_ips=fixed_ips)
+    att = service.attach_interface(server_id, port_id=port_id, net_id=net_id, fixed_ips=fixed_ips)
     ips = ", ".join(ip.get("ip_address", "") for ip in att.get("fixed_ips", []))
     console.print(f"[green]Interface attached to {server_id} — port {att.get('port_id', '')} ({ips}).[/green]")
 
@@ -999,7 +1089,15 @@ def server_detach_interface(ctx: click.Context, server_id: str, port_id: str) ->
 @click.argument("server_id", callback=validate_id)
 @output_options
 @click.pass_context
-def server_list_interfaces(ctx: click.Context, server_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def server_list_interfaces(
+    ctx: click.Context,
+    server_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List network interfaces attached to a server."""
     service = ServerService(ctx.find_object(OrcaContext).ensure_client())
     attachments = service.list_interfaces(server_id)
@@ -1019,7 +1117,10 @@ def server_list_interfaces(ctx: click.Context, server_id: str, output_format: st
         attachments,
         column_defs,
         title=f"Interfaces on {server_id}",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No interfaces attached.",
     )
@@ -1027,10 +1128,12 @@ def server_list_interfaces(ctx: click.Context, server_id: str, output_format: st
 
 # ── password ──────────────────────────────────────────────────────────────
 
+
 @server.command("password")
 @click.argument("server_id", callback=validate_id)
 @click.option(
-    "--key", "private_key_path",
+    "--key",
+    "private_key_path",
     type=click.Path(exists=True),
     default=None,
     help="Path to the RSA private key used to decrypt. Tries ~/.ssh/orca-* if omitted.",
@@ -1086,9 +1189,7 @@ def server_password(ctx: click.Context, server_id: str, private_key_path: str | 
                 break
 
     if not key_path or not key_path.exists():
-        raise OrcaCLIError(
-            "No private key found. Use --key <path> to specify your RSA private key."
-        )
+        raise OrcaCLIError("No private key found. Use --key <path> to specify your RSA private key.")
 
     console.print(f"[dim]Using key: {key_path}[/dim]")
 
@@ -1115,8 +1216,7 @@ def server_password(ctx: click.Context, server_id: str, private_key_path: str | 
     if result.returncode != 0:
         stderr = result.stderr.decode(errors="replace").strip()
         raise OrcaCLIError(
-            f"Decryption failed. Make sure you use the matching RSA private key.\n"
-            f"  openssl error: {stderr}"
+            f"Decryption failed. Make sure you use the matching RSA private key.\n  openssl error: {stderr}"
         )
 
     password = result.stdout.decode().strip()
@@ -1126,6 +1226,7 @@ def server_password(ctx: click.Context, server_id: str, private_key_path: str | 
 
 
 # ── console-log ───────────────────────────────────────────────────────────
+
 
 @server_console.command("log")
 @click.argument("server_id", callback=validate_id)
@@ -1153,20 +1254,20 @@ def server_console_log(ctx: click.Context, server_id: str, length: int) -> None:
 
 # ── console-url ───────────────────────────────────────────────────────────
 
+
 @server_console.command("url")
 @click.argument("server_id", callback=validate_id, shell_complete=complete_servers)
 @click.option(
-    "--type", "console_type",
+    "--type",
+    "console_type",
     type=click.Choice(["novnc", "xvpvnc", "spice-html5", "rdp-html5", "serial"], case_sensitive=False),
     default="novnc",
     show_default=True,
     help="Console type.",
 )
-@click.option("--open", "open_browser", is_flag=True,
-              help="Open the URL in the default system browser immediately.")
+@click.option("--open", "open_browser", is_flag=True, help="Open the URL in the default system browser immediately.")
 @click.pass_context
-def server_console_url(ctx: click.Context, server_id: str, console_type: str,
-                       open_browser: bool) -> None:
+def server_console_url(ctx: click.Context, server_id: str, console_type: str, open_browser: bool) -> None:
     """Get a URL to access the server console (VNC/SPICE/serial).
 
     \b
@@ -1178,15 +1279,14 @@ def server_console_url(ctx: click.Context, server_id: str, console_type: str,
     service = ServerService(ctx.find_object(OrcaContext).ensure_client())
 
     protocol_map = {
-        "novnc":      ("vnc",    "novnc"),
-        "xvpvnc":     ("vnc",    "xvpvnc"),
-        "spice-html5": ("spice",  "spice-html5"),
-        "rdp-html5":  ("rdp",    "rdp-html5"),
-        "serial":     ("serial", "serial"),
+        "novnc": ("vnc", "novnc"),
+        "xvpvnc": ("vnc", "xvpvnc"),
+        "spice-html5": ("spice", "spice-html5"),
+        "rdp-html5": ("rdp", "rdp-html5"),
+        "serial": ("serial", "serial"),
     }
     protocol, remote_type = protocol_map[console_type]
-    console_url = service.get_console_url(server_id, protocol=protocol,
-                                          console_type=remote_type)
+    console_url = service.get_console_url(server_id, protocol=protocol, console_type=remote_type)
 
     if not console_url:
         console.print("[yellow]No console URL returned.[/yellow]")
@@ -1197,6 +1297,7 @@ def server_console_url(ctx: click.Context, server_id: str, console_type: str,
 
     if open_browser:
         import webbrowser
+
         webbrowser.open(console_url)
         console.print("[dim]  → Opening in default browser…[/dim]")
     else:
@@ -1282,6 +1383,7 @@ def _find_ssh_key(keypair_name: str | None) -> str | None:
     keys from earlier projects.
     """
     from pathlib import Path
+
     ssh_dir = Path.home() / ".ssh"
     if not ssh_dir.is_dir():
         return None
@@ -1289,9 +1391,9 @@ def _find_ssh_key(keypair_name: str | None) -> str | None:
     candidates: list = []
     if keypair_name:
         candidates += [
-            ssh_dir / f"orca-{keypair_name}",        # keypair generate default
+            ssh_dir / f"orca-{keypair_name}",  # keypair generate default
             ssh_dir / f"orca-{keypair_name}.pem",
-            ssh_dir / f"{keypair_name}.pem",         # keypair create default
+            ssh_dir / f"{keypair_name}.pem",  # keypair create default
             ssh_dir / keypair_name,
             ssh_dir / f"{keypair_name}.key",
         ]
@@ -1306,22 +1408,31 @@ def _find_ssh_key(keypair_name: str | None) -> str | None:
 @server.command("ssh", context_settings=dict(ignore_unknown_options=True))
 @click.argument("server_id", shell_complete=complete_servers)
 @click.argument("remote_args", nargs=-1, type=click.UNPROCESSED)
-@click.option("--user", "-u", "ssh_user", default=None,
-              help="SSH user. Default: auto-detected from image os_distro.")
-@click.option("--key", "-i", "key_path", type=click.Path(), default=None,
-              help="Private key path. Default: matched from keypair name in ~/.ssh.")
-@click.option("--port", "-p", "ssh_port", type=int, default=22, show_default=True,
-              help="SSH port.")
-@click.option("--fixed", "use_fixed", is_flag=True,
-              help="Use the fixed IP instead of the floating IP.")
-@click.option("--dry-run", is_flag=True,
-              help="Print the ssh command without executing it.")
-@click.option("--extra", default=None,
-              help="Extra SSH options (e.g. '-o StrictHostKeyChecking=no').")
+@click.option("--user", "-u", "ssh_user", default=None, help="SSH user. Default: auto-detected from image os_distro.")
+@click.option(
+    "--key",
+    "-i",
+    "key_path",
+    type=click.Path(),
+    default=None,
+    help="Private key path. Default: matched from keypair name in ~/.ssh.",
+)
+@click.option("--port", "-p", "ssh_port", type=int, default=22, show_default=True, help="SSH port.")
+@click.option("--fixed", "use_fixed", is_flag=True, help="Use the fixed IP instead of the floating IP.")
+@click.option("--dry-run", is_flag=True, help="Print the ssh command without executing it.")
+@click.option("--extra", default=None, help="Extra SSH options (e.g. '-o StrictHostKeyChecking=no').")
 @click.pass_context
-def server_ssh(ctx: click.Context, server_id: str, remote_args: tuple,
-               ssh_user: str | None, key_path: str | None, ssh_port: int,
-               use_fixed: bool, dry_run: bool, extra: str | None) -> None:
+def server_ssh(
+    ctx: click.Context,
+    server_id: str,
+    remote_args: tuple,
+    ssh_user: str | None,
+    key_path: str | None,
+    ssh_port: int,
+    use_fixed: bool,
+    dry_run: bool,
+    extra: str | None,
+) -> None:
     """SSH into a server by name or ID.
 
     Auto-resolves the IP (floating > fixed), the SSH user (from image
@@ -1377,8 +1488,7 @@ def server_ssh(ctx: click.Context, server_id: str, remote_args: tuple,
         cmd.extend(remote_args)
 
     console.print(
-        f"[dim]→[/dim] [bold cyan]{ssh_user}@{ip}[/bold cyan]  "
-        f"[dim](server={name}, key={key_path or 'default'})[/dim]"
+        f"[dim]→[/dim] [bold cyan]{ssh_user}@{ip}[/bold cyan]  [dim](server={name}, key={key_path or 'default'})[/dim]"
     )
     console.print(f"[dim]$ {' '.join(cmd)}[/dim]")
 
@@ -1389,21 +1499,29 @@ def server_ssh(ctx: click.Context, server_id: str, remote_args: tuple,
 
 # ── backup (Nova createBackup, with rotation) ────────────────────────────
 
+
 @server.command("backup")
 @click.argument("server_id", callback=validate_id)
 @click.option("--name", required=True, help="Backup image name.")
-@click.option("--type", "backup_type", default="daily", show_default=True,
-              help="Backup type tag (e.g. ``daily``, ``weekly``). Nova rotates "
-                   "backups *per type* independently.")
-@click.option("--rotation", type=int, default=7, show_default=True,
-              help="Keep at most this many backups of the same type — Nova "
-                   "deletes the oldest beyond it.")
-@click.option("--property", "properties", multiple=True, metavar="KEY=VALUE",
-              help="Image metadata (repeatable).")
+@click.option(
+    "--type",
+    "backup_type",
+    default="daily",
+    show_default=True,
+    help="Backup type tag (e.g. ``daily``, ``weekly``). Nova rotates backups *per type* independently.",
+)
+@click.option(
+    "--rotation",
+    type=int,
+    default=7,
+    show_default=True,
+    help="Keep at most this many backups of the same type — Nova deletes the oldest beyond it.",
+)
+@click.option("--property", "properties", multiple=True, metavar="KEY=VALUE", help="Image metadata (repeatable).")
 @click.pass_context
-def server_backup(ctx: click.Context, server_id: str, name: str,
-                  backup_type: str, rotation: int,
-                  properties: tuple[str, ...]) -> None:
+def server_backup(
+    ctx: click.Context, server_id: str, name: str, backup_type: str, rotation: int, properties: tuple[str, ...]
+) -> None:
     """Create a Nova-managed backup image with rotation.
 
     Unlike ``orca server snapshot`` / ``server image create`` (one-shot
@@ -1425,16 +1543,18 @@ def server_backup(ctx: click.Context, server_id: str, name: str,
 
     ServerService(ctx.find_object(OrcaContext).ensure_client()).create_backup(
         server_id,
-        name=name, backup_type=backup_type, rotation=rotation,
+        name=name,
+        backup_type=backup_type,
+        rotation=rotation,
         metadata=metadata or None,
     )
     console.print(
-        f"[green]Backup '{name}' (type={backup_type}, keep last {rotation}) "
-        f"requested for {server_id}.[/green]"
+        f"[green]Backup '{name}' (type={backup_type}, keep last {rotation}) requested for {server_id}.[/green]"
     )
 
 
 # ── snapshot (server + volumes) ──────────────────────────────────────────
+
 
 @server.command("snapshot")
 @click.argument("server_id", callback=validate_id)
@@ -1486,14 +1606,12 @@ def server_snapshot(ctx: click.Context, server_id: str, name: str | None) -> Non
 
 # ── wait ─────────────────────────────────────────────────────────────────
 
+
 @server.command("wait")
 @click.argument("server_id", callback=validate_id)
-@click.option("--status", "target_status", default="ACTIVE", show_default=True,
-              help="Target status to wait for.")
-@click.option("--timeout", default=300, show_default=True, type=int,
-              help="Timeout in seconds.")
-@click.option("--interval", default=5, show_default=True, type=int,
-              help="Poll interval in seconds.")
+@click.option("--status", "target_status", default="ACTIVE", show_default=True, help="Target status to wait for.")
+@click.option("--timeout", default=300, show_default=True, type=int, help="Timeout in seconds.")
+@click.option("--interval", default=5, show_default=True, type=int, help="Poll interval in seconds.")
 @click.pass_context
 def server_wait(ctx: click.Context, server_id: str, target_status: str, timeout: int, interval: int) -> None:
     """Wait for a server to reach a target status.
@@ -1529,15 +1647,16 @@ def server_wait(ctx: click.Context, server_id: str, target_status: str, timeout:
 
             elapsed = time.monotonic() - start
             if elapsed >= timeout:
-                raise OrcaCLIError(
-                    f"Timeout after {timeout}s. Server is still '{current}'."
-                )
+                raise OrcaCLIError(f"Timeout after {timeout}s. Server is still '{current}'.")
 
-            spinner.update(f"[bold cyan]Waiting for {server_id} → {target} (current: {current}, {elapsed:.0f}s)…[/bold cyan]")
+            spinner.update(
+                f"[bold cyan]Waiting for {server_id} → {target} (current: {current}, {elapsed:.0f}s)…[/bold cyan]"
+            )
             time.sleep(interval)
 
 
 # ── bulk ─────────────────────────────────────────────────────────────────
+
 
 @server.command("bulk")
 @click.argument("action", type=click.Choice(["start", "stop", "reboot", "delete"], case_sensitive=False))
@@ -1546,8 +1665,9 @@ def server_wait(ctx: click.Context, server_id: str, target_status: str, timeout:
 @click.option("--all", "select_all", is_flag=True, help="Select all servers (use with caution).")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation.")
 @click.pass_context
-def server_bulk(ctx: click.Context, action: str, name_pattern: str | None,
-                status_filter: str | None, select_all: bool, yes: bool) -> None:
+def server_bulk(
+    ctx: click.Context, action: str, name_pattern: str | None, status_filter: str | None, select_all: bool, yes: bool
+) -> None:
     """Perform an action on multiple servers at once.
 
     \b
@@ -1607,16 +1727,17 @@ def server_bulk(ctx: click.Context, action: str, name_pattern: str | None,
 
 # ── clone ────────────────────────────────────────────────────────────────
 
+
 @server.command("clone")
 @click.argument("server_id", callback=validate_id)
 @click.option("--name", required=True, help="Name for the cloned server.")
-@click.option("--disk-size", type=int, default=None,
-              help="Boot volume size in GB (BFV only). Default: same as source.")
-@click.option("--boot-from-image", is_flag=True,
-              help="Force boot from the image on the compute's local disk "
-                   "(requires flavor disk > 0).")
-@click.option("--boot-from-volume", is_flag=True,
-              help="Force boot from a Cinder volume created from the image.")
+@click.option("--disk-size", type=int, default=None, help="Boot volume size in GB (BFV only). Default: same as source.")
+@click.option(
+    "--boot-from-image",
+    is_flag=True,
+    help="Force boot from the image on the compute's local disk (requires flavor disk > 0).",
+)
+@click.option("--boot-from-volume", is_flag=True, help="Force boot from a Cinder volume created from the image.")
 @click.pass_context
 def server_clone(
     ctx: click.Context,
@@ -1682,8 +1803,7 @@ def server_clone(
 
     if not image_id:
         raise OrcaCLIError(
-            "Cannot determine source image. The server may have been booted from a "
-            "volume without image metadata."
+            "Cannot determine source image. The server may have been booted from a volume without image metadata."
         )
     if not src_disk:
         src_disk = 20
@@ -1749,6 +1869,7 @@ def server_clone(
 
 # ── diff ─────────────────────────────────────────────────────────────────
 
+
 @server.command("diff")
 @click.argument("server_a", callback=validate_id)
 @click.argument("server_b", callback=validate_id)
@@ -1805,7 +1926,12 @@ def server_diff(ctx: click.Context, server_a: str, server_b: str) -> None:
         ("Availability Zone", lambda s: s.get("OS-EXT-AZ:availability_zone", "") or "—"),
         ("Addresses", _addresses_str),
         ("Security Groups", _sgs_str),
-        ("Power State", lambda s: {0: "NOSTATE", 1: "Running", 3: "Paused", 4: "Shutdown", 6: "Crashed", 7: "Suspended"}.get(s.get("OS-EXT-STS:power_state", 0), "?")),
+        (
+            "Power State",
+            lambda s: {0: "NOSTATE", 1: "Running", 3: "Paused", 4: "Shutdown", 6: "Crashed", 7: "Suspended"}.get(
+                s.get("OS-EXT-STS:power_state", 0), "?"
+            ),
+        ),
         ("VM State", lambda s: s.get("OS-EXT-STS:vm_state", "") or "—"),
         ("Task State", lambda s: s.get("OS-EXT-STS:task_state") or "—"),
         ("Created", lambda s: s.get("created", "")),
@@ -1844,24 +1970,25 @@ def server_diff(ctx: click.Context, server_a: str, server_b: str) -> None:
 
 # ── port-forward (SSH tunnel) ───────────────────────────────────────────
 
+
 @server.command("port-forward")
 @click.argument("server_id")
 @click.argument("port_mapping")
-@click.option("--user", "-u", "ssh_user", default=None,
-              help="SSH user. Default: 'root'.")
-@click.option("--key", "-i", "key_path", type=click.Path(), default=None,
-              help="Private key path.")
-@click.option("--ssh-port", "-p", type=int, default=22, show_default=True,
-              help="SSH port on the server.")
-@click.option("--reverse", "-R", is_flag=True, default=False,
-              help="Reverse tunnel (remote → local).")
-@click.option("--background", "-b", "bg", is_flag=True, default=False,
-              help="Run tunnel in background (-f -N).")
+@click.option("--user", "-u", "ssh_user", default=None, help="SSH user. Default: 'root'.")
+@click.option("--key", "-i", "key_path", type=click.Path(), default=None, help="Private key path.")
+@click.option("--ssh-port", "-p", type=int, default=22, show_default=True, help="SSH port on the server.")
+@click.option("--reverse", "-R", is_flag=True, default=False, help="Reverse tunnel (remote → local).")
+@click.option("--background", "-b", "bg", is_flag=True, default=False, help="Run tunnel in background (-f -N).")
 @click.pass_context
 def server_port_forward(
-    ctx: click.Context, server_id: str, port_mapping: str,
-    ssh_user: str | None, key_path: str | None, ssh_port: int,
-    reverse: bool, bg: bool,
+    ctx: click.Context,
+    server_id: str,
+    port_mapping: str,
+    ssh_user: str | None,
+    key_path: str | None,
+    ssh_port: int,
+    reverse: bool,
+    bg: bool,
 ) -> None:
     """Create an SSH tunnel (port forward) to a server.
 
@@ -1893,15 +2020,12 @@ def server_port_forward(
 
     ip = _pick_ssh_ip(srv)
     if not ip:
-        raise OrcaCLIError(
-            f"No IP address found for server '{srv.get('name', server_id)}'.")
+        raise OrcaCLIError(f"No IP address found for server '{srv.get('name', server_id)}'.")
 
     # Validate port mapping
     parts = port_mapping.split(":")
     if len(parts) != 3:
-        raise OrcaCLIError(
-            "PORT_MAPPING must be LOCAL_PORT:REMOTE_HOST:REMOTE_PORT "
-            "(e.g. 8080:localhost:80)")
+        raise OrcaCLIError("PORT_MAPPING must be LOCAL_PORT:REMOTE_HOST:REMOTE_PORT (e.g. 8080:localhost:80)")
     local_port, remote_host, remote_port = parts
 
     if not ssh_user:
@@ -1936,6 +2060,7 @@ def server_port_forward(
 
     if bg:
         import subprocess
+
         subprocess.Popen(cmd)
         console.print("[green]Tunnel started in background.[/green]")
     else:
@@ -1951,15 +2076,16 @@ def server_port_forward(
 @server.command("migrate")
 @click.argument("server_id")
 @click.option("--host", default=None, help="Target host (admin only, optional).")
-@click.option("--live", "live", is_flag=True,
-              help="Live-migrate (no downtime) instead of cold migration.")
-@click.option("--block-migration/--no-block-migration", "block_migration", default=False,
-              show_default=True,
-              help="Live mode only: copy disk over the network "
-                   "(slower but no shared storage needed).")
+@click.option("--live", "live", is_flag=True, help="Live-migrate (no downtime) instead of cold migration.")
+@click.option(
+    "--block-migration/--no-block-migration",
+    "block_migration",
+    default=False,
+    show_default=True,
+    help="Live mode only: copy disk over the network (slower but no shared storage needed).",
+)
 @click.pass_context
-def server_migrate(ctx: click.Context, server_id: str, host: str | None,
-                   live: bool, block_migration: bool) -> None:
+def server_migrate(ctx: click.Context, server_id: str, host: str | None, live: bool, block_migration: bool) -> None:
     """Migrate a server to another host (cold by default).
 
     \b
@@ -1984,21 +2110,28 @@ def server_migrate(ctx: click.Context, server_id: str, host: str | None,
 @server.command("live-migrate", deprecated=True)
 @click.argument("server_id")
 @click.option("--host", default=None, help="Target host (admin only, optional).")
-@click.option("--block-migration/--no-block-migration", "block_migration", default=False,
-              show_default=True, help="Copy disk over the network (no shared storage needed).")
+@click.option(
+    "--block-migration/--no-block-migration",
+    "block_migration",
+    default=False,
+    show_default=True,
+    help="Copy disk over the network (no shared storage needed).",
+)
 @click.pass_context
-def server_live_migrate(ctx: click.Context, server_id: str, host: str | None,
-                        block_migration: bool) -> None:
+def server_live_migrate(ctx: click.Context, server_id: str, host: str | None, block_migration: bool) -> None:
     """Live-migrate a server (deprecated — use 'server migrate --live')."""
     bm_flag = " --block-migration" if block_migration else ""
     host_flag = f" --host {host}" if host else ""
     click.secho(
         f"warning: 'server live-migrate' is deprecated; use "
         f"'orca server migrate {server_id} --live{host_flag}{bm_flag}' instead.",
-        fg="yellow", err=True,
+        fg="yellow",
+        err=True,
     )
     ServerService(ctx.find_object(OrcaContext).ensure_client()).live_migrate(
-        server_id, host=host, block_migration=block_migration,
+        server_id,
+        host=host,
+        block_migration=block_migration,
     )
     console.print(f"[green]Live migration of server {server_id} started.[/green]")
     console.print("[dim]Use 'orca server show' to track progress.[/dim]")
@@ -2037,14 +2170,18 @@ def server_remove_security_group(ctx: click.Context, server_id: str, security_gr
 @server.command("set")
 @click.argument("server_id")
 @click.option("--name", default=None, help="New display name.")
-@click.option("--property", "properties", multiple=True, metavar="KEY=VALUE",
-              help="Metadata key=value (repeatable).")
+@click.option("--property", "properties", multiple=True, metavar="KEY=VALUE", help="Metadata key=value (repeatable).")
 @click.option("--tag", "tags", multiple=True, help="Tag to set (repeatable, replaces all existing tags).")
 @click.option("--admin-password", default=None, help="New admin/root password (injected via Nova).")
 @click.pass_context
-def server_set(ctx: click.Context, server_id: str, name: str | None,
-               properties: tuple[str, ...], tags: tuple[str, ...],
-               admin_password: str | None) -> None:
+def server_set(
+    ctx: click.Context,
+    server_id: str,
+    name: str | None,
+    properties: tuple[str, ...],
+    tags: tuple[str, ...],
+    admin_password: str | None,
+) -> None:
     """Set server properties, metadata, tags, or admin password.
 
     \b
@@ -2105,6 +2242,7 @@ def server_metadata_list(ctx: click.Context, server_id: str) -> None:
     from rich.table import Table
 
     from orca_cli.core.output import console as _console
+
     table = Table(title="Server Metadata", show_lines=False)
     table.add_column("Key", style="bold")
     table.add_column("Value")
@@ -2126,18 +2264,22 @@ def server_tag_list(ctx: click.Context, server_id: str) -> None:
             console.print(f"  {tag}")
 
 
-
-
-
 # ── migration-list / migration-show ───────────────────────────────────────
+
 
 @server_migration.command("list")
 @click.argument("server_id", callback=validate_id, shell_complete=complete_servers)
 @output_options
 @click.pass_context
-def server_migration_list(ctx: click.Context, server_id: str,
-                          output_format: str, columns: tuple[str, ...],
-                          fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def server_migration_list(
+    ctx: click.Context,
+    server_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List migrations for a server."""
     migrations = ServerService(ctx.find_object(OrcaContext).ensure_client()).list_migrations(server_id)
 
@@ -2153,8 +2295,11 @@ def server_migration_list(ctx: click.Context, server_id: str,
             ("Updated", lambda m: (m.get("updated_at") or "")[:19]),
         ],
         title=f"Migrations for server {server_id}",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg="No migrations found.",
     )
 
@@ -2164,22 +2309,41 @@ def server_migration_list(ctx: click.Context, server_id: str,
 @click.argument("migration_id")
 @output_options
 @click.pass_context
-def server_migration_show(ctx: click.Context, server_id: str, migration_id: str,
-                          output_format: str, columns: tuple[str, ...],
-                          fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def server_migration_show(
+    ctx: click.Context,
+    server_id: str,
+    migration_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show details of a specific migration."""
     m = ServerService(ctx.find_object(OrcaContext).ensure_client()).get_migration(server_id, migration_id)
 
     print_detail(
-        [(k, str(m.get(k, "") or "")) for k in [
-            "id", "migration_type", "status",
-            "source_compute", "source_node",
-            "dest_compute", "dest_node",
-            "old_instance_type_id", "new_instance_type_id",
-            "created_at", "updated_at",
-        ]],
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        [
+            (k, str(m.get(k, "") or ""))
+            for k in [
+                "id",
+                "migration_type",
+                "status",
+                "source_compute",
+                "source_node",
+                "dest_compute",
+                "dest_node",
+                "old_instance_type_id",
+                "new_instance_type_id",
+                "created_at",
+                "updated_at",
+            ]
+        ],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
     )
 
 
@@ -2211,14 +2375,18 @@ def server_migration_force_complete(ctx: click.Context, server_id: str, migratio
 @server.command("evacuate")
 @click.argument("server_id")
 @click.option("--host", default=None, help="Target host (admin only, optional).")
-@click.option("--on-shared-storage/--no-shared-storage", "on_shared_storage",
-              default=False, show_default=True,
-              help="Whether server disks are on shared storage.")
-@click.option("--password", "admin_pass", default=None,
-              help="Admin password for the evacuated server.")
+@click.option(
+    "--on-shared-storage/--no-shared-storage",
+    "on_shared_storage",
+    default=False,
+    show_default=True,
+    help="Whether server disks are on shared storage.",
+)
+@click.option("--password", "admin_pass", default=None, help="Admin password for the evacuated server.")
 @click.pass_context
-def server_evacuate(ctx: click.Context, server_id: str, host: str | None,
-                    on_shared_storage: bool, admin_pass: str | None) -> None:
+def server_evacuate(
+    ctx: click.Context, server_id: str, host: str | None, on_shared_storage: bool, admin_pass: str | None
+) -> None:
     """Evacuate a server from a failed host to another.
 
     \b
@@ -2228,7 +2396,9 @@ def server_evacuate(ctx: click.Context, server_id: str, host: str | None,
       orca server evacuate <id> --on-shared-storage
     """
     ServerService(ctx.find_object(OrcaContext).ensure_client()).evacuate(
-        server_id, host=host, admin_pass=admin_pass,
+        server_id,
+        host=host,
+        admin_pass=admin_pass,
         on_shared_storage=on_shared_storage,
     )
     console.print(f"[green]Server {server_id} evacuation started.[/green]")
@@ -2336,11 +2506,9 @@ def server_remove_port(ctx: click.Context, server_id: str, port_id: str) -> None
 @server_add.command("network")
 @click.argument("server_id")
 @click.argument("network_id")
-@click.option("--fixed-ip", "fixed_ip", default=None,
-              help="Pin the new port to a specific fixed IP on the network.")
+@click.option("--fixed-ip", "fixed_ip", default=None, help="Pin the new port to a specific fixed IP on the network.")
 @click.pass_context
-def server_add_network(ctx: click.Context, server_id: str, network_id: str,
-                       fixed_ip: str | None) -> None:
+def server_add_network(ctx: click.Context, server_id: str, network_id: str, fixed_ip: str | None) -> None:
     """Attach a network to a server (creates a new port automatically).
 
     \b
@@ -2353,8 +2521,7 @@ def server_add_network(ctx: click.Context, server_id: str, network_id: str,
     att = service.attach_interface(server_id, net_id=network_id, fixed_ips=fixed_ips)
     ips = ", ".join(ip.get("ip_address", "") for ip in att.get("fixed_ips", []))
     console.print(
-        f"[green]Network {network_id} attached to server {server_id} "
-        f"— port {att.get('port_id', '')} ({ips}).[/green]"
+        f"[green]Network {network_id} attached to server {server_id} — port {att.get('port_id', '')} ({ips}).[/green]"
     )
 
 
@@ -2372,8 +2539,7 @@ def server_remove_network(ctx: click.Context, server_id: str, network_id: str) -
       orca server remove-network <server-id> <network-id>
     """
     service = ServerService(ctx.find_object(OrcaContext).ensure_client())
-    matching = [i for i in service.list_interfaces(server_id)
-                if i.get("net_id") == network_id]
+    matching = [i for i in service.list_interfaces(server_id) if i.get("net_id") == network_id]
 
     if not matching:
         console.print(f"[yellow]No interfaces found for network {network_id} on server {server_id}.[/yellow]")
@@ -2396,13 +2562,10 @@ def server_remove_network(ctx: click.Context, server_id: str, network_id: str) -
 
 @server.command("unset")
 @click.argument("server_id")
-@click.option("--property", "properties", multiple=True, metavar="KEY",
-              help="Metadata key to remove (repeatable).")
-@click.option("--tag", "tags", multiple=True,
-              help="Tag to remove (repeatable).")
+@click.option("--property", "properties", multiple=True, metavar="KEY", help="Metadata key to remove (repeatable).")
+@click.option("--tag", "tags", multiple=True, help="Tag to remove (repeatable).")
 @click.pass_context
-def server_unset(ctx: click.Context, server_id: str,
-                 properties: tuple[str, ...], tags: tuple[str, ...]) -> None:
+def server_unset(ctx: click.Context, server_id: str, properties: tuple[str, ...], tags: tuple[str, ...]) -> None:
     """Remove metadata keys or tags from a server.
 
     \b
@@ -2437,30 +2600,29 @@ def server_unset(ctx: click.Context, server_id: str,
 # Targeted for removal in v2.0.
 
 for _legacy, _primary, _path in [
-    ("add-fixed-ip",          server_add_fixed_ip,          "server add fixed-ip"),
-    ("remove-fixed-ip",       server_remove_fixed_ip,       "server remove fixed-ip"),
-    ("add-port",              server_add_port,              "server add port"),
-    ("remove-port",           server_remove_port,           "server remove port"),
-    ("add-network",           server_add_network,           "server add network"),
-    ("remove-network",        server_remove_network,        "server remove network"),
-    ("add-security-group",    server_add_security_group,    "server add security-group"),
+    ("add-fixed-ip", server_add_fixed_ip, "server add fixed-ip"),
+    ("remove-fixed-ip", server_remove_fixed_ip, "server remove fixed-ip"),
+    ("add-port", server_add_port, "server add port"),
+    ("remove-port", server_remove_port, "server remove port"),
+    ("add-network", server_add_network, "server add network"),
+    ("remove-network", server_remove_network, "server remove network"),
+    ("add-security-group", server_add_security_group, "server add security-group"),
     ("remove-security-group", server_remove_security_group, "server remove security-group"),
-    ("attach-volume",         server_attach_volume,         "server add volume"),
-    ("detach-volume",         server_detach_volume,         "server remove volume"),
-    ("detach-interface",      server_detach_interface,      "server remove interface"),
-    ("list-volumes",          server_list_volumes,          "server volume list"),
-    ("list-interfaces",       server_list_interfaces,       "server interface list"),
-    ("console-log",           server_console_log,           "server console log"),
-    ("console-url",           server_console_url,           "server console url"),
-    ("create-image",          server_create_image,          "server image create"),
-    ("metadata-list",         server_metadata_list,         "server metadata list"),
-    ("tag-list",              server_tag_list,              "server tag list"),
-    ("migration-list",        server_migration_list,        "server migration list"),
-    ("migration-show",        server_migration_show,        "server migration show"),
-    ("migration-abort",       server_migration_abort,       "server migration abort"),
-    ("migration-force-complete", server_migration_force_complete,
-                              "server migration force-complete"),
-    ("dump-create",           server_dump_create,           "server dump create"),
+    ("attach-volume", server_attach_volume, "server add volume"),
+    ("detach-volume", server_detach_volume, "server remove volume"),
+    ("detach-interface", server_detach_interface, "server remove interface"),
+    ("list-volumes", server_list_volumes, "server volume list"),
+    ("list-interfaces", server_list_interfaces, "server interface list"),
+    ("console-log", server_console_log, "server console log"),
+    ("console-url", server_console_url, "server console url"),
+    ("create-image", server_create_image, "server image create"),
+    ("metadata-list", server_metadata_list, "server metadata list"),
+    ("tag-list", server_tag_list, "server tag list"),
+    ("migration-list", server_migration_list, "server migration list"),
+    ("migration-show", server_migration_show, "server migration show"),
+    ("migration-abort", server_migration_abort, "server migration abort"),
+    ("migration-force-complete", server_migration_force_complete, "server migration force-complete"),
+    ("dump-create", server_dump_create, "server dump create"),
 ]:
     add_command_with_alias(server, _primary, legacy_name=_legacy, primary_path=_path)
 del _legacy, _primary, _path
@@ -2482,11 +2644,14 @@ server_migration.add_command(server_revert_resize, name="revert")
 # ``openstack server volume update`` ≡ orca ``server volume set``.
 server_volume.add_command(server_volume_set, name="update")
 
+
 # ``openstack server backup create`` — OSC nests it under a "backup"
 # sub-group. orca exposes it directly. Register the OSC path.
 @server.group("backup_group", invoke_without_command=False)
 def _server_backup_group_for_osc() -> None:  # pragma: no cover — alias only
     """OSC-style ``server backup`` sub-group (Nova createBackup)."""
+
+
 # NOTE: Click would clash registering this as "backup" (clashes with the
 # existing ``@server.command("backup")``). The OSC path is left as a
 # documented gap — `orca server backup <id> --name ...` is the orca form
@@ -2494,3 +2659,14 @@ def _server_backup_group_for_osc() -> None:  # pragma: no cover — alias only
 # vs-noun divergence is preserved as a deliberate UX choice (single
 # call, no extra sub-group nesting).
 del _server_backup_group_for_osc
+
+
+# OSC parity: ``openstack server event list/show`` — re-expose the
+# top-level ``orca event`` commands under ``server`` for muscle memory.
+@server.group("event")
+def server_event() -> None:
+    """Browse Nova instance actions for a server (alias of ``orca event``)."""
+
+
+server_event.add_command(_event_list, name="list")
+server_event.add_command(_event_show, name="show")

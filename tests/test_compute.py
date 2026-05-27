@@ -228,7 +228,7 @@ class TestHypervisor:
         set_active_profile("p")
         _setup_compute_mock(mock_client)
 
-        result = invoke(["hypervisor", "stats"])
+        result = invoke(["hypervisor", "stats", "show"])
         assert result.exit_code == 0
         assert "vcpus" in result.output.lower()
 

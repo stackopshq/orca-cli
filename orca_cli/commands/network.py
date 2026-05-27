@@ -17,6 +17,7 @@ from orca_cli.services.server import ServerService
 #  Networks
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @click.group()
 @click.pass_context
 def network(ctx: click.Context) -> None:
@@ -85,7 +86,14 @@ def network_subnet() -> None:
 @network.command("list")
 @output_options
 @click.pass_context
-def network_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def network_list(
+    ctx: click.Context,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List networks."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     networks = svc.find()
@@ -101,7 +109,10 @@ def network_list(ctx: click.Context, output_format: str, columns: tuple[str, ...
             ("Shared", lambda net: str(net.get("shared", ""))),
         ],
         title="Networks",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No networks found.",
     )
@@ -111,19 +122,44 @@ def network_list(ctx: click.Context, output_format: str, columns: tuple[str, ...
 @click.argument("network_id", callback=validate_id, shell_complete=complete_networks)
 @output_options
 @click.pass_context
-def network_show(ctx: click.Context, network_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def network_show(
+    ctx: click.Context,
+    network_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show network details."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     net = svc.get(network_id)
 
     fields = []
-    for key in ["id", "name", "status", "admin_state_up", "shared",
-                "router:external", "mtu", "subnets", "availability_zones",
-                "created_at", "updated_at"]:
+    for key in [
+        "id",
+        "name",
+        "status",
+        "admin_state_up",
+        "shared",
+        "router:external",
+        "mtu",
+        "subnets",
+        "availability_zones",
+        "created_at",
+        "updated_at",
+    ]:
         val = net.get(key, "")
         fields.append((key, str(val) if val is not None else ""))
 
-    print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network.command("create")
@@ -179,10 +215,18 @@ def network_delete(ctx: click.Context, network_id: str, yes: bool) -> None:
 #  Subnets
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network_subnet.command("list")
 @output_options
 @click.pass_context
-def subnet_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def subnet_list(
+    ctx: click.Context,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List subnets."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     subnets = svc.find_subnets()
@@ -198,7 +242,10 @@ def subnet_list(ctx: click.Context, output_format: str, columns: tuple[str, ...]
             ("IP Ver.", lambda s: str(s.get("ip_version", "")), {"justify": "right"}),
         ],
         title="Subnets",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No subnets found.",
     )
@@ -208,17 +255,42 @@ def subnet_list(ctx: click.Context, output_format: str, columns: tuple[str, ...]
 @click.argument("subnet_id", callback=validate_id)
 @output_options
 @click.pass_context
-def subnet_show(ctx: click.Context, subnet_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def subnet_show(
+    ctx: click.Context,
+    subnet_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show subnet details."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     sub = svc.get_subnet(subnet_id)
 
     fields = []
-    for key in ["id", "name", "cidr", "ip_version", "gateway_ip", "enable_dhcp",
-                "dns_nameservers", "allocation_pools", "network_id", "created_at"]:
+    for key in [
+        "id",
+        "name",
+        "cidr",
+        "ip_version",
+        "gateway_ip",
+        "enable_dhcp",
+        "dns_nameservers",
+        "allocation_pools",
+        "network_id",
+        "created_at",
+    ]:
         fields.append((key, str(sub.get(key, ""))))
 
-    print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_subnet.command("create")
@@ -230,8 +302,16 @@ def subnet_show(ctx: click.Context, subnet_id: str, output_format: str, columns:
 @click.option("--dhcp/--no-dhcp", default=True, show_default=True, help="Enable DHCP.")
 @click.option("--dns", multiple=True, help="DNS nameserver (repeatable).")
 @click.pass_context
-def subnet_create(ctx: click.Context, name: str, network_id: str, cidr: str,
-                  ip_version: str, gateway: str | None, dhcp: bool, dns: tuple) -> None:
+def subnet_create(
+    ctx: click.Context,
+    name: str,
+    network_id: str,
+    cidr: str,
+    ip_version: str,
+    gateway: str | None,
+    dhcp: bool,
+    dns: tuple,
+) -> None:
     """Create a subnet."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {
@@ -285,6 +365,7 @@ def subnet_inspect(ctx: click.Context, subnet_id: str) -> None:
       orca network subnet inspect <subnet-id>
     """
     from orca_cli.services.server import ServerService
+
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     server_svc = ServerService(ctx.find_object(OrcaContext).ensure_client())
 
@@ -310,6 +391,7 @@ def subnet_inspect(ctx: click.Context, subnet_id: str) -> None:
 
     # Resolve server names for compute:* ports (cache to avoid duplicate GETs).
     server_cache: dict = {}
+
     def _server_name(device_id: str) -> str:
         if not device_id:
             return ""
@@ -323,8 +405,7 @@ def subnet_inspect(ctx: click.Context, subnet_id: str) -> None:
 
     # ── 1. Subnet header ───────────────────────────────────────────
     console.print()
-    console.print(f"[bold cyan]Subnet[/bold cyan] {sub.get('name') or '—'} "
-                  f"[dim]({subnet_id})[/dim]")
+    console.print(f"[bold cyan]Subnet[/bold cyan] {sub.get('name') or '—'} [dim]({subnet_id})[/dim]")
     console.print(f"  CIDR             : [bold]{sub.get('cidr', '—')}[/bold]")
     console.print(f"  Gateway          : {sub.get('gateway_ip') or '—'}")
     console.print(f"  IP version       : {sub.get('ip_version', '—')}")
@@ -342,14 +423,10 @@ def subnet_inspect(ctx: click.Context, subnet_id: str) -> None:
     if used is not None and total is not None:
         pct = (used * 100 // total) if total else 0
         color = "red" if pct >= 90 else ("yellow" if pct >= 70 else "green")
-        console.print(
-            f"[bold cyan]IP usage[/bold cyan]       : "
-            f"[{color}]{used} / {total} ({pct}%)[/{color}]"
-        )
+        console.print(f"[bold cyan]IP usage[/bold cyan]       : [{color}]{used} / {total} ({pct}%)[/{color}]")
     else:
         console.print(
-            "[bold cyan]IP usage[/bold cyan]       : "
-            "[dim](ip-availability extension not exposed by this cloud)[/dim]"
+            "[bold cyan]IP usage[/bold cyan]       : [dim](ip-availability extension not exposed by this cloud)[/dim]"
         )
 
     # ── 3. Attached ports ──────────────────────────────────────────
@@ -357,6 +434,7 @@ def subnet_inspect(ctx: click.Context, subnet_id: str) -> None:
     console.print(f"[bold cyan]Attached ports[/bold cyan]   : {len(ports)} total")
 
     from rich.table import Table
+
     t = Table(show_header=True, header_style="bold")
     t.add_column("Fixed IP", style="bold")
     t.add_column("Port ID", style="cyan", no_wrap=True)
@@ -407,22 +485,32 @@ def subnet_inspect(ctx: click.Context, subnet_id: str) -> None:
 #  Ports
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network_port.command("list")
 @click.option("--network-id", default=None, help="Filter by network ID.")
-@click.option("--subnet-id", "--subnet", "subnet_id", default=None,
-              help="Filter to ports that have a fixed IP in this subnet.")
-@click.option("--device-owner", default=None,
-              help="Filter by device owner (e.g. ``compute:nova``, "
-                   "``network:router_interface``, ``network:dhcp``).")
-@click.option("--device-id", default=None,
-              help="Filter by the attached resource ID (server, router, ...).")
+@click.option(
+    "--subnet-id", "--subnet", "subnet_id", default=None, help="Filter to ports that have a fixed IP in this subnet."
+)
+@click.option(
+    "--device-owner",
+    default=None,
+    help="Filter by device owner (e.g. ``compute:nova``, ``network:router_interface``, ``network:dhcp``).",
+)
+@click.option("--device-id", default=None, help="Filter by the attached resource ID (server, router, ...).")
 @output_options
 @click.pass_context
-def port_list(ctx: click.Context, network_id: str | None,
-              subnet_id: str | None, device_owner: str | None,
-              device_id: str | None, output_format: str,
-              columns: tuple[str, ...], fit_width: bool,
-              max_width: int | None, noindent: bool) -> None:
+def port_list(
+    ctx: click.Context,
+    network_id: str | None,
+    subnet_id: str | None,
+    device_owner: str | None,
+    device_id: str | None,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List ports.
 
     \b
@@ -451,14 +539,15 @@ def port_list(ctx: click.Context, network_id: str | None,
             ("ID", "id", {"style": "cyan", "no_wrap": True}),
             ("Name", lambda p: p.get("name", "") or "—", {"style": "bold"}),
             ("MAC", "mac_address"),
-            ("Fixed IPs", lambda p: ", ".join(
-                ip.get("ip_address", "") for ip in p.get("fixed_ips", [])
-            ) or "—"),
+            ("Fixed IPs", lambda p: ", ".join(ip.get("ip_address", "") for ip in p.get("fixed_ips", [])) or "—"),
             ("Status", "status", {"style": "green"}),
             ("Device Owner", lambda p: p.get("device_owner", "") or "—"),
         ],
         title="Ports",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No ports found.",
     )
@@ -468,18 +557,43 @@ def port_list(ctx: click.Context, network_id: str | None,
 @click.argument("port_id", callback=validate_id)
 @output_options
 @click.pass_context
-def port_show(ctx: click.Context, port_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def port_show(
+    ctx: click.Context,
+    port_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show port details."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     port = svc.get_port(port_id)
 
     fields = []
-    for key in ["id", "name", "mac_address", "fixed_ips", "status",
-                "admin_state_up", "network_id", "device_id", "device_owner",
-                "security_groups", "created_at"]:
+    for key in [
+        "id",
+        "name",
+        "mac_address",
+        "fixed_ips",
+        "status",
+        "admin_state_up",
+        "network_id",
+        "device_id",
+        "device_owner",
+        "security_groups",
+        "created_at",
+    ]:
         fields.append((key, str(port.get(key, ""))))
 
-    print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_port.command("create")
@@ -542,10 +656,18 @@ def port_delete(ctx: click.Context, port_id: str, yes: bool) -> None:
 #  Routers
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network_router.command("list")
 @output_options
 @click.pass_context
-def router_list(ctx: click.Context, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def router_list(
+    ctx: click.Context,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List routers."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     routers = svc.find_routers()
@@ -556,12 +678,21 @@ def router_list(ctx: click.Context, output_format: str, columns: tuple[str, ...]
             ("ID", "id", {"style": "cyan", "no_wrap": True}),
             ("Name", lambda r: r.get("name", "") or "—", {"style": "bold"}),
             ("Status", "status", {"style": "green"}),
-            ("External GW", lambda r: (r.get("external_gateway_info") or {}).get("network_id", "—")
-                if r.get("external_gateway_info") else "—"),
+            (
+                "External GW",
+                lambda r: (
+                    (r.get("external_gateway_info") or {}).get("network_id", "—")
+                    if r.get("external_gateway_info")
+                    else "—"
+                ),
+            ),
             ("Admin Up", lambda r: str(r.get("admin_state_up", ""))),
         ],
         title="Routers",
-        output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         columns=columns,
         empty_msg="No routers found.",
     )
@@ -571,17 +702,31 @@ def router_list(ctx: click.Context, output_format: str, columns: tuple[str, ...]
 @click.argument("router_id", callback=validate_id)
 @output_options
 @click.pass_context
-def router_show(ctx: click.Context, router_id: str, output_format: str, columns: tuple[str, ...], fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def router_show(
+    ctx: click.Context,
+    router_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show router details."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     r = svc.get_router(router_id)
 
     fields = []
-    for key in ["id", "name", "status", "admin_state_up",
-                "external_gateway_info", "routes", "created_at"]:
+    for key in ["id", "name", "status", "admin_state_up", "external_gateway_info", "routes", "created_at"]:
         fields.append((key, str(r.get(key, ""))))
 
-    print_detail(fields, output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        fields,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_router.command("create")
@@ -661,6 +806,7 @@ def router_remove_interface(ctx: click.Context, router_id: str, subnet_id: str) 
 # ══════════════════════════════════════════════════════════════════════════
 #  Topology
 # ══════════════════════════════════════════════════════════════════════════
+
 
 @network.command("topology")
 @click.option("--network-id", "filter_net", default=None, help="Show only this network.")
@@ -762,6 +908,7 @@ def network_topology(ctx: click.Context, filter_net: str | None) -> None:
 
 # ── net-trace ────────────────────────────────────────────────────────────
 
+
 @network.command("trace")
 @click.argument("server_id")
 @click.pass_context
@@ -853,8 +1000,7 @@ def net_trace(ctx: click.Context, server_id: str) -> None:
             gw = subnet.get("gateway_ip", "")
 
             ip_branch = port_branch.add(
-                f"[green bold]Fixed IP:[/green bold] {ip}  "
-                f"subnet: [yellow]{subnet_name}[/yellow] ({cidr})"
+                f"[green bold]Fixed IP:[/green bold] {ip}  subnet: [yellow]{subnet_name}[/yellow] ({cidr})"
             )
             if gw:
                 ip_branch.add(f"[dim]Gateway: {gw}[/dim]")
@@ -870,14 +1016,13 @@ def net_trace(ctx: click.Context, server_id: str) -> None:
 
                 # Count ingress rules with 0.0.0.0/0
                 wide_open = sum(
-                    1 for r in rules
-                    if r.get("direction") == "ingress"
-                    and r.get("remote_ip_prefix") in ("0.0.0.0/0", "::/0")
+                    1
+                    for r in rules
+                    if r.get("direction") == "ingress" and r.get("remote_ip_prefix") in ("0.0.0.0/0", "::/0")
                 )
                 warning = f"  [red bold]⚠ {wide_open} wide-open ingress[/red bold]" if wide_open else ""
                 sg_node = sg_branch.add(
-                    f"[magenta]{sg_name}[/magenta]  [dim]({sg_id})[/dim]  "
-                    f"{len(rules)} rules{warning}"
+                    f"[magenta]{sg_name}[/magenta]  [dim]({sg_id})[/dim]  {len(rules)} rules{warning}"
                 )
 
                 # Show ingress rules summary
@@ -903,9 +1048,7 @@ def net_trace(ctx: click.Context, server_id: str) -> None:
             r_id = router.get("id", "")
             # Check if this router has an interface on any of this port's subnets
             try:
-                r_ports = svc.find_ports(params={
-                    "device_id": r_id, "device_owner": "network:router_interface"
-                })
+                r_ports = svc.find_ports(params={"device_id": r_id, "device_owner": "network:router_interface"})
             except Exception:
                 r_ports = []
             r_subnets = set()
@@ -922,13 +1065,11 @@ def net_trace(ctx: click.Context, server_id: str) -> None:
                 ext_net = network_map.get(ext_net_id, {})
                 ext_net_name = ext_net.get("name", ext_net_id[:8]) if ext_net_id else "none"
                 ext_ips = ", ".join(
-                    ip.get("ip_address", "")
-                    for ip in (ext_gw.get("external_fixed_ips", []) if ext_gw else [])
+                    ip.get("ip_address", "") for ip in (ext_gw.get("external_fixed_ips", []) if ext_gw else [])
                 )
                 port_branch.add(
                     f"[magenta bold]Router:[/magenta bold] {r_name}  [dim]({r_id})[/dim]  "
-                    f"→ ext: [cyan]{ext_net_name}[/cyan]"
-                    + (f"  ({ext_ips})" if ext_ips else "")
+                    f"→ ext: [cyan]{ext_net_name}[/cyan]" + (f"  ({ext_ips})" if ext_ips else "")
                 )
                 break
 
@@ -961,18 +1102,24 @@ def net_trace(ctx: click.Context, server_id: str) -> None:
 #  subnet-update
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network_subnet.command("update")
 @click.argument("subnet_id", callback=validate_id)
 @click.option("--name", default=None, help="New name.")
 @click.option("--description", default=None, help="New description.")
-@click.option("--dns-nameserver", "dns_nameservers", multiple=True,
-              help="DNS nameserver IP (repeatable, replaces existing list).")
-@click.option("--enable-dhcp/--disable-dhcp", default=None,
-              help="Enable or disable DHCP.")
+@click.option(
+    "--dns-nameserver", "dns_nameservers", multiple=True, help="DNS nameserver IP (repeatable, replaces existing list)."
+)
+@click.option("--enable-dhcp/--disable-dhcp", default=None, help="Enable or disable DHCP.")
 @click.pass_context
-def network_subnet_update(ctx: click.Context, subnet_id: str, name: str | None,
-                          description: str | None, dns_nameservers: tuple[str, ...],
-                          enable_dhcp: bool | None) -> None:
+def network_subnet_update(
+    ctx: click.Context,
+    subnet_id: str,
+    name: str | None,
+    description: str | None,
+    dns_nameservers: tuple[str, ...],
+    enable_dhcp: bool | None,
+) -> None:
     """Update a subnet."""
     body: dict = {}
     if name is not None:
@@ -999,14 +1146,22 @@ network_subnet.add_command(network_subnet_update, name="set")
 #  network agent-*
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network_agent.command("list")
 @click.option("--host", default=None, help="Filter by host.")
 @click.option("--agent-type", default=None, help="Filter by agent type.")
 @output_options
 @click.pass_context
-def network_agent_list(ctx: click.Context, host: str | None, agent_type: str | None,
-                       output_format: str, columns: tuple[str, ...],
-                       fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def network_agent_list(
+    ctx: click.Context,
+    host: str | None,
+    agent_type: str | None,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List Neutron agents."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     params: dict = {}
@@ -1023,13 +1178,15 @@ def network_agent_list(ctx: click.Context, host: str | None, agent_type: str | N
             ("Host", "host"),
             ("Availability Zone", lambda a: a.get("availability_zone") or "—"),
             ("Alive", lambda a: "[green]Yes[/green]" if a.get("alive") else "[red]No[/red]"),
-            ("Admin State", lambda a:
-             "[green]UP[/green]" if a.get("admin_state_up") else "[yellow]DOWN[/yellow]"),
+            ("Admin State", lambda a: "[green]UP[/green]" if a.get("admin_state_up") else "[yellow]DOWN[/yellow]"),
             ("Binary", "binary"),
         ],
         title="Network Agents",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg="No agents found.",
     )
 
@@ -1038,18 +1195,39 @@ def network_agent_list(ctx: click.Context, host: str | None, agent_type: str | N
 @click.argument("agent_id", callback=validate_id)
 @output_options
 @click.pass_context
-def network_agent_show(ctx: click.Context, agent_id: str,
-                       output_format: str, columns: tuple[str, ...],
-                       fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def network_agent_show(
+    ctx: click.Context,
+    agent_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show a Neutron agent's details."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     agent = svc.get_agent(agent_id)
     print_detail(
-        [(k, str(agent.get(k, "") or "")) for k in
-         ["id", "agent_type", "binary", "host", "availability_zone",
-          "alive", "admin_state_up", "started_at", "heartbeat_timestamp", "description"]],
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        [
+            (k, str(agent.get(k, "") or ""))
+            for k in [
+                "id",
+                "agent_type",
+                "binary",
+                "host",
+                "availability_zone",
+                "alive",
+                "admin_state_up",
+                "started_at",
+                "heartbeat_timestamp",
+                "description",
+            ]
+        ],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
     )
 
 
@@ -1058,8 +1236,7 @@ def network_agent_show(ctx: click.Context, agent_id: str,
 @click.option("--enable/--disable", default=None, help="Enable or disable the agent.")
 @click.option("--description", default=None, help="New description.")
 @click.pass_context
-def network_agent_set(ctx: click.Context, agent_id: str, enable: bool | None,
-                      description: str | None) -> None:
+def network_agent_set(ctx: click.Context, agent_id: str, enable: bool | None, description: str | None) -> None:
     """Update a Neutron agent."""
     body: dict = {}
     if enable is not None:
@@ -1091,16 +1268,25 @@ def network_agent_delete(ctx: click.Context, agent_id: str, yes: bool) -> None:
 #  network rbac-*
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network_rbac.command("list")
-@click.option("--object-type", default=None,
-              type=click.Choice(["network", "qos_policy", "security_group",
-                                 "address_group", "address_scope", "subnetpool"]),
-              help="Filter by object type.")
+@click.option(
+    "--object-type",
+    default=None,
+    type=click.Choice(["network", "qos_policy", "security_group", "address_group", "address_scope", "subnetpool"]),
+    help="Filter by object type.",
+)
 @output_options
 @click.pass_context
-def network_rbac_list(ctx: click.Context, object_type: str | None,
-                      output_format: str, columns: tuple[str, ...],
-                      fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def network_rbac_list(
+    ctx: click.Context,
+    object_type: str | None,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """List RBAC policies."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     params = {"object_type": object_type} if object_type else None
@@ -1115,8 +1301,11 @@ def network_rbac_list(ctx: click.Context, object_type: str | None,
             ("Target Project", "target_tenant"),
         ],
         title="RBAC Policies",
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
         empty_msg="No RBAC policies found.",
     )
 
@@ -1125,35 +1314,45 @@ def network_rbac_list(ctx: click.Context, object_type: str | None,
 @click.argument("rbac_id", callback=validate_id)
 @output_options
 @click.pass_context
-def network_rbac_show(ctx: click.Context, rbac_id: str,
-                      output_format: str, columns: tuple[str, ...],
-                      fit_width: bool, max_width: int | None, noindent: bool) -> None:
+def network_rbac_show(
+    ctx: click.Context,
+    rbac_id: str,
+    output_format: str,
+    columns: tuple[str, ...],
+    fit_width: bool,
+    max_width: int | None,
+    noindent: bool,
+) -> None:
     """Show an RBAC policy."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     p = svc.get_rbac_policy(rbac_id)
     print_detail(
-        [(k, str(p.get(k, "") or "")) for k in
-         ["id", "object_type", "object_id", "action", "target_tenant", "project_id"]],
-        output_format=output_format, fit_width=fit_width, max_width=max_width,
-        noindent=noindent, columns=columns,
+        [
+            (k, str(p.get(k, "") or ""))
+            for k in ["id", "object_type", "object_id", "action", "target_tenant", "project_id"]
+        ],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
     )
 
 
 @network_rbac.command("create")
-@click.option("--object-type", required=True,
-              type=click.Choice(["network", "qos_policy", "security_group",
-                                 "address_group", "address_scope", "subnetpool"]),
-              help="Type of the shared object.")
-@click.option("--object", "object_id", required=True,
-              help="ID of the object to share.")
-@click.option("--action", required=True,
-              type=click.Choice(["access_as_shared", "access_as_external"]),
-              help="RBAC action.")
-@click.option("--target-project", required=True,
-              help="Project ID to grant access to (use '*' for all projects).")
+@click.option(
+    "--object-type",
+    required=True,
+    type=click.Choice(["network", "qos_policy", "security_group", "address_group", "address_scope", "subnetpool"]),
+    help="Type of the shared object.",
+)
+@click.option("--object", "object_id", required=True, help="ID of the object to share.")
+@click.option(
+    "--action", required=True, type=click.Choice(["access_as_shared", "access_as_external"]), help="RBAC action."
+)
+@click.option("--target-project", required=True, help="Project ID to grant access to (use '*' for all projects).")
 @click.pass_context
-def network_rbac_create(ctx: click.Context, object_type: str, object_id: str,
-                        action: str, target_project: str) -> None:
+def network_rbac_create(ctx: click.Context, object_type: str, object_id: str, action: str, target_project: str) -> None:
     """Create an RBAC policy to share a network resource.
 
     \b
@@ -1165,12 +1364,14 @@ def network_rbac_create(ctx: click.Context, object_type: str, object_id: str,
         --target-project '*'
     """
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
-    p = svc.create_rbac_policy({
-        "object_type": object_type,
-        "object_id": object_id,
-        "action": action,
-        "target_tenant": target_project,
-    })
+    p = svc.create_rbac_policy(
+        {
+            "object_type": object_type,
+            "object_id": object_id,
+            "action": action,
+            "target_tenant": target_project,
+        }
+    )
     console.print(f"[green]RBAC policy created: {p.get('id', '?')}[/green]")
 
 
@@ -1189,8 +1390,7 @@ def network_rbac_delete(ctx: click.Context, rbac_id: str, yes: bool) -> None:
 
 @network_rbac.command("update")
 @click.argument("rbac_id", callback=validate_id)
-@click.option("--target-project", required=True,
-              help="New target project ID (use '*' for all projects).")
+@click.option("--target-project", required=True, help="New target project ID (use '*' for all projects).")
 @click.pass_context
 def network_rbac_update(ctx: click.Context, rbac_id: str, target_project: str) -> None:
     """Update the target project of an RBAC policy.
@@ -1216,16 +1416,13 @@ network_rbac.add_command(network_rbac_update, name="set")
 
 @network_port.command("unset")
 @click.argument("port_id", callback=validate_id)
-@click.option("--security-group", "security_groups", multiple=True,
-              help="Security group ID to remove (repeatable).")
-@click.option("--qos-policy", "clear_qos", is_flag=True, default=False,
-              help="Remove the QoS policy from the port.")
-@click.option("--description", "clear_description", is_flag=True, default=False,
-              help="Clear the port description.")
+@click.option("--security-group", "security_groups", multiple=True, help="Security group ID to remove (repeatable).")
+@click.option("--qos-policy", "clear_qos", is_flag=True, default=False, help="Remove the QoS policy from the port.")
+@click.option("--description", "clear_description", is_flag=True, default=False, help="Clear the port description.")
 @click.pass_context
-def network_port_unset(ctx: click.Context, port_id: str,
-                       security_groups: tuple[str, ...],
-                       clear_qos: bool, clear_description: bool) -> None:
+def network_port_unset(
+    ctx: click.Context, port_id: str, security_groups: tuple[str, ...], clear_qos: bool, clear_description: bool
+) -> None:
     """Remove properties from a port.
 
     \b
@@ -1241,8 +1438,7 @@ def network_port_unset(ctx: click.Context, port_id: str,
     if security_groups:
         # Fetch current SGs, remove the specified ones, then PUT
         current = svc.get_port(port_id)
-        current_sgs = [sg for sg in current.get("security_groups", [])
-                       if sg not in security_groups]
+        current_sgs = [sg for sg in current.get("security_groups", []) if sg not in security_groups]
         body["security_groups"] = current_sgs
         did_something = True
 
@@ -1269,13 +1465,10 @@ def network_port_unset(ctx: click.Context, port_id: str,
 
 @network_router_set.command("gateway")
 @click.argument("router_id", callback=validate_id)
-@click.option("--external-network", "network_id", required=True,
-              help="External network ID to use as gateway.")
-@click.option("--enable-snat/--disable-snat", "snat", default=None,
-              help="Enable or disable SNAT on the gateway.")
+@click.option("--external-network", "network_id", required=True, help="External network ID to use as gateway.")
+@click.option("--enable-snat/--disable-snat", "snat", default=None, help="Enable or disable SNAT on the gateway.")
 @click.pass_context
-def network_router_set_gateway(ctx: click.Context, router_id: str,
-                               network_id: str, snat: bool | None) -> None:
+def network_router_set_gateway(ctx: click.Context, router_id: str, network_id: str, snat: bool | None) -> None:
     """Set (or replace) the external gateway on a router.
 
     \b
@@ -1313,13 +1506,10 @@ def network_router_unset_gateway(ctx: click.Context, router_id: str) -> None:
 
 @network_router_add.command("route")
 @click.argument("router_id", callback=validate_id)
-@click.option("--destination", required=True, metavar="CIDR",
-              help="Destination network (e.g. 10.1.0.0/24).")
-@click.option("--nexthop", required=True, metavar="IP",
-              help="Next-hop IP address.")
+@click.option("--destination", required=True, metavar="CIDR", help="Destination network (e.g. 10.1.0.0/24).")
+@click.option("--nexthop", required=True, metavar="IP", help="Next-hop IP address.")
 @click.pass_context
-def network_router_add_route(ctx: click.Context, router_id: str,
-                              destination: str, nexthop: str) -> None:
+def network_router_add_route(ctx: click.Context, router_id: str, destination: str, nexthop: str) -> None:
     """Add a static route to a router (requires extraroute-atomic extension).
 
     \b
@@ -1328,20 +1518,15 @@ def network_router_add_route(ctx: click.Context, router_id: str,
     """
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     svc.add_router_routes(router_id, [{"destination": destination, "nexthop": nexthop}])
-    console.print(
-        f"[green]Route {destination} via {nexthop} added to router {router_id}.[/green]"
-    )
+    console.print(f"[green]Route {destination} via {nexthop} added to router {router_id}.[/green]")
 
 
 @network_router_remove.command("route")
 @click.argument("router_id", callback=validate_id)
-@click.option("--destination", required=True, metavar="CIDR",
-              help="Destination network to remove.")
-@click.option("--nexthop", required=True, metavar="IP",
-              help="Next-hop IP address.")
+@click.option("--destination", required=True, metavar="CIDR", help="Destination network to remove.")
+@click.option("--nexthop", required=True, metavar="IP", help="Next-hop IP address.")
 @click.pass_context
-def network_router_remove_route(ctx: click.Context, router_id: str,
-                                destination: str, nexthop: str) -> None:
+def network_router_remove_route(ctx: click.Context, router_id: str, destination: str, nexthop: str) -> None:
     """Remove a static route from a router (requires extraroute-atomic extension).
 
     \b
@@ -1350,14 +1535,13 @@ def network_router_remove_route(ctx: click.Context, router_id: str,
     """
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     svc.remove_router_routes(router_id, [{"destination": destination, "nexthop": nexthop}])
-    console.print(
-        f"[green]Route {destination} via {nexthop} removed from router {router_id}.[/green]"
-    )
+    console.print(f"[green]Route {destination} via {nexthop} removed from router {router_id}.[/green]")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  Network Segments (Neutron segments extension)
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 @network_segment.command("list")
 @click.option("--network-id", default=None, help="Filter by network ID.")
@@ -1378,8 +1562,11 @@ def network_segment_list(ctx, network_id, output_format, columns, fit_width, max
             ("Segmentation ID", lambda s: str(s.get("segmentation_id") or "—")),
         ],
         title="Network Segments",
-        output_format=output_format, columns=columns,
-        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        output_format=output_format,
+        columns=columns,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
         empty_msg="No segments found.",
     )
 
@@ -1393,27 +1580,32 @@ def network_segment_show(ctx, segment_id, output_format, columns, fit_width, max
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     s = svc.get_segment(segment_id)
     print_detail(
-        [(k, str(s.get(k, "") or "")) for k in
-         ("id", "name", "network_id", "network_type",
-          "physical_network", "segmentation_id", "description")],
-        output_format=output_format, columns=columns,
-        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        [
+            (k, str(s.get(k, "") or ""))
+            for k in ("id", "name", "network_id", "network_type", "physical_network", "segmentation_id", "description")
+        ],
+        output_format=output_format,
+        columns=columns,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
     )
 
 
 @network_segment.command("create")
 @click.argument("name")
 @click.option("--network-id", required=True, help="Network ID this segment belongs to.")
-@click.option("--network-type", required=True,
-              type=click.Choice(["flat", "geneve", "gre", "local", "vlan", "vxlan"]),
-              help="Network type.")
+@click.option(
+    "--network-type",
+    required=True,
+    type=click.Choice(["flat", "geneve", "gre", "local", "vlan", "vxlan"]),
+    help="Network type.",
+)
 @click.option("--physical-network", default=None, help="Physical network name.")
-@click.option("--segment", "segmentation_id", type=int, default=None,
-              help="Segmentation ID (VLAN ID or tunnel ID).")
+@click.option("--segment", "segmentation_id", type=int, default=None, help="Segmentation ID (VLAN ID or tunnel ID).")
 @click.option("--description", default=None, help="Segment description.")
 @click.pass_context
-def network_segment_create(ctx, name, network_id, network_type, physical_network,
-                           segmentation_id, description):
+def network_segment_create(ctx, name, network_id, network_type, physical_network, segmentation_id, description):
     """Create a network segment."""
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {"name": name, "network_id": network_id, "network_type": network_type}
@@ -1464,15 +1656,15 @@ def network_segment_delete(ctx, segment_id, yes):
 #  Auto-allocated topology (Neutron auto-allocation extension)
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 @network_auto_allocated_topology.command("show")
 @click.option("--project-id", default=None, help="Project ID (default: current project).")
-@click.option("--check-resources", is_flag=True,
-              help="Validate resources without creating topology.")
+@click.option("--check-resources", is_flag=True, help="Validate resources without creating topology.")
 @output_options
 @click.pass_context
-def network_auto_allocated_topology_show(ctx, project_id, check_resources,
-                                         output_format, columns, fit_width,
-                                         max_width, noindent):
+def network_auto_allocated_topology_show(
+    ctx, project_id, check_resources, output_format, columns, fit_width, max_width, noindent
+):
     """Show or create the auto-allocated topology for a project.
 
     \b
@@ -1482,13 +1674,14 @@ def network_auto_allocated_topology_show(ctx, project_id, check_resources,
       orca network auto-allocated-topology-show --check-resources
     """
     svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
-    topo = svc.get_auto_allocated_topology(project_id or "null",
-                                           dry_run=check_resources)
+    topo = svc.get_auto_allocated_topology(project_id or "null", dry_run=check_resources)
     print_detail(
-        [(k, str(topo.get(k, "") or "")) for k in
-         ("id", "tenant_id")],
-        output_format=output_format, columns=columns,
-        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        [(k, str(topo.get(k, "") or "")) for k in ("id", "tenant_id")],
+        output_format=output_format,
+        columns=columns,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
     )
 
 
@@ -1508,60 +1701,52 @@ def network_auto_allocated_topology_delete(ctx, project_id, yes):
 # ── Deprecated aliases (ADR-0008) ─────────────────────────────────────────
 
 for _legacy, _primary, _path in [
-    ("agent-delete",       network_agent.commands["delete"],  "network agent delete"),
-    ("agent-list",         network_agent.commands["list"],    "network agent list"),
-    ("agent-set",          network_agent.commands["set"],     "network agent set"),
-    ("agent-show",         network_agent.commands["show"],    "network agent show"),
-    ("auto-allocated-topology-delete",
+    ("agent-delete", network_agent.commands["delete"], "network agent delete"),
+    ("agent-list", network_agent.commands["list"], "network agent list"),
+    ("agent-set", network_agent.commands["set"], "network agent set"),
+    ("agent-show", network_agent.commands["show"], "network agent show"),
+    (
+        "auto-allocated-topology-delete",
         network_auto_allocated_topology.commands["delete"],
-        "network auto-allocated-topology delete"),
-    ("auto-allocated-topology-show",
+        "network auto-allocated-topology delete",
+    ),
+    (
+        "auto-allocated-topology-show",
         network_auto_allocated_topology.commands["show"],
-        "network auto-allocated-topology show"),
-    ("port-create",        network_port.commands["create"],   "network port create"),
-    ("port-delete",        network_port.commands["delete"],   "network port delete"),
-    ("port-list",          network_port.commands["list"],     "network port list"),
-    ("port-show",          network_port.commands["show"],     "network port show"),
-    ("port-unset",         network_port.commands["unset"],    "network port unset"),
-    ("port-update",        network_port.commands["update"],   "network port update"),
-    ("rbac-create",        network_rbac.commands["create"],   "network rbac create"),
-    ("rbac-delete",        network_rbac.commands["delete"],   "network rbac delete"),
-    ("rbac-list",          network_rbac.commands["list"],     "network rbac list"),
-    ("rbac-show",          network_rbac.commands["show"],     "network rbac show"),
-    ("rbac-update",        network_rbac.commands["update"],   "network rbac update"),
-    ("router-create",      network_router.commands["create"], "network router create"),
-    ("router-delete",      network_router.commands["delete"], "network router delete"),
-    ("router-list",        network_router.commands["list"],   "network router list"),
-    ("router-show",        network_router.commands["show"],   "network router show"),
-    ("router-update",      network_router.commands["update"], "network router update"),
-    ("router-add-interface",
-        network_router_add.commands["interface"],
-        "network router add interface"),
-    ("router-add-route",
-        network_router_add.commands["route"],
-        "network router add route"),
-    ("router-remove-interface",
-        network_router_remove.commands["interface"],
-        "network router remove interface"),
-    ("router-remove-route",
-        network_router_remove.commands["route"],
-        "network router remove route"),
-    ("router-set-gateway",
-        network_router_set.commands["gateway"],
-        "network router set gateway"),
-    ("router-unset-gateway",
-        network_router_unset.commands["gateway"],
-        "network router unset gateway"),
-    ("segment-create",     network_segment.commands["create"], "network segment create"),
-    ("segment-delete",     network_segment.commands["delete"], "network segment delete"),
-    ("segment-list",       network_segment.commands["list"],   "network segment list"),
-    ("segment-set",        network_segment.commands["set"],    "network segment set"),
-    ("segment-show",       network_segment.commands["show"],   "network segment show"),
-    ("subnet-create",      network_subnet.commands["create"],  "network subnet create"),
-    ("subnet-delete",      network_subnet.commands["delete"],  "network subnet delete"),
-    ("subnet-list",        network_subnet.commands["list"],    "network subnet list"),
-    ("subnet-show",        network_subnet.commands["show"],    "network subnet show"),
-    ("subnet-update",      network_subnet.commands["update"],  "network subnet update"),
+        "network auto-allocated-topology show",
+    ),
+    ("port-create", network_port.commands["create"], "network port create"),
+    ("port-delete", network_port.commands["delete"], "network port delete"),
+    ("port-list", network_port.commands["list"], "network port list"),
+    ("port-show", network_port.commands["show"], "network port show"),
+    ("port-unset", network_port.commands["unset"], "network port unset"),
+    ("port-update", network_port.commands["update"], "network port update"),
+    ("rbac-create", network_rbac.commands["create"], "network rbac create"),
+    ("rbac-delete", network_rbac.commands["delete"], "network rbac delete"),
+    ("rbac-list", network_rbac.commands["list"], "network rbac list"),
+    ("rbac-show", network_rbac.commands["show"], "network rbac show"),
+    ("rbac-update", network_rbac.commands["update"], "network rbac update"),
+    ("router-create", network_router.commands["create"], "network router create"),
+    ("router-delete", network_router.commands["delete"], "network router delete"),
+    ("router-list", network_router.commands["list"], "network router list"),
+    ("router-show", network_router.commands["show"], "network router show"),
+    ("router-update", network_router.commands["update"], "network router update"),
+    ("router-add-interface", network_router_add.commands["interface"], "network router add interface"),
+    ("router-add-route", network_router_add.commands["route"], "network router add route"),
+    ("router-remove-interface", network_router_remove.commands["interface"], "network router remove interface"),
+    ("router-remove-route", network_router_remove.commands["route"], "network router remove route"),
+    ("router-set-gateway", network_router_set.commands["gateway"], "network router set gateway"),
+    ("router-unset-gateway", network_router_unset.commands["gateway"], "network router unset gateway"),
+    ("segment-create", network_segment.commands["create"], "network segment create"),
+    ("segment-delete", network_segment.commands["delete"], "network segment delete"),
+    ("segment-list", network_segment.commands["list"], "network segment list"),
+    ("segment-set", network_segment.commands["set"], "network segment set"),
+    ("segment-show", network_segment.commands["show"], "network segment show"),
+    ("subnet-create", network_subnet.commands["create"], "network subnet create"),
+    ("subnet-delete", network_subnet.commands["delete"], "network subnet delete"),
+    ("subnet-list", network_subnet.commands["list"], "network subnet list"),
+    ("subnet-show", network_subnet.commands["show"], "network subnet show"),
+    ("subnet-update", network_subnet.commands["update"], "network subnet update"),
 ]:
     add_command_with_alias(network, _primary, legacy_name=_legacy, primary_path=_path)
 del _legacy, _primary, _path
@@ -1570,6 +1755,7 @@ del _legacy, _primary, _path
 # ══════════════════════════════════════════════════════════════════════════
 #  Metering labels + rules (2026-04-28 lot 4)
 # ══════════════════════════════════════════════════════════════════════════
+
 
 @network.group("meter")
 def network_meter() -> None:
@@ -1591,15 +1777,22 @@ def _net_svc(ctx: click.Context) -> NetworkService:
 def meter_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List metering labels."""
     items = _net_svc(ctx).find_metering_labels()
-    print_list(items, [
-        ("ID", "id", {"style": "cyan", "no_wrap": True}),
-        ("Name", "name", {"style": "bold"}),
-        ("Description", lambda lbl: lbl.get("description", "") or "—"),
-        ("Shared", "shared"),
-    ], title="Metering labels",
-       output_format=output_format, fit_width=fit_width, max_width=max_width,
-       noindent=noindent, columns=columns,
-       empty_msg="No metering labels.")
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Name", "name", {"style": "bold"}),
+            ("Description", lambda lbl: lbl.get("description", "") or "—"),
+            ("Shared", "shared"),
+        ],
+        title="Metering labels",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No metering labels.",
+    )
 
 
 @network_meter.command("show")
@@ -1609,9 +1802,14 @@ def meter_list(ctx, output_format, columns, fit_width, max_width, noindent):
 def meter_show(ctx, label_id, output_format, columns, fit_width, max_width, noindent):
     """Show a metering label."""
     data = _net_svc(ctx).get_metering_label(label_id)
-    print_detail([(k, str(v)) for k, v in data.items()],
-                 output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_meter.command("create")
@@ -1648,16 +1846,23 @@ def meter_rule_list(ctx, label_id, output_format, columns, fit_width, max_width,
     """List metering label rules."""
     params = {"metering_label_id": label_id} if label_id else None
     items = _net_svc(ctx).find_metering_label_rules(params=params)
-    print_list(items, [
-        ("ID", "id", {"style": "cyan", "no_wrap": True}),
-        ("Label", "metering_label_id"),
-        ("Direction", "direction"),
-        ("CIDR", lambda r: r.get("remote_ip_prefix") or r.get("source_ip_prefix") or "—"),
-        ("Excluded", "excluded"),
-    ], title="Metering rules",
-       output_format=output_format, fit_width=fit_width, max_width=max_width,
-       noindent=noindent, columns=columns,
-       empty_msg="No metering rules.")
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Label", "metering_label_id"),
+            ("Direction", "direction"),
+            ("CIDR", lambda r: r.get("remote_ip_prefix") or r.get("source_ip_prefix") or "—"),
+            ("Excluded", "excluded"),
+        ],
+        title="Metering rules",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No metering rules.",
+    )
 
 
 @network_meter_rule.command("show")
@@ -1667,24 +1872,25 @@ def meter_rule_list(ctx, label_id, output_format, columns, fit_width, max_width,
 def meter_rule_show(ctx, rule_id, output_format, columns, fit_width, max_width, noindent):
     """Show a metering rule."""
     data = _net_svc(ctx).get_metering_label_rule(rule_id)
-    print_detail([(k, str(v)) for k, v in data.items()],
-                 output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_meter_rule.command("create")
 @click.option("--label-id", required=True, help="Metering label to attach to.")
-@click.option("--direction", type=click.Choice(["ingress", "egress"]),
-              default="ingress", show_default=True)
-@click.option("--remote-ip-prefix", default=None,
-              help="CIDR to match (legacy alias of --source-ip-prefix).")
+@click.option("--direction", type=click.Choice(["ingress", "egress"]), default="ingress", show_default=True)
+@click.option("--remote-ip-prefix", default=None, help="CIDR to match (legacy alias of --source-ip-prefix).")
 @click.option("--source-ip-prefix", default=None)
 @click.option("--destination-ip-prefix", default=None)
-@click.option("--excluded", is_flag=True, default=False,
-              help="Invert the match (exclude this CIDR from accounting).")
+@click.option("--excluded", is_flag=True, default=False, help="Invert the match (exclude this CIDR from accounting).")
 @click.pass_context
-def meter_rule_create(ctx, label_id, direction, remote_ip_prefix,
-                       source_ip_prefix, destination_ip_prefix, excluded):
+def meter_rule_create(ctx, label_id, direction, remote_ip_prefix, source_ip_prefix, destination_ip_prefix, excluded):
     """Create a metering rule."""
     body: dict = {
         "metering_label_id": label_id,
@@ -1717,6 +1923,7 @@ def meter_rule_delete(ctx, rule_id, yes):
 #  Network flavors + service profiles (admin SDN, lot 5)
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network.group("flavor")
 def network_flavor() -> None:
     """Manage Neutron service flavors (admin SDN)."""
@@ -1733,15 +1940,22 @@ def network_flavor_profile() -> None:
 def nflavor_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List network flavors."""
     items = _net_svc(ctx).find_network_flavors()
-    print_list(items, [
-        ("ID", "id", {"style": "cyan", "no_wrap": True}),
-        ("Name", "name", {"style": "bold"}),
-        ("Service Type", "service_type"),
-        ("Enabled", "enabled"),
-    ], title="Network flavors",
-       output_format=output_format, fit_width=fit_width, max_width=max_width,
-       noindent=noindent, columns=columns,
-       empty_msg="No flavors.")
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Name", "name", {"style": "bold"}),
+            ("Service Type", "service_type"),
+            ("Enabled", "enabled"),
+        ],
+        title="Network flavors",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No flavors.",
+    )
 
 
 @network_flavor.command("show")
@@ -1751,15 +1965,19 @@ def nflavor_list(ctx, output_format, columns, fit_width, max_width, noindent):
 def nflavor_show(ctx, flavor_id, output_format, columns, fit_width, max_width, noindent):
     """Show a network flavor."""
     data = _net_svc(ctx).get_network_flavor(flavor_id)
-    print_detail([(k, str(v)) for k, v in data.items()],
-                 output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_flavor.command("create")
 @click.argument("name")
-@click.option("--service-type", required=True,
-              help="Service type (FLAVORS, FIREWALL_V2, …).")
+@click.option("--service-type", required=True, help="Service type (FLAVORS, FIREWALL_V2, …).")
 @click.option("--description", default=None)
 @click.option("--enabled/--disabled", default=True)
 @click.pass_context
@@ -1832,15 +2050,22 @@ def nflavor_remove(ctx, flavor_id, profile_id):
 def fprofile_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List service profiles."""
     items = _net_svc(ctx).find_service_profiles()
-    print_list(items, [
-        ("ID", "id", {"style": "cyan", "no_wrap": True}),
-        ("Driver", "driver"),
-        ("Description", lambda p: p.get("description", "") or "—"),
-        ("Enabled", "enabled"),
-    ], title="Service profiles",
-       output_format=output_format, fit_width=fit_width, max_width=max_width,
-       noindent=noindent, columns=columns,
-       empty_msg="No service profiles.")
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Driver", "driver"),
+            ("Description", lambda p: p.get("description", "") or "—"),
+            ("Enabled", "enabled"),
+        ],
+        title="Service profiles",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No service profiles.",
+    )
 
 
 @network_flavor_profile.command("show")
@@ -1850,16 +2075,20 @@ def fprofile_list(ctx, output_format, columns, fit_width, max_width, noindent):
 def fprofile_show(ctx, sp_id, output_format, columns, fit_width, max_width, noindent):
     """Show a service profile."""
     data = _net_svc(ctx).get_service_profile(sp_id)
-    print_detail([(k, str(v)) for k, v in data.items()],
-                 output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_flavor_profile.command("create")
 @click.option("--driver", default=None, help="Backend driver class.")
 @click.option("--description", default=None)
-@click.option("--metainfo", default=None,
-              help="Free-text JSON the driver consumes.")
+@click.option("--metainfo", default=None, help="Free-text JSON the driver consumes.")
 @click.option("--enabled/--disabled", default=True)
 @click.pass_context
 def fprofile_create(ctx, driver, description, metainfo, enabled):
@@ -1913,6 +2142,7 @@ def fprofile_delete(ctx, sp_id, yes):
 #  Network segment range (admin SDN, lot 6)
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network.group("segment-range")
 def network_segment_range() -> None:
     """Manage network segment ID ranges (admin)."""
@@ -1924,18 +2154,25 @@ def network_segment_range() -> None:
 def sr_list(ctx, output_format, columns, fit_width, max_width, noindent):
     """List network segment ranges."""
     items = _net_svc(ctx).find_segment_ranges()
-    print_list(items, [
-        ("ID", "id", {"style": "cyan", "no_wrap": True}),
-        ("Name", "name", {"style": "bold"}),
-        ("Type", "network_type"),
-        ("Physical Net", "physical_network"),
-        ("Min", lambda s: str(s.get("minimum", "—"))),
-        ("Max", lambda s: str(s.get("maximum", "—"))),
-        ("Shared", "shared"),
-    ], title="Network segment ranges",
-       output_format=output_format, fit_width=fit_width, max_width=max_width,
-       noindent=noindent, columns=columns,
-       empty_msg="No segment ranges.")
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Name", "name", {"style": "bold"}),
+            ("Type", "network_type"),
+            ("Physical Net", "physical_network"),
+            ("Min", lambda s: str(s.get("minimum", "—"))),
+            ("Max", lambda s: str(s.get("maximum", "—"))),
+            ("Shared", "shared"),
+        ],
+        title="Network segment ranges",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No segment ranges.",
+    )
 
 
 @network_segment_range.command("show")
@@ -1945,18 +2182,22 @@ def sr_list(ctx, output_format, columns, fit_width, max_width, noindent):
 def sr_show(ctx, sr_id, output_format, columns, fit_width, max_width, noindent):
     """Show a segment range."""
     data = _net_svc(ctx).get_segment_range(sr_id)
-    print_detail([(k, str(v)) for k, v in data.items()],
-                 output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_segment_range.command("create")
 @click.argument("name")
-@click.option("--network-type", required=True,
-              type=click.Choice(["vlan", "vxlan", "gre", "geneve"]),
-              help="Segment type.")
-@click.option("--physical-network", default=None,
-              help="Physical network identifier (required for vlan).")
+@click.option(
+    "--network-type", required=True, type=click.Choice(["vlan", "vxlan", "gre", "geneve"]), help="Segment type."
+)
+@click.option("--physical-network", default=None, help="Physical network identifier (required for vlan).")
 @click.option("--minimum", type=int, required=True, help="Minimum segment ID.")
 @click.option("--maximum", type=int, required=True, help="Maximum segment ID.")
 @click.option("--shared/--unshared", default=False)
@@ -1964,8 +2205,11 @@ def sr_show(ctx, sr_id, output_format, columns, fit_width, max_width, noindent):
 def sr_create(ctx, name, network_type, physical_network, minimum, maximum, shared):
     """Create a segment range."""
     body: dict = {
-        "name": name, "network_type": network_type,
-        "minimum": minimum, "maximum": maximum, "shared": shared,
+        "name": name,
+        "network_type": network_type,
+        "minimum": minimum,
+        "maximum": maximum,
+        "shared": shared,
     }
     if physical_network:
         body["physical_network"] = physical_network
@@ -2011,6 +2255,7 @@ def sr_delete(ctx, sr_id, yes):
 #  L3 conntrack helper (per-router, lot 7)
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network.group("l3-conntrack-helper")
 def network_l3ch() -> None:
     """Manage L3 conntrack helper modules on a router (admin)."""
@@ -2023,15 +2268,22 @@ def network_l3ch() -> None:
 def l3ch_list(ctx, router_id, output_format, columns, fit_width, max_width, noindent):
     """List conntrack helpers on a router."""
     items = _net_svc(ctx).find_conntrack_helpers(router_id)
-    print_list(items, [
-        ("ID", "id", {"style": "cyan", "no_wrap": True}),
-        ("Helper", "helper", {"style": "bold"}),
-        ("Protocol", "protocol"),
-        ("Port", lambda r: str(r.get("port", "—"))),
-    ], title=f"Conntrack helpers on router {router_id}",
-       output_format=output_format, fit_width=fit_width, max_width=max_width,
-       noindent=noindent, columns=columns,
-       empty_msg="No conntrack helpers.")
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Helper", "helper", {"style": "bold"}),
+            ("Protocol", "protocol"),
+            ("Port", lambda r: str(r.get("port", "—"))),
+        ],
+        title=f"Conntrack helpers on router {router_id}",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No conntrack helpers.",
+    )
 
 
 @network_l3ch.command("show")
@@ -2042,19 +2294,21 @@ def l3ch_list(ctx, router_id, output_format, columns, fit_width, max_width, noin
 def l3ch_show(ctx, router_id, ch_id, output_format, columns, fit_width, max_width, noindent):
     """Show a conntrack helper."""
     data = _net_svc(ctx).get_conntrack_helper(router_id, ch_id)
-    print_detail([(k, str(v)) for k, v in data.items()],
-                 output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_l3ch.command("create")
 @click.argument("router_id", callback=validate_id)
-@click.option("--helper", required=True,
-              help="Helper module name (ftp, tftp, sip, h323, …).")
-@click.option("--protocol", type=click.Choice(["tcp", "udp"]),
-              default="tcp", show_default=True)
-@click.option("--port", type=int, required=True,
-              help="Port the helper listens on.")
+@click.option("--helper", required=True, help="Helper module name (ftp, tftp, sip, h323, …).")
+@click.option("--protocol", type=click.Choice(["tcp", "udp"]), default="tcp", show_default=True)
+@click.option("--port", type=int, required=True, help="Port the helper listens on.")
 @click.pass_context
 def l3ch_create(ctx, router_id, helper, protocol, port):
     """Attach a conntrack helper to a router."""
@@ -2094,6 +2348,7 @@ def l3ch_delete(ctx, router_id, ch_id, yes):
 #  Router NDP proxy (IPv6, lot 8) — lives under ``network router ndp-proxy``
 # ══════════════════════════════════════════════════════════════════════════
 
+
 @network_router.group("ndp-proxy")
 def network_router_ndp() -> None:
     """Manage IPv6 NDP proxies on a router."""
@@ -2107,15 +2362,22 @@ def ndp_list(ctx, router_id, output_format, columns, fit_width, max_width, noind
     """List NDP proxies."""
     params = {"router_id": router_id} if router_id else None
     items = _net_svc(ctx).find_ndp_proxies(params=params)
-    print_list(items, [
-        ("ID", "id", {"style": "cyan", "no_wrap": True}),
-        ("Router", "router_id"),
-        ("Port", "port_id"),
-        ("IP", "ip_address"),
-    ], title="NDP proxies",
-       output_format=output_format, fit_width=fit_width, max_width=max_width,
-       noindent=noindent, columns=columns,
-       empty_msg="No NDP proxies.")
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Router", "router_id"),
+            ("Port", "port_id"),
+            ("IP", "ip_address"),
+        ],
+        title="NDP proxies",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No NDP proxies.",
+    )
 
 
 @network_router_ndp.command("show")
@@ -2125,16 +2387,20 @@ def ndp_list(ctx, router_id, output_format, columns, fit_width, max_width, noind
 def ndp_show(ctx, ndp_id, output_format, columns, fit_width, max_width, noindent):
     """Show an NDP proxy."""
     data = _net_svc(ctx).get_ndp_proxy(ndp_id)
-    print_detail([(k, str(v)) for k, v in data.items()],
-                 output_format=output_format, fit_width=fit_width,
-                 max_width=max_width, noindent=noindent, columns=columns)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+    )
 
 
 @network_router_ndp.command("create")
 @click.option("--router-id", required=True)
 @click.option("--port-id", required=True)
-@click.option("--ip-address", default=None,
-              help="Specific IPv6 address (autopicked if omitted).")
+@click.option("--ip-address", default=None, help="Specific IPv6 address (autopicked if omitted).")
 @click.pass_context
 def ndp_create(ctx, router_id, port_id, ip_address):
     """Create an NDP proxy."""
@@ -2179,6 +2445,7 @@ def ndp_delete(ctx, ndp_id, yes):
 # ══════════════════════════════════════════════════════════════════════════
 #  Agent network/router bindings (lot 11)
 # ══════════════════════════════════════════════════════════════════════════
+
 
 # Reuse network_agent already defined elsewhere in this file.
 @network_agent.group("add")
@@ -2246,3 +2513,38 @@ def _agent_remove_router(ctx, agent_id, router_id):
 network.add_command(network_update, name="unset")
 network_subnet.add_command(network_subnet_update, name="unset")
 network_router.add_command(router_update, name="unset")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Read-only introspection: network service providers
+#  (QoS rule types live in qos_policy.py since the ``qos`` top-level
+#   group is defined there.)
+# ══════════════════════════════════════════════════════════════════════════
+
+
+@network.group("service-provider")
+def network_service_provider() -> None:
+    """Inspect Neutron service providers (BGP-VPN, L3, …)."""
+
+
+@network_service_provider.command("list")
+@output_options
+@click.pass_context
+def nsp_list(ctx, output_format, columns, fit_width, max_width, noindent):
+    """List Neutron service providers."""
+    items = _net_svc(ctx).find_service_providers()
+    print_list(
+        items,
+        [
+            ("Service Type", "service_type"),
+            ("Name", "name", {"style": "bold"}),
+            ("Default", "default"),
+        ],
+        title="Network service providers",
+        output_format=output_format,
+        fit_width=fit_width,
+        max_width=max_width,
+        noindent=noindent,
+        columns=columns,
+        empty_msg="No service providers reported.",
+    )
