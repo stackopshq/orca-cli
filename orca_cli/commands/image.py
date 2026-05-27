@@ -1582,3 +1582,12 @@ add_command_with_alias(image, image_task_list,
                         legacy_name="task-list", primary_path="image task list")
 add_command_with_alias(image, image_task_show,
                         legacy_name="task-show", primary_path="image task show")
+
+
+# ── OSC-parity aliases (Glance) ──────────────────────────────────────────
+# ``openstack image set`` / ``openstack image unset`` map to orca's
+# existing ``image update`` — register the OSC verbs on the same callback
+# so muscle memory works.
+
+image.add_command(image_update, name="set")
+image.add_command(image_update, name="unset")

@@ -422,3 +422,7 @@ def sg_cleanup(ctx: click.Context, do_delete: bool, yes: bool) -> None:
     else:
         console.print()
     console.print()
+
+
+# OSC-parity alias: ``openstack security group unset`` delegates to update.
+security_group.add_command(sg_update, name="unset")

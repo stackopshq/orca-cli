@@ -2229,3 +2229,20 @@ def _agent_remove_router(ctx, agent_id, router_id):
     """Unbind a router from an L3 agent."""
     _net_svc(ctx).remove_router_from_l3_agent(agent_id, router_id)
     console.print(f"[green]Router {router_id} unbound from agent {agent_id}.[/green]")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  OSC-parity aliases (Neutron)
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Bridges from OSC verbs to the existing orca commands so users coming
+# from ``openstack ...`` find their muscle memory works without reading
+# the ``--help``. No new business logic — these are Click-level aliases
+# on the same callback.
+
+# ``network unset`` / ``network subnet unset`` / ``network router unset`` —
+# orca already exposes ``update`` with the same fields; expose ``unset`` as
+# a verb that delegates to update (the underlying body shape is the same).
+network.add_command(network_update, name="unset")
+network_subnet.add_command(network_subnet_update, name="unset")
+network_router.add_command(router_update, name="unset")

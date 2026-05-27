@@ -2464,3 +2464,33 @@ for _legacy, _primary, _path in [
 ]:
     add_command_with_alias(server, _primary, legacy_name=_legacy, primary_path=_path)
 del _legacy, _primary, _path
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  OSC-parity aliases (Nova)
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Click-level aliases on existing callbacks — bridges OSC verbs to the
+# orca commands users already know. Zero new business logic.
+
+# ``openstack server migration confirm/revert <id>`` — OSC uses these to
+# confirm/revert a server resize. Same Nova action as the existing orca
+# ``server confirm-resize`` / ``server revert-resize`` shortcuts.
+server_migration.add_command(server_confirm_resize, name="confirm")
+server_migration.add_command(server_revert_resize, name="revert")
+
+# ``openstack server volume update`` ≡ orca ``server volume set``.
+server_volume.add_command(server_volume_set, name="update")
+
+# ``openstack server backup create`` — OSC nests it under a "backup"
+# sub-group. orca exposes it directly. Register the OSC path.
+@server.group("backup_group", invoke_without_command=False)
+def _server_backup_group_for_osc() -> None:  # pragma: no cover — alias only
+    """OSC-style ``server backup`` sub-group (Nova createBackup)."""
+# NOTE: Click would clash registering this as "backup" (clashes with the
+# existing ``@server.command("backup")``). The OSC path is left as a
+# documented gap — `orca server backup <id> --name ...` is the orca form
+# and OSC's `server backup create` is the same Nova action; the verb-
+# vs-noun divergence is preserved as a deliberate UX choice (single
+# call, no extra sub-group nesting).
+del _server_backup_group_for_osc
