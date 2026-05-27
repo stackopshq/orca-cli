@@ -2686,3 +2686,263 @@ def volume_backend_capability(ctx: click.Context, host: str,
     fields = [(k, str(v)) for k, v in data.items()]
     print_detail(fields, output_format=output_format, fit_width=fit_width,
                  max_width=max_width, noindent=noindent, columns=columns)
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Cinder admin — clusters / log levels / resource filters / manageable
+#  (OSC parity: ``openstack block storage …``)
+# ══════════════════════════════════════════════════════════════════════════
+
+
+@volume.group("cluster")
+def volume_cluster() -> None:
+    """Manage Cinder active/active clusters (admin).
+
+    Maps to OSC ``openstack block storage cluster …``.
+    Requires Cinder micro-version >= 3.7 on the cloud.
+    """
+
+
+@volume_cluster.command("list")
+@click.option("--name", help="Filter by cluster name.")
+@click.option("--binary", help="Filter by service binary (e.g. cinder-volume).")
+@click.option("--detail", is_flag=True, help="Include extended fields.")
+@output_options
+@click.pass_context
+def volume_cluster_list(ctx, name, binary, detail, output_format,
+                        columns, fit_width, max_width, noindent):
+    """List Cinder clusters."""
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.find_clusters(name=name, binary=binary, detail=detail)
+    print_list(
+        items,
+        [
+            ("Name", "name", {"style": "cyan"}),
+            ("Binary", "binary"),
+            ("State", "state",
+             {"style": "green"}),
+            ("Status", "status"),
+            ("Replication", "replication_status"),
+            ("Updated", "updated_at"),
+        ],
+        title="Cinder clusters",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No clusters reported (single-host deployment?).",
+    )
+
+
+@volume_cluster.command("show")
+@click.argument("name")
+@click.option("--binary", help="Disambiguate when several binaries share a cluster name.")
+@output_options
+@click.pass_context
+def volume_cluster_show(ctx, name, binary, output_format, columns,
+                        fit_width, max_width, noindent):
+    """Show one Cinder cluster."""
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_cluster(name, binary=binary)
+    if not data:
+        raise OrcaCLIError(f"Cluster {name!r} not found.")
+    fields = [(k, str(v)) for k, v in data.items()]
+    print_detail(fields, output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@volume_cluster.command("set")
+@click.argument("name")
+@click.option("--binary", help="Service binary (required if ambiguous).")
+@click.option("--disable", "disabled", flag_value=True, default=None,
+              help="Disable the cluster.")
+@click.option("--enable", "disabled", flag_value=False, default=None,
+              help="Enable the cluster.")
+@click.option("--disable-reason", help="Reason recorded when disabling.")
+@click.pass_context
+def volume_cluster_set(ctx, name, binary, disabled, disable_reason):
+    """Enable/disable a cluster or set a disable-reason."""
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    body: dict = {}
+    if binary:
+        body["binary"] = binary
+    if disabled is not None:
+        body["disabled"] = disabled
+    if disable_reason is not None:
+        body["disabled_reason"] = disable_reason
+    if not body:
+        raise OrcaCLIError("Nothing to update — pass --enable/--disable or --disable-reason.")
+    svc.update_cluster(name, body)
+    console.print(f"[green]Cluster {name} updated.[/green]")
+
+
+@volume.group("log-level")
+def volume_log_level() -> None:
+    """Inspect or change live log levels of Cinder services (admin).
+
+    Maps to OSC ``openstack block storage log level …``.
+    Requires Cinder micro-version >= 3.32.
+    """
+
+
+@volume_log_level.command("list")
+@click.option("--binary", help="Filter by service binary (cinder-api, cinder-volume, …).")
+@click.option("--server", help="Filter by host.")
+@click.option("--prefix", help="Filter by logger prefix.")
+@output_options
+@click.pass_context
+def volume_log_level_list(ctx, binary, server, prefix, output_format,
+                          columns, fit_width, max_width, noindent):
+    """List current log levels per service / logger."""
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.find_log_levels(binary=binary, server=server, prefix=prefix)
+    print_list(
+        items,
+        [
+            ("Host", "host"),
+            ("Binary", "binary"),
+            ("Prefix", "prefix"),
+            ("Level", "levels"),
+        ],
+        title="Cinder log levels",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No log levels reported.",
+    )
+
+
+@volume_log_level.command("set")
+@click.argument("level",
+                type=click.Choice(["INFO", "WARNING", "ERROR", "DEBUG"], case_sensitive=False))
+@click.option("--binary", help="Restrict to one service binary.")
+@click.option("--server", help="Restrict to one host.")
+@click.option("--prefix", help="Restrict to one logger prefix.")
+@click.pass_context
+def volume_log_level_set(ctx, level, binary, server, prefix):
+    """Change the runtime log level of a Cinder service."""
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    svc.set_log_levels(level.upper(), binary=binary, server=server, prefix=prefix)
+    target = " / ".join(p for p in [binary, server, prefix] if p) or "all services"
+    console.print(f"[green]Log level set to {level.upper()} on {target}.[/green]")
+
+
+@volume.group("resource-filter")
+def volume_resource_filter() -> None:
+    """List/show server-side filters available for Cinder list APIs (admin).
+
+    Maps to OSC ``openstack block storage resource filter …``.
+    """
+
+
+@volume_resource_filter.command("list")
+@output_options
+@click.pass_context
+def volume_resource_filter_list(ctx, output_format, columns,
+                                fit_width, max_width, noindent):
+    """List all resource types that support server-side filters."""
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.find_resource_filters()
+    rows = [
+        {"resource": r.get("resource", ""),
+         "filters": ", ".join(r.get("filters", []) or [])}
+        for r in items
+    ]
+    print_list(
+        rows,
+        [
+            ("Resource", "resource", {"style": "cyan"}),
+            ("Filters", "filters"),
+        ],
+        title="Cinder resource filters",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No filters reported.",
+    )
+
+
+@volume_resource_filter.command("show")
+@click.argument("resource")
+@output_options
+@click.pass_context
+def volume_resource_filter_show(ctx, resource, output_format, columns,
+                                fit_width, max_width, noindent):
+    """Show filters available for one resource type."""
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.find_resource_filters(resource=resource)
+    if not items:
+        raise OrcaCLIError(f"No filters reported for resource {resource!r}.")
+    entry = items[0]
+    fields = [
+        ("resource", entry.get("resource", "")),
+        ("filters", ", ".join(entry.get("filters", []) or []) or "—"),
+    ]
+    print_detail(fields, output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
+
+
+@volume.group("manageable")
+def volume_manageable() -> None:
+    """Discover Cinder-manageable existing backend resources (admin).
+
+    Maps to OSC ``openstack block storage volume manageable list``.
+    """
+
+
+@volume_manageable.command("list")
+@click.option("--host", help="Filter by Cinder host (required on most backends).")
+@click.option("--cluster", help="Filter by cluster name.")
+@click.option("--detail", is_flag=True, help="Include extra backend fields.")
+@output_options
+@click.pass_context
+def volume_manageable_list(ctx, host, cluster, detail, output_format,
+                           columns, fit_width, max_width, noindent):
+    """List volumes on the backend that are not (yet) managed by Cinder."""
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.find_manageable_volumes(host=host, cluster=cluster, detail=detail)
+    print_list(
+        items,
+        [
+            ("Reference", lambda r: str(r.get("reference", ""))),
+            ("Size", "size", {"justify": "right"}),
+            ("Safe to manage", "safe_to_manage"),
+            ("Reason not safe", "reason_not_safe"),
+            ("Cinder ID", "cinder_id"),
+        ],
+        title="Manageable volumes",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No manageable volumes on this backend (or --host missing).",
+    )
+
+
+# ``volume snapshot manageable list`` — OSC parity, attached to the existing
+# ``volume_snapshot`` group.
+@volume_snapshot.group("manageable")
+def volume_snapshot_manageable() -> None:
+    """Discover Cinder-manageable existing snapshots on the backend."""
+
+
+@volume_snapshot_manageable.command("list")
+@click.option("--host", help="Filter by Cinder host.")
+@click.option("--cluster", help="Filter by cluster name.")
+@click.option("--detail", is_flag=True, help="Include extra backend fields.")
+@output_options
+@click.pass_context
+def volume_snapshot_manageable_list(ctx, host, cluster, detail, output_format,
+                                    columns, fit_width, max_width, noindent):
+    """List snapshots on the backend that are not (yet) managed by Cinder."""
+    svc = VolumeService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.find_manageable_snapshots(host=host, cluster=cluster, detail=detail)
+    print_list(
+        items,
+        [
+            ("Reference", lambda r: str(r.get("reference", ""))),
+            ("Source reference", lambda r: str(r.get("source_reference", ""))),
+            ("Size", "size", {"justify": "right"}),
+            ("Safe to manage", "safe_to_manage"),
+            ("Reason not safe", "reason_not_safe"),
+            ("Cinder ID", "cinder_id"),
+        ],
+        title="Manageable snapshots",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No manageable snapshots (or --host missing).",
+    )
