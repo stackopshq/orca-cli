@@ -2656,30 +2656,13 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#orca-network-router-unset" class="md-nav__link">
+  <a href="#orca-network-router-update" class="md-nav__link">
     <span class="md-ellipsis">
       
-        unset
+        update
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="unset">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#orca-network-router-unset-gateway" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        gateway
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -3130,6 +3113,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-network-subnet-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3206,6 +3200,17 @@
     <span class="md-ellipsis">
       
         trace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-network-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
       
     </span>
   </a>
@@ -6637,30 +6642,13 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#orca-network-router-unset" class="md-nav__link">
+  <a href="#orca-network-router-update" class="md-nav__link">
     <span class="md-ellipsis">
       
-        unset
+        update
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="unset">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#orca-network-router-unset-gateway" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        gateway
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -7111,6 +7099,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-network-subnet-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -7187,6 +7186,17 @@
     <span class="md-ellipsis">
       
         trace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-network-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
       
     </span>
   </a>
@@ -7327,6 +7337,7 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-network-subnet-update">subnet-update</a></em>: [deprecated, use 'network subnet update' instead]</li>
 <li><em><a href="#orca-network-topology">topology</a></em>: Display the network topology as a tree.</li>
 <li><em><a href="#orca-network-trace">trace</a></em>: Trace the full network path for a server instance.</li>
+<li><em><a href="#orca-network-update">update</a></em>: Update a network.</li>
 <li><em><a href="#orca-network-update">update</a></em>: Update a network.</li>
 <li><em><a href="#orca-network-update">update</a></em>: Update a network.</li>
 </ul>
@@ -10709,7 +10720,7 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-network-router-ndp-proxy">ndp-proxy</a></em>: Manage IPv6 NDP proxies on a router.</li>
 <li><em><a href="#orca-network-router-remove">remove</a></em>: Detach a sub-resource from a router.</li>
 <li><em><a href="#orca-network-router-show">show</a></em>: Show router details.</li>
-<li><em><a href="#orca-network-router-unset">unset</a></em>: Clear a router-level attribute (gateway).</li>
+<li><em><a href="#orca-network-router-update">update</a></em>: Update a router.</li>
 <li><em><a href="#orca-network-router-update">update</a></em>: Update a router.</li>
 <li><em><a href="#orca-network-router-update">update</a></em>: Update a router.</li>
 </ul>
@@ -11329,10 +11340,10 @@ always reflects the version installed.</p>
 </tr>
 </tbody>
 </table>
-<h5 id="orca-network-router-unset">orca network router unset<a class="headerlink" href="#orca-network-router-unset" title="Permanent link">&para;</a></h5>
-<p>Clear a router-level attribute (gateway).</p>
+<h5 id="orca-network-router-update">orca network router update<a class="headerlink" href="#orca-network-router-update" title="Permanent link">&para;</a></h5>
+<p>Update a router.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-97-1" name="__codelineno-97-1" href="#__codelineno-97-1"></a>orca network router unset [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-97-1" name="__codelineno-97-1" href="#__codelineno-97-1"></a>orca network router update [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11345,6 +11356,18 @@ always reflects the version installed.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--name</code></td>
+<td>text</td>
+<td>New name.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--external-network</code></td>
+<td>text</td>
+<td>New external gateway network ID.</td>
+<td>None</td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
@@ -11353,16 +11376,10 @@ always reflects the version installed.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Subcommands</strong></p>
-<ul>
-<li><em><a href="#orca-network-router-unset-gateway">gateway</a></em>: Remove the external gateway from a router.</li>
-</ul>
-<h6 id="orca-network-router-unset-gateway">orca network router unset gateway<a class="headerlink" href="#orca-network-router-unset-gateway" title="Permanent link">&para;</a></h6>
-<p>Remove the external gateway from a router.</p>
-<p>Example:
-  orca network router-unset-gateway <router-id></p>
+<h5 id="orca-network-router-update">orca network router update<a class="headerlink" href="#orca-network-router-update" title="Permanent link">&para;</a></h5>
+<p>Update a router.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-98-1" name="__codelineno-98-1" href="#__codelineno-98-1"></a>orca network router unset gateway [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-98-1" name="__codelineno-98-1" href="#__codelineno-98-1"></a>orca network router update [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11375,6 +11392,18 @@ always reflects the version installed.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--name</code></td>
+<td>text</td>
+<td>New name.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--external-network</code></td>
+<td>text</td>
+<td>New external gateway network ID.</td>
+<td>None</td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
@@ -11419,46 +11448,10 @@ always reflects the version installed.</p>
 </tr>
 </tbody>
 </table>
-<h5 id="orca-network-router-update">orca network router update<a class="headerlink" href="#orca-network-router-update" title="Permanent link">&para;</a></h5>
-<p>Update a router.</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-100-1" name="__codelineno-100-1" href="#__codelineno-100-1"></a>orca network router update [OPTIONS] ROUTER_ID
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--name</code></td>
-<td>text</td>
-<td>New name.</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>--external-network</code></td>
-<td>text</td>
-<td>New external gateway network ID.</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
 <h4 id="orca-network-router-add-interface">orca network router-add-interface<a class="headerlink" href="#orca-network-router-add-interface" title="Permanent link">&para;</a></h4>
 <p>Add a subnet interface to a router.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-101-1" name="__codelineno-101-1" href="#__codelineno-101-1"></a>orca network router-add-interface [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-100-1" name="__codelineno-100-1" href="#__codelineno-100-1"></a>orca network router-add-interface [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11490,7 +11483,7 @@ always reflects the version installed.</p>
 <p>Example:
   orca network router-add-route <router-id> --destination 10.1.0.0/24 --nexthop 192.168.1.1</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-102-1" name="__codelineno-102-1" href="#__codelineno-102-1"></a>orca network router-add-route [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-101-1" name="__codelineno-101-1" href="#__codelineno-101-1"></a>orca network router-add-route [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11526,7 +11519,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-router-create">orca network router-create<a class="headerlink" href="#orca-network-router-create" title="Permanent link">&para;</a></h4>
 <p>Create a router.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-103-1" name="__codelineno-103-1" href="#__codelineno-103-1"></a>orca network router-create [OPTIONS] NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-102-1" name="__codelineno-102-1" href="#__codelineno-102-1"></a>orca network router-create [OPTIONS] NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11556,7 +11549,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-router-delete">orca network router-delete<a class="headerlink" href="#orca-network-router-delete" title="Permanent link">&para;</a></h4>
 <p>Delete a router.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-104-1" name="__codelineno-104-1" href="#__codelineno-104-1"></a>orca network router-delete [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-103-1" name="__codelineno-103-1" href="#__codelineno-103-1"></a>orca network router-delete [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11586,7 +11579,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-router-list">orca network router-list<a class="headerlink" href="#orca-network-router-list" title="Permanent link">&para;</a></h4>
 <p>List routers.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-105-1" name="__codelineno-105-1" href="#__codelineno-105-1"></a>orca network router-list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-104-1" name="__codelineno-104-1" href="#__codelineno-104-1"></a>orca network router-list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11640,7 +11633,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-router-remove-interface">orca network router-remove-interface<a class="headerlink" href="#orca-network-router-remove-interface" title="Permanent link">&para;</a></h4>
 <p>Remove a subnet interface from a router.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-106-1" name="__codelineno-106-1" href="#__codelineno-106-1"></a>orca network router-remove-interface [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-105-1" name="__codelineno-105-1" href="#__codelineno-105-1"></a>orca network router-remove-interface [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11672,7 +11665,7 @@ always reflects the version installed.</p>
 <p>Example:
   orca network router-remove-route <router-id> --destination 10.1.0.0/24 --nexthop 192.168.1.1</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-107-1" name="__codelineno-107-1" href="#__codelineno-107-1"></a>orca network router-remove-route [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-106-1" name="__codelineno-106-1" href="#__codelineno-106-1"></a>orca network router-remove-route [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11711,7 +11704,7 @@ always reflects the version installed.</p>
   orca network router-set-gateway <router-id> --external-network <net-id>
   orca network router-set-gateway <router-id> --external-network <net-id> --enable-snat</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-108-1" name="__codelineno-108-1" href="#__codelineno-108-1"></a>orca network router-set-gateway [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-107-1" name="__codelineno-107-1" href="#__codelineno-107-1"></a>orca network router-set-gateway [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11747,7 +11740,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-router-show">orca network router-show<a class="headerlink" href="#orca-network-router-show" title="Permanent link">&para;</a></h4>
 <p>Show router details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-109-1" name="__codelineno-109-1" href="#__codelineno-109-1"></a>orca network router-show [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-108-1" name="__codelineno-108-1" href="#__codelineno-108-1"></a>orca network router-show [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11803,7 +11796,7 @@ always reflects the version installed.</p>
 <p>Example:
   orca network router-unset-gateway <router-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-110-1" name="__codelineno-110-1" href="#__codelineno-110-1"></a>orca network router-unset-gateway [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-109-1" name="__codelineno-109-1" href="#__codelineno-109-1"></a>orca network router-unset-gateway [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11827,7 +11820,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-router-update">orca network router-update<a class="headerlink" href="#orca-network-router-update" title="Permanent link">&para;</a></h4>
 <p>Update a router.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-111-1" name="__codelineno-111-1" href="#__codelineno-111-1"></a>orca network router-update [OPTIONS] ROUTER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-110-1" name="__codelineno-110-1" href="#__codelineno-110-1"></a>orca network router-update [OPTIONS] ROUTER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11863,7 +11856,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-segment">orca network segment<a class="headerlink" href="#orca-network-segment" title="Permanent link">&para;</a></h4>
 <p>Manage network segments.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-112-1" name="__codelineno-112-1" href="#__codelineno-112-1"></a>orca network segment [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-111-1" name="__codelineno-111-1" href="#__codelineno-111-1"></a>orca network segment [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11895,7 +11888,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-create">orca network segment create<a class="headerlink" href="#orca-network-segment-create" title="Permanent link">&para;</a></h5>
 <p>Create a network segment.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-113-1" name="__codelineno-113-1" href="#__codelineno-113-1"></a>orca network segment create [OPTIONS] NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-112-1" name="__codelineno-112-1" href="#__codelineno-112-1"></a>orca network segment create [OPTIONS] NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11949,7 +11942,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-delete">orca network segment delete<a class="headerlink" href="#orca-network-segment-delete" title="Permanent link">&para;</a></h5>
 <p>Delete a network segment.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-114-1" name="__codelineno-114-1" href="#__codelineno-114-1"></a>orca network segment delete [OPTIONS] SEGMENT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-113-1" name="__codelineno-113-1" href="#__codelineno-113-1"></a>orca network segment delete [OPTIONS] SEGMENT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -11979,7 +11972,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-list">orca network segment list<a class="headerlink" href="#orca-network-segment-list" title="Permanent link">&para;</a></h5>
 <p>List network segments.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-115-1" name="__codelineno-115-1" href="#__codelineno-115-1"></a>orca network segment list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-114-1" name="__codelineno-114-1" href="#__codelineno-114-1"></a>orca network segment list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12039,7 +12032,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-set">orca network segment set<a class="headerlink" href="#orca-network-segment-set" title="Permanent link">&para;</a></h5>
 <p>Update a network segment.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-116-1" name="__codelineno-116-1" href="#__codelineno-116-1"></a>orca network segment set [OPTIONS] SEGMENT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-115-1" name="__codelineno-115-1" href="#__codelineno-115-1"></a>orca network segment set [OPTIONS] SEGMENT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12075,7 +12068,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-show">orca network segment show<a class="headerlink" href="#orca-network-segment-show" title="Permanent link">&para;</a></h5>
 <p>Show a network segment.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-117-1" name="__codelineno-117-1" href="#__codelineno-117-1"></a>orca network segment show [OPTIONS] SEGMENT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-116-1" name="__codelineno-116-1" href="#__codelineno-116-1"></a>orca network segment show [OPTIONS] SEGMENT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12129,7 +12122,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-segment-create">orca network segment-create<a class="headerlink" href="#orca-network-segment-create" title="Permanent link">&para;</a></h4>
 <p>Create a network segment.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-118-1" name="__codelineno-118-1" href="#__codelineno-118-1"></a>orca network segment-create [OPTIONS] NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-117-1" name="__codelineno-117-1" href="#__codelineno-117-1"></a>orca network segment-create [OPTIONS] NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12183,7 +12176,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-segment-delete">orca network segment-delete<a class="headerlink" href="#orca-network-segment-delete" title="Permanent link">&para;</a></h4>
 <p>Delete a network segment.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-119-1" name="__codelineno-119-1" href="#__codelineno-119-1"></a>orca network segment-delete [OPTIONS] SEGMENT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-118-1" name="__codelineno-118-1" href="#__codelineno-118-1"></a>orca network segment-delete [OPTIONS] SEGMENT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12213,7 +12206,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-segment-list">orca network segment-list<a class="headerlink" href="#orca-network-segment-list" title="Permanent link">&para;</a></h4>
 <p>List network segments.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-120-1" name="__codelineno-120-1" href="#__codelineno-120-1"></a>orca network segment-list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-119-1" name="__codelineno-119-1" href="#__codelineno-119-1"></a>orca network segment-list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12273,7 +12266,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-segment-range">orca network segment-range<a class="headerlink" href="#orca-network-segment-range" title="Permanent link">&para;</a></h4>
 <p>Manage network segment ID ranges (admin).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-121-1" name="__codelineno-121-1" href="#__codelineno-121-1"></a>orca network segment-range [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-120-1" name="__codelineno-120-1" href="#__codelineno-120-1"></a>orca network segment-range [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12305,7 +12298,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-range-create">orca network segment-range create<a class="headerlink" href="#orca-network-segment-range-create" title="Permanent link">&para;</a></h5>
 <p>Create a segment range.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-122-1" name="__codelineno-122-1" href="#__codelineno-122-1"></a>orca network segment-range create [OPTIONS] NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-121-1" name="__codelineno-121-1" href="#__codelineno-121-1"></a>orca network segment-range create [OPTIONS] NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12359,7 +12352,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-range-delete">orca network segment-range delete<a class="headerlink" href="#orca-network-segment-range-delete" title="Permanent link">&para;</a></h5>
 <p>Delete a segment range.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-123-1" name="__codelineno-123-1" href="#__codelineno-123-1"></a>orca network segment-range delete [OPTIONS] SR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-122-1" name="__codelineno-122-1" href="#__codelineno-122-1"></a>orca network segment-range delete [OPTIONS] SR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12389,7 +12382,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-range-list">orca network segment-range list<a class="headerlink" href="#orca-network-segment-range-list" title="Permanent link">&para;</a></h5>
 <p>List network segment ranges.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-124-1" name="__codelineno-124-1" href="#__codelineno-124-1"></a>orca network segment-range list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-123-1" name="__codelineno-123-1" href="#__codelineno-123-1"></a>orca network segment-range list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12443,7 +12436,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-range-set">orca network segment-range set<a class="headerlink" href="#orca-network-segment-range-set" title="Permanent link">&para;</a></h5>
 <p>Update a segment range.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-125-1" name="__codelineno-125-1" href="#__codelineno-125-1"></a>orca network segment-range set [OPTIONS] SR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-124-1" name="__codelineno-124-1" href="#__codelineno-124-1"></a>orca network segment-range set [OPTIONS] SR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12485,7 +12478,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-segment-range-show">orca network segment-range show<a class="headerlink" href="#orca-network-segment-range-show" title="Permanent link">&para;</a></h5>
 <p>Show a segment range.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-126-1" name="__codelineno-126-1" href="#__codelineno-126-1"></a>orca network segment-range show [OPTIONS] SR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-125-1" name="__codelineno-125-1" href="#__codelineno-125-1"></a>orca network segment-range show [OPTIONS] SR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12539,7 +12532,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-segment-set">orca network segment-set<a class="headerlink" href="#orca-network-segment-set" title="Permanent link">&para;</a></h4>
 <p>Update a network segment.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-127-1" name="__codelineno-127-1" href="#__codelineno-127-1"></a>orca network segment-set [OPTIONS] SEGMENT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-126-1" name="__codelineno-126-1" href="#__codelineno-126-1"></a>orca network segment-set [OPTIONS] SEGMENT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12575,7 +12568,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-segment-show">orca network segment-show<a class="headerlink" href="#orca-network-segment-show" title="Permanent link">&para;</a></h4>
 <p>Show a network segment.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-128-1" name="__codelineno-128-1" href="#__codelineno-128-1"></a>orca network segment-show [OPTIONS] SEGMENT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-127-1" name="__codelineno-127-1" href="#__codelineno-127-1"></a>orca network segment-show [OPTIONS] SEGMENT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12629,7 +12622,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-show">orca network show<a class="headerlink" href="#orca-network-show" title="Permanent link">&para;</a></h4>
 <p>Show network details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-129-1" name="__codelineno-129-1" href="#__codelineno-129-1"></a>orca network show [OPTIONS] NETWORK_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-128-1" name="__codelineno-128-1" href="#__codelineno-128-1"></a>orca network show [OPTIONS] NETWORK_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12683,7 +12676,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-subnet">orca network subnet<a class="headerlink" href="#orca-network-subnet" title="Permanent link">&para;</a></h4>
 <p>Manage Neutron subnets.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-130-1" name="__codelineno-130-1" href="#__codelineno-130-1"></a>orca network subnet [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-129-1" name="__codelineno-129-1" href="#__codelineno-129-1"></a>orca network subnet [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12713,11 +12706,12 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-network-subnet-show">show</a></em>: Show subnet details.</li>
 <li><em><a href="#orca-network-subnet-update">update</a></em>: Update a subnet.</li>
 <li><em><a href="#orca-network-subnet-update">update</a></em>: Update a subnet.</li>
+<li><em><a href="#orca-network-subnet-update">update</a></em>: Update a subnet.</li>
 </ul>
 <h5 id="orca-network-subnet-create">orca network subnet create<a class="headerlink" href="#orca-network-subnet-create" title="Permanent link">&para;</a></h5>
 <p>Create a subnet.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-131-1" name="__codelineno-131-1" href="#__codelineno-131-1"></a>orca network subnet create [OPTIONS] NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-130-1" name="__codelineno-130-1" href="#__codelineno-130-1"></a>orca network subnet create [OPTIONS] NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12777,7 +12771,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-subnet-delete">orca network subnet delete<a class="headerlink" href="#orca-network-subnet-delete" title="Permanent link">&para;</a></h5>
 <p>Delete a subnet.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-132-1" name="__codelineno-132-1" href="#__codelineno-132-1"></a>orca network subnet delete [OPTIONS] SUBNET_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-131-1" name="__codelineno-131-1" href="#__codelineno-131-1"></a>orca network subnet delete [OPTIONS] SUBNET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12819,7 +12813,7 @@ GET per attached VM).</p>
 <p>Example:
   orca network subnet inspect <subnet-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-133-1" name="__codelineno-133-1" href="#__codelineno-133-1"></a>orca network subnet inspect [OPTIONS] SUBNET_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-132-1" name="__codelineno-132-1" href="#__codelineno-132-1"></a>orca network subnet inspect [OPTIONS] SUBNET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12843,7 +12837,7 @@ GET per attached VM).</p>
 <h5 id="orca-network-subnet-list">orca network subnet list<a class="headerlink" href="#orca-network-subnet-list" title="Permanent link">&para;</a></h5>
 <p>List subnets.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-134-1" name="__codelineno-134-1" href="#__codelineno-134-1"></a>orca network subnet list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-133-1" name="__codelineno-133-1" href="#__codelineno-133-1"></a>orca network subnet list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12897,7 +12891,7 @@ GET per attached VM).</p>
 <h5 id="orca-network-subnet-show">orca network subnet show<a class="headerlink" href="#orca-network-subnet-show" title="Permanent link">&para;</a></h5>
 <p>Show subnet details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-135-1" name="__codelineno-135-1" href="#__codelineno-135-1"></a>orca network subnet show [OPTIONS] SUBNET_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-134-1" name="__codelineno-134-1" href="#__codelineno-134-1"></a>orca network subnet show [OPTIONS] SUBNET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12939,6 +12933,54 @@ GET per attached VM).</p>
 <td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
 <td>Output format.</td>
 <td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="orca-network-subnet-update">orca network subnet update<a class="headerlink" href="#orca-network-subnet-update" title="Permanent link">&para;</a></h5>
+<p>Update a subnet.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-135-1" name="__codelineno-135-1" href="#__codelineno-135-1"></a>orca network subnet update [OPTIONS] SUBNET_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name</code></td>
+<td>text</td>
+<td>New name.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--description</code></td>
+<td>text</td>
+<td>New description.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--dns-nameserver</code></td>
+<td>text</td>
+<td>DNS nameserver IP (repeatable, replaces existing list).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--enable-dhcp</code> / <code>--disable-dhcp</code></td>
+<td>boolean</td>
+<td>Enable or disable DHCP.</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -13394,6 +13436,42 @@ floating IP, with status and IDs at each step.</p>
 <p>Update a network.</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-146-1" name="__codelineno-146-1" href="#__codelineno-146-1"></a>orca network update [OPTIONS] NETWORK_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name</code></td>
+<td>text</td>
+<td>New name.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--admin-state</code> / <code>--no-admin-state</code></td>
+<td>boolean</td>
+<td>Admin state.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-network-update">orca network update<a class="headerlink" href="#orca-network-update" title="Permanent link">&para;</a></h4>
+<p>Update a network.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-147-1" name="__codelineno-147-1" href="#__codelineno-147-1"></a>orca network update [OPTIONS] NETWORK_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>

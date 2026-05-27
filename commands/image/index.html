@@ -2028,6 +2028,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-image-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-image-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-image-upload" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5447,6 +5469,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-image-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-image-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-image-upload" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5544,6 +5588,8 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-image-task-list">task-list</a></em>: [deprecated, use 'image task list' instead]</li>
 <li><em><a href="#orca-image-task-show">task-show</a></em>: [deprecated, use 'image task show' instead]</li>
 <li><em><a href="#orca-image-unused">unused</a></em>: Find images not used by any server instance.</li>
+<li><em><a href="#orca-image-update">update</a></em>: Update image properties (JSON-Patch).</li>
+<li><em><a href="#orca-image-update">update</a></em>: Update image properties (JSON-Patch).</li>
 <li><em><a href="#orca-image-update">update</a></em>: Update image properties (JSON-Patch).</li>
 <li><em><a href="#orca-image-upload">upload</a></em>: Upload image data from a local file.</li>
 </ul>
@@ -8342,6 +8388,158 @@ and turns idempotent under <code>--ignore-missing</code>.</p>
 </tr>
 </tbody>
 </table>
+<h4 id="orca-image-update">orca image update<a class="headerlink" href="#orca-image-update" title="Permanent link">&para;</a></h4>
+<p>Update image properties (JSON-Patch).</p>
+<p>Builds one atomic JSON-Patch document from all flags. <code>--property</code> emits
+<code>add</code> when the key is absent and <code>replace</code> when it already exists, so
+untouched properties survive. <code>--remove-property</code> is strict by default
+and turns idempotent under <code>--ignore-missing</code>.</p>
+<p>Examples:
+  orca image update <id> --name new-name
+  orca image update <id> --visibility shared
+  orca image update <id> --property os_distro=ubuntu --property os_version=24.04
+  orca image update <id> --remove-property hw_qemu_guest_agent
+  orca image update <id> --remove-property foo --ignore-missing</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>orca image update [OPTIONS] IMAGE_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name</code></td>
+<td>text</td>
+<td>New name.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--min-disk</code></td>
+<td>integer</td>
+<td>New min disk (GB).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--min-ram</code></td>
+<td>integer</td>
+<td>New min RAM (MB).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--visibility</code></td>
+<td>choice (<code>private</code> &#x7C; <code>shared</code> &#x7C; <code>community</code> &#x7C; <code>public</code>)</td>
+<td>New visibility.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--property</code></td>
+<td>text</td>
+<td>Set or replace a custom image property (KEY=VALUE). Repeatable. Untouched properties are preserved.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--remove-property</code></td>
+<td>text</td>
+<td>Remove a custom image property by key. Repeatable. Errors if the key is absent (use --ignore-missing for idempotent runs).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--ignore-missing</code></td>
+<td>boolean</td>
+<td>With --remove-property: silently skip keys that aren't on the image.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-image-update">orca image update<a class="headerlink" href="#orca-image-update" title="Permanent link">&para;</a></h4>
+<p>Update image properties (JSON-Patch).</p>
+<p>Builds one atomic JSON-Patch document from all flags. <code>--property</code> emits
+<code>add</code> when the key is absent and <code>replace</code> when it already exists, so
+untouched properties survive. <code>--remove-property</code> is strict by default
+and turns idempotent under <code>--ignore-missing</code>.</p>
+<p>Examples:
+  orca image update <id> --name new-name
+  orca image update <id> --visibility shared
+  orca image update <id> --property os_distro=ubuntu --property os_version=24.04
+  orca image update <id> --remove-property hw_qemu_guest_agent
+  orca image update <id> --remove-property foo --ignore-missing</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a>orca image update [OPTIONS] IMAGE_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name</code></td>
+<td>text</td>
+<td>New name.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--min-disk</code></td>
+<td>integer</td>
+<td>New min disk (GB).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--min-ram</code></td>
+<td>integer</td>
+<td>New min RAM (MB).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--visibility</code></td>
+<td>choice (<code>private</code> &#x7C; <code>shared</code> &#x7C; <code>community</code> &#x7C; <code>public</code>)</td>
+<td>New visibility.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--property</code></td>
+<td>text</td>
+<td>Set or replace a custom image property (KEY=VALUE). Repeatable. Untouched properties are preserved.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--remove-property</code></td>
+<td>text</td>
+<td>Remove a custom image property by key. Repeatable. Errors if the key is absent (use --ignore-missing for idempotent runs).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--ignore-missing</code></td>
+<td>boolean</td>
+<td>With --remove-property: silently skip keys that aren't on the image.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="orca-image-upload">orca image upload<a class="headerlink" href="#orca-image-upload" title="Permanent link">&para;</a></h4>
 <p>Upload image data from a local file.</p>
 <p>The image must already exist and be in 'queued' status.
@@ -8349,7 +8547,7 @@ Supports large files — streams from disk without loading into memory.
 Examples:
   orca image upload <id> /path/to/ubuntu.qcow2</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>orca image upload [OPTIONS] IMAGE_ID FILE_PATH
+<div class="highlight"><pre><span></span><code><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a>orca image upload [OPTIONS] IMAGE_ID FILE_PATH
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
