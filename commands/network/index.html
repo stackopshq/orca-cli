@@ -3076,6 +3076,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-network-subnet-inspect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        inspect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-network-subnet-list" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -7046,6 +7057,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-network-subnet-inspect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        inspect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-network-subnet-list" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -9582,6 +9604,11 @@ always reflects the version installed.</p>
 </table>
 <h5 id="orca-network-port-list">orca network port list<a class="headerlink" href="#orca-network-port-list" title="Permanent link">&para;</a></h5>
 <p>List ports.</p>
+<p>Examples:
+  orca network port list
+  orca network port list --network-id <net-id>
+  orca network port list --subnet <subnet-id>
+  orca network port list --device-owner compute:nova</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>orca network port list [OPTIONS]
 </code></pre></div>
@@ -9600,6 +9627,24 @@ always reflects the version installed.</p>
 <td><code>--network-id</code></td>
 <td>text</td>
 <td>Filter by network ID.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--subnet-id</code>, <code>--subnet</code></td>
+<td>text</td>
+<td>Filter to ports that have a fixed IP in this subnet.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--device-owner</code></td>
+<td>text</td>
+<td>Filter by device owner (e.g. <code>compute:nova</code>, <code>network:router_interface</code>, <code>network:dhcp</code>).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--device-id</code></td>
+<td>text</td>
+<td>Filter by the attached resource ID (server, router, ...).</td>
 <td>None</td>
 </tr>
 <tr>
@@ -9886,6 +9931,11 @@ always reflects the version installed.</p>
 </table>
 <h4 id="orca-network-port-list">orca network port-list<a class="headerlink" href="#orca-network-port-list" title="Permanent link">&para;</a></h4>
 <p>List ports.</p>
+<p>Examples:
+  orca network port list
+  orca network port list --network-id <net-id>
+  orca network port list --subnet <subnet-id>
+  orca network port list --device-owner compute:nova</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>orca network port-list [OPTIONS]
 </code></pre></div>
@@ -9904,6 +9954,24 @@ always reflects the version installed.</p>
 <td><code>--network-id</code></td>
 <td>text</td>
 <td>Filter by network ID.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--subnet-id</code>, <code>--subnet</code></td>
+<td>text</td>
+<td>Filter to ports that have a fixed IP in this subnet.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--device-owner</code></td>
+<td>text</td>
+<td>Filter by device owner (e.g. <code>compute:nova</code>, <code>network:router_interface</code>, <code>network:dhcp</code>).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--device-id</code></td>
+<td>text</td>
+<td>Filter by the attached resource ID (server, router, ...).</td>
 <td>None</td>
 </tr>
 <tr>
@@ -12640,6 +12708,7 @@ always reflects the version installed.</p>
 <ul>
 <li><em><a href="#orca-network-subnet-create">create</a></em>: Create a subnet.</li>
 <li><em><a href="#orca-network-subnet-delete">delete</a></em>: Delete a subnet.</li>
+<li><em><a href="#orca-network-subnet-inspect">inspect</a></em>: Full inspection of a subnet — fields + IP usage + attached ports + servers.</li>
 <li><em><a href="#orca-network-subnet-list">list</a></em>: List subnets.</li>
 <li><em><a href="#orca-network-subnet-show">show</a></em>: Show subnet details.</li>
 <li><em><a href="#orca-network-subnet-update">update</a></em>: Update a subnet.</li>
@@ -12735,10 +12804,46 @@ always reflects the version installed.</p>
 </tr>
 </tbody>
 </table>
+<h5 id="orca-network-subnet-inspect">orca network subnet inspect<a class="headerlink" href="#orca-network-subnet-inspect" title="Permanent link">&para;</a></h5>
+<p>Full inspection of a subnet — fields + IP usage + attached ports + servers.</p>
+<p>Cross-references three Neutron endpoints so you don't have to run
+<code>subnet show</code> + <code>port list</code> + <code>ip-availability show</code> by hand:</p>
+<ol>
+<li><code>GET /subnets/{id}</code>                         — the subnet fields</li>
+<li><code>GET /network-ip-availabilities/{network_id}</code>  — IP usage per subnet</li>
+<li><code>GET /ports?fixed_ips=subnet_id=&lt;id&gt;</code>       — who actually uses each IP</li>
+</ol>
+<p>For each port, follow <code>device_id</code> when <code>device_owner</code> is
+<code>compute:*</code> to surface the server name (single Nova <code>servers/{id}</code>
+GET per attached VM).</p>
+<p>Example:
+  orca network subnet inspect <subnet-id></p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-133-1" name="__codelineno-133-1" href="#__codelineno-133-1"></a>orca network subnet inspect [OPTIONS] SUBNET_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h5 id="orca-network-subnet-list">orca network subnet list<a class="headerlink" href="#orca-network-subnet-list" title="Permanent link">&para;</a></h5>
 <p>List subnets.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-133-1" name="__codelineno-133-1" href="#__codelineno-133-1"></a>orca network subnet list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-134-1" name="__codelineno-134-1" href="#__codelineno-134-1"></a>orca network subnet list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12792,7 +12897,7 @@ always reflects the version installed.</p>
 <h5 id="orca-network-subnet-show">orca network subnet show<a class="headerlink" href="#orca-network-subnet-show" title="Permanent link">&para;</a></h5>
 <p>Show subnet details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-134-1" name="__codelineno-134-1" href="#__codelineno-134-1"></a>orca network subnet show [OPTIONS] SUBNET_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-135-1" name="__codelineno-135-1" href="#__codelineno-135-1"></a>orca network subnet show [OPTIONS] SUBNET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -12834,54 +12939,6 @@ always reflects the version installed.</p>
 <td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
 <td>Output format.</td>
 <td><code>table</code></td>
-</tr>
-<tr>
-<td><code>--help</code></td>
-<td>boolean</td>
-<td>Show this message and exit.</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<h5 id="orca-network-subnet-update">orca network subnet update<a class="headerlink" href="#orca-network-subnet-update" title="Permanent link">&para;</a></h5>
-<p>Update a subnet.</p>
-<p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-135-1" name="__codelineno-135-1" href="#__codelineno-135-1"></a>orca network subnet update [OPTIONS] SUBNET_ID
-</code></pre></div>
-<p><strong>Options:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--name</code></td>
-<td>text</td>
-<td>New name.</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>--description</code></td>
-<td>text</td>
-<td>New description.</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>--dns-nameserver</code></td>
-<td>text</td>
-<td>DNS nameserver IP (repeatable, replaces existing list).</td>
-<td><code>Sentinel.UNSET</code></td>
-</tr>
-<tr>
-<td><code>--enable-dhcp</code> / <code>--disable-dhcp</code></td>
-<td>boolean</td>
-<td>Enable or disable DHCP.</td>
-<td>None</td>
 </tr>
 <tr>
 <td><code>--help</code></td>
@@ -12939,10 +12996,58 @@ always reflects the version installed.</p>
 </tr>
 </tbody>
 </table>
+<h5 id="orca-network-subnet-update">orca network subnet update<a class="headerlink" href="#orca-network-subnet-update" title="Permanent link">&para;</a></h5>
+<p>Update a subnet.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-137-1" name="__codelineno-137-1" href="#__codelineno-137-1"></a>orca network subnet update [OPTIONS] SUBNET_ID
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name</code></td>
+<td>text</td>
+<td>New name.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--description</code></td>
+<td>text</td>
+<td>New description.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--dns-nameserver</code></td>
+<td>text</td>
+<td>DNS nameserver IP (repeatable, replaces existing list).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--enable-dhcp</code> / <code>--disable-dhcp</code></td>
+<td>boolean</td>
+<td>Enable or disable DHCP.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="orca-network-subnet-create">orca network subnet-create<a class="headerlink" href="#orca-network-subnet-create" title="Permanent link">&para;</a></h4>
 <p>Create a subnet.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-137-1" name="__codelineno-137-1" href="#__codelineno-137-1"></a>orca network subnet-create [OPTIONS] NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-138-1" name="__codelineno-138-1" href="#__codelineno-138-1"></a>orca network subnet-create [OPTIONS] NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -13002,7 +13107,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-subnet-delete">orca network subnet-delete<a class="headerlink" href="#orca-network-subnet-delete" title="Permanent link">&para;</a></h4>
 <p>Delete a subnet.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-138-1" name="__codelineno-138-1" href="#__codelineno-138-1"></a>orca network subnet-delete [OPTIONS] SUBNET_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-139-1" name="__codelineno-139-1" href="#__codelineno-139-1"></a>orca network subnet-delete [OPTIONS] SUBNET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -13032,7 +13137,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-subnet-list">orca network subnet-list<a class="headerlink" href="#orca-network-subnet-list" title="Permanent link">&para;</a></h4>
 <p>List subnets.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-139-1" name="__codelineno-139-1" href="#__codelineno-139-1"></a>orca network subnet-list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-140-1" name="__codelineno-140-1" href="#__codelineno-140-1"></a>orca network subnet-list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -13086,7 +13191,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-subnet-show">orca network subnet-show<a class="headerlink" href="#orca-network-subnet-show" title="Permanent link">&para;</a></h4>
 <p>Show subnet details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-140-1" name="__codelineno-140-1" href="#__codelineno-140-1"></a>orca network subnet-show [OPTIONS] SUBNET_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-141-1" name="__codelineno-141-1" href="#__codelineno-141-1"></a>orca network subnet-show [OPTIONS] SUBNET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -13140,7 +13245,7 @@ always reflects the version installed.</p>
 <h4 id="orca-network-subnet-update">orca network subnet-update<a class="headerlink" href="#orca-network-subnet-update" title="Permanent link">&para;</a></h4>
 <p>Update a subnet.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-141-1" name="__codelineno-141-1" href="#__codelineno-141-1"></a>orca network subnet-update [OPTIONS] SUBNET_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-142-1" name="__codelineno-142-1" href="#__codelineno-142-1"></a>orca network subnet-update [OPTIONS] SUBNET_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -13193,7 +13298,7 @@ always reflects the version installed.</p>
   orca network topology
   orca network topology --network-id <id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-142-1" name="__codelineno-142-1" href="#__codelineno-142-1"></a>orca network topology [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-143-1" name="__codelineno-143-1" href="#__codelineno-143-1"></a>orca network topology [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -13228,7 +13333,7 @@ floating IP, with status and IDs at each step.</p>
   orca network trace <server-id>
   orca network trace <server-name></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-143-1" name="__codelineno-143-1" href="#__codelineno-143-1"></a>orca network trace [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-144-1" name="__codelineno-144-1" href="#__codelineno-144-1"></a>orca network trace [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -13252,7 +13357,7 @@ floating IP, with status and IDs at each step.</p>
 <h4 id="orca-network-update">orca network update<a class="headerlink" href="#orca-network-update" title="Permanent link">&para;</a></h4>
 <p>Update a network.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-144-1" name="__codelineno-144-1" href="#__codelineno-144-1"></a>orca network update [OPTIONS] NETWORK_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-145-1" name="__codelineno-145-1" href="#__codelineno-145-1"></a>orca network update [OPTIONS] NETWORK_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -13288,7 +13393,7 @@ floating IP, with status and IDs at each step.</p>
 <h4 id="orca-network-update">orca network update<a class="headerlink" href="#orca-network-update" title="Permanent link">&para;</a></h4>
 <p>Update a network.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-145-1" name="__codelineno-145-1" href="#__codelineno-145-1"></a>orca network update [OPTIONS] NETWORK_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-146-1" name="__codelineno-146-1" href="#__codelineno-146-1"></a>orca network update [OPTIONS] NETWORK_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
