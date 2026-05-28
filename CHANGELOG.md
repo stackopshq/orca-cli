@@ -4,6 +4,32 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] — 2026-05-28
+
+### Added
+
+- **``quota set``** — set quotas on Nova, Cinder and Neutron in one
+  call. Exposes the OSC flag surface (``--instances``, ``--cores``,
+  ``--ram``, ``--volumes``, ``--snapshots``, ``--gigabytes``,
+  ``--networks``, ``--ports``, ``--floating-ips``, …) and only PUTs
+  to services with at least one flag set. ``--force`` skips Nova's
+  over-limit check.
+- **``quota delete``** — reset project quotas to the cloud defaults.
+  ``--service all`` (default) issues DELETE on the three services;
+  ``--service compute|volume|network`` narrows the reset.
+  Confirmation prompt unless ``--yes``.
+- **``quota list``** — list projects with non-default Neutron quotas
+  (Nova/Cinder have no list-all endpoint upstream).
+- Service helpers: ``ComputeService.update_quota / delete_quota``,
+  ``VolumeService.update_quota_set / delete_quota_set``,
+  ``NetworkService.update_quota / delete_quota / get_default_quota``.
+
+### Fixed
+
+- **``volume log-level list/set``** sent an extra wrapping envelope
+  (``{"os-services_get-log": {…}}``) that Cinder rejected with HTTP
+  400. The body is now posted at the top level as Cinder expects.
+
 ## [2.5.0] — 2026-05-28
 
 Major OSC-parity catch-up — 7 batches landed across compute, volume,
