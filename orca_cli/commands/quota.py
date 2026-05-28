@@ -5,10 +5,50 @@ from __future__ import annotations
 import click
 
 from orca_cli.core.context import OrcaContext
+from orca_cli.core.exceptions import OrcaCLIError
 from orca_cli.core.output import console, output_options, print_list
 from orca_cli.services.compute import ComputeService
 from orca_cli.services.network import NetworkService
 from orca_cli.services.volume import VolumeService
+
+# OSC ``quota set`` flags mapped to (service, API field).
+_COMPUTE_FLAGS = {
+    "instances": "instances",
+    "cores": "cores",
+    "ram": "ram",
+    "key_pairs": "key_pairs",
+    "server_groups": "server_groups",
+    "server_group_members": "server_group_members",
+    "metadata_items": "metadata_items",
+}
+_VOLUME_FLAGS = {
+    "volumes": "volumes",
+    "snapshots": "snapshots",
+    "backups": "backups",
+    "gigabytes": "gigabytes",
+    "backup_gigabytes": "backup_gigabytes",
+    "per_volume_gigabytes": "per_volume_gigabytes",
+}
+_NETWORK_FLAGS = {
+    "networks": "network",
+    "subnets": "subnet",
+    "ports": "port",
+    "routers": "router",
+    "floating_ips": "floatingip",
+    "security_groups": "security_group",
+    "security_group_rules": "security_group_rule",
+    "subnetpools": "subnetpool",
+    "rbac_policies": "rbac_policy",
+}
+
+
+def _resolve_project_id(ctx: click.Context, project: str | None) -> str:
+    client = ctx.find_object(OrcaContext).ensure_client()
+    pid = (project or client.project_id
+           or (client.token_data.get("project") or {}).get("id"))
+    if not pid:
+        raise OrcaCLIError("No project ID available; pass --project explicitly.")
+    return pid
 
 
 @click.group(invoke_without_command=True)
@@ -168,6 +208,182 @@ def quota_default(ctx: click.Context, project: str | None,
         output_format=output_format, fit_width=fit_width, max_width=max_width, noindent=noindent,
         columns=columns,
         empty_msg="No default quotas available.",
+    )
+
+
+# ── set / delete / list ──────────────────────────────────────────────────
+
+
+@quota.command("set")
+@click.option("--project", help="Project ID (default: current project).")
+# Compute
+@click.option("--instances", type=int, help="Compute: max instances.")
+@click.option("--cores", type=int, help="Compute: max vCPUs.")
+@click.option("--ram", type=int, help="Compute: max RAM (MB).")
+@click.option("--key-pairs", type=int, help="Compute: max key pairs.")
+@click.option("--server-groups", type=int, help="Compute: max server groups.")
+@click.option("--server-group-members", type=int, help="Compute: max members per server group.")
+@click.option("--metadata-items", type=int, help="Compute: max metadata items per server.")
+# Volume
+@click.option("--volumes", type=int, help="Volume: max volumes.")
+@click.option("--snapshots", type=int, help="Volume: max snapshots.")
+@click.option("--backups", type=int, help="Volume: max backups.")
+@click.option("--gigabytes", type=int, help="Volume: total volume storage (GB).")
+@click.option("--backup-gigabytes", type=int, help="Volume: total backup storage (GB).")
+@click.option("--per-volume-gigabytes", type=int, help="Volume: max size per volume (GB).")
+# Network (Neutron)
+@click.option("--networks", type=int, help="Network: max networks.")
+@click.option("--subnets", type=int, help="Network: max subnets.")
+@click.option("--ports", type=int, help="Network: max ports.")
+@click.option("--routers", type=int, help="Network: max routers.")
+@click.option("--floating-ips", type=int, help="Network: max floating IPs.")
+@click.option("--security-groups", type=int, help="Network: max security groups.")
+@click.option("--security-group-rules", type=int, help="Network: max security-group rules.")
+@click.option("--subnetpools", type=int, help="Network: max subnet pools.")
+@click.option("--rbac-policies", type=int, help="Network: max RBAC policies.")
+# Catch-all
+@click.option("--force", is_flag=True,
+              help="Compute only: bypass the over-limit check on resources in use.")
+@click.pass_context
+def quota_set(ctx: click.Context, project: str | None, force: bool, **kwargs) -> None:
+    """Set quotas on Nova / Cinder / Neutron (admin).
+
+    Pass any combination of resource flags — only services with at least
+    one flag receive a PUT. Use ``-1`` for unlimited (Compute / Volume)
+    or the explicit Neutron sentinel.
+
+    \b
+    Examples:
+      orca quota set --instances 50 --cores 100
+      orca quota set --project <uuid> --volumes 20 --gigabytes 1000
+      orca quota set --networks 200 --routers 50
+    """
+    client = ctx.find_object(OrcaContext).ensure_client()
+    project_id = _resolve_project_id(ctx, project)
+
+    compute_body = {k: kwargs[k] for k in _COMPUTE_FLAGS if kwargs.get(k) is not None}
+    volume_body = {k: kwargs[k] for k in _VOLUME_FLAGS if kwargs.get(k) is not None}
+    network_body = {
+        _NETWORK_FLAGS[k]: kwargs[k]
+        for k in _NETWORK_FLAGS if kwargs.get(k) is not None
+    }
+
+    if not (compute_body or volume_body or network_body):
+        raise OrcaCLIError(
+            "Nothing to update — pass at least one resource flag (see --help)."
+        )
+
+    updated: list[str] = []
+    if compute_body:
+        ComputeService(client).update_quota(project_id, compute_body, force=force)
+        updated.append(f"compute ({len(compute_body)})")
+    if volume_body:
+        VolumeService(client).update_quota_set(project_id, volume_body)
+        updated.append(f"volume ({len(volume_body)})")
+    if network_body:
+        NetworkService(client).update_quota(project_id, network_body)
+        updated.append(f"network ({len(network_body)})")
+
+    console.print(
+        f"[green]Quota updated on {project_id}:[/green] " + ", ".join(updated)
+    )
+
+
+@quota.command("delete")
+@click.option("--project", help="Project ID (default: current project).")
+@click.option("--service",
+              type=click.Choice(["all", "compute", "volume", "network"],
+                                case_sensitive=False),
+              default="all", show_default=True,
+              help="Which service's quota to reset.")
+@click.option("--yes", is_flag=True, help="Skip the confirmation prompt.")
+@click.pass_context
+def quota_delete(ctx: click.Context, project: str | None,
+                 service: str, yes: bool) -> None:
+    """Reset project quotas to the cloud defaults (admin).
+
+    Parity with ``openstack quota delete``. With ``--service all`` (default)
+    issues DELETE on Nova, Cinder and Neutron quota-sets for the project.
+    """
+    client = ctx.find_object(OrcaContext).ensure_client()
+    project_id = _resolve_project_id(ctx, project)
+    svc = service.lower()
+    targets = ["compute", "volume", "network"] if svc == "all" else [svc]
+
+    if not yes and not click.confirm(
+        f"Reset quotas to defaults on project {project_id} "
+        f"({', '.join(targets)}) ?",
+        default=False,
+    ):
+        console.print("[yellow]Aborted.[/yellow]")
+        return
+
+    resets: list[str] = []
+    for t in targets:
+        try:
+            if t == "compute":
+                ComputeService(client).delete_quota(project_id)
+            elif t == "volume":
+                VolumeService(client).delete_quota_set(project_id)
+            elif t == "network":
+                NetworkService(client).delete_quota(project_id)
+            resets.append(t)
+        except Exception as exc:
+            console.print(f"[red]{t}: {exc}[/red]")
+
+    if resets:
+        console.print(
+            f"[green]Quota reset to defaults on {project_id}:[/green] "
+            + ", ".join(resets)
+        )
+
+
+@quota.command("list")
+@click.option("--service",
+              type=click.Choice(["network"], case_sensitive=False),
+              default="network", show_default=True,
+              help="Only Neutron exposes a list-all endpoint; Compute "
+                   "and Volume require a per-project fan-out (use "
+                   "``orca quota show --project <id>`` instead).")
+@output_options
+@click.pass_context
+def quota_list(ctx: click.Context, service: str,
+               output_format: str, columns: tuple[str, ...], fit_width: bool,
+               max_width: int | None, noindent: bool) -> None:
+    """List projects with non-default quotas (admin).
+
+    Parity with ``openstack quota list`` — restricted to Neutron because
+    Nova and Cinder do not expose a cross-project list endpoint.
+    """
+    client = ctx.find_object(OrcaContext).ensure_client()
+    quotas = NetworkService(client).find_quotas()
+    rows = [
+        {
+            "project_id": q.get("project_id") or q.get("tenant_id", ""),
+            "networks": q.get("network", "—"),
+            "subnets": q.get("subnet", "—"),
+            "ports": q.get("port", "—"),
+            "routers": q.get("router", "—"),
+            "floating_ips": q.get("floatingip", "—"),
+            "security_groups": q.get("security_group", "—"),
+        }
+        for q in quotas
+    ]
+    print_list(
+        rows,
+        [
+            ("Project", "project_id", {"style": "cyan", "no_wrap": True}),
+            ("Networks", "networks", {"justify": "right"}),
+            ("Subnets", "subnets", {"justify": "right"}),
+            ("Ports", "ports", {"justify": "right"}),
+            ("Routers", "routers", {"justify": "right"}),
+            ("Floating IPs", "floating_ips", {"justify": "right"}),
+            ("SGs", "security_groups", {"justify": "right"}),
+        ],
+        title="Neutron quotas (non-default)",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No project has custom Neutron quotas.",
     )
 
 

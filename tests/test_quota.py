@@ -241,3 +241,173 @@ class TestQuotaHelp:
         result = invoke(["quota", "--help"])
         assert result.exit_code == 0
         assert "quota" in result.output.lower()
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  set / delete / list (admin)
+# ══════════════════════════════════════════════════════════════════════════
+
+
+class TestQuotaSet:
+
+    def _mock_writes(self, mock_client):
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.volume_url = "https://cinder.example.com/v3"
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.project_id = "proj-1"
+        calls: list[tuple[str, str, dict]] = []
+
+        def _put(url, json=None, **kwargs):
+            calls.append(("PUT", url, json or {}))
+            # Echo back the quota_set / quota body so the service helpers
+            # return something truthy.
+            return {"quota_set": (json or {}).get("quota_set", {}),
+                    "quota": (json or {}).get("quota", {})}
+
+        def _delete(url, **kwargs):
+            calls.append(("DELETE", url, {}))
+            return None
+
+        mock_client.put = _put
+        mock_client.delete = _delete
+        return calls
+
+    def test_set_compute_only(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        calls = self._mock_writes(mock_client)
+
+        result = invoke(["quota", "set", "--instances", "50", "--cores", "100"])
+        assert result.exit_code == 0, result.output
+        # Only Nova should have received a PUT.
+        puts = [c for c in calls if c[0] == "PUT"]
+        assert len(puts) == 1
+        assert "/os-quota-sets/proj-1" in puts[0][1]
+        assert puts[0][2]["quota_set"]["instances"] == 50
+        assert puts[0][2]["quota_set"]["cores"] == 100
+        assert "compute" in result.output
+
+    def test_set_three_services(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        calls = self._mock_writes(mock_client)
+
+        result = invoke([
+            "quota", "set",
+            "--instances", "30",
+            "--volumes", "20",
+            "--networks", "10",
+        ])
+        assert result.exit_code == 0, result.output
+        puts = [c for c in calls if c[0] == "PUT"]
+        assert len(puts) == 3
+        urls = " ".join(c[1] for c in puts)
+        assert "/os-quota-sets/" in urls  # nova + cinder
+        assert "/quotas/proj-1" in urls   # neutron
+        # Neutron flag mapping: --networks → ``network`` in payload.
+        neutron = next(c for c in puts if "/quotas/proj-1" in c[1])
+        assert neutron[2]["quota"]["network"] == 10
+
+    def test_set_force_flag(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        calls = self._mock_writes(mock_client)
+
+        result = invoke(["quota", "set", "--instances", "5", "--force"])
+        assert result.exit_code == 0
+        puts = [c for c in calls if c[0] == "PUT"]
+        assert puts[0][2]["quota_set"]["force"] is True
+
+    def test_set_nothing_to_do(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        self._mock_writes(mock_client)
+
+        result = invoke(["quota", "set"])
+        assert result.exit_code != 0
+        assert "Nothing to update" in result.output
+
+
+class TestQuotaDelete:
+
+    def test_delete_all_yes(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.volume_url = "https://cinder.example.com/v3"
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.project_id = "proj-1"
+        seen: list[str] = []
+
+        def _delete(url, **kwargs):
+            seen.append(url)
+            return None
+
+        mock_client.delete = _delete
+
+        result = invoke(["quota", "delete", "--yes"])
+        assert result.exit_code == 0, result.output
+        # One DELETE per service (compute / volume / network).
+        assert len(seen) == 3
+        assert any("/os-quota-sets/proj-1" in u and "nova" in u for u in seen)
+        assert any("/os-quota-sets/proj-1" in u and "cinder" in u for u in seen)
+        assert any("/quotas/proj-1" in u for u in seen)
+
+    def test_delete_single_service(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.volume_url = "https://cinder.example.com/v3"
+        mock_client.project_id = "proj-1"
+        seen: list[str] = []
+
+        def _delete(url, **kwargs):
+            seen.append(url)
+            return None
+
+        mock_client.delete = _delete
+        result = invoke(["quota", "delete", "--service", "network", "--yes"])
+        assert result.exit_code == 0
+        assert len(seen) == 1
+        assert "/quotas/proj-1" in seen[0]
+
+    def test_delete_aborted(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.compute_url = "https://nova.example.com/v2.1"
+        mock_client.volume_url = "https://cinder.example.com/v3"
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.project_id = "proj-1"
+        seen: list[str] = []
+        mock_client.delete = lambda *a, **kw: seen.append("nope")
+
+        # Decline the confirmation prompt.
+        result = invoke(["quota", "delete"], input="n\n")
+        assert result.exit_code == 0
+        assert "Aborted" in result.output
+        assert not seen
+
+
+class TestQuotaList:
+
+    def test_list_neutron(self, invoke, config_dir, mock_client, sample_profile):
+        save_profile("p", sample_profile)
+        set_active_profile("p")
+        mock_client.network_url = "https://neutron.example.com"
+        mock_client.project_id = "proj-1"
+
+        def _get(url, **kwargs):
+            if "/quotas" in url:
+                return {"quotas": [
+                    {"project_id": "alpha", "network": 5, "port": 50},
+                    {"project_id": "beta", "network": 99, "router": 7},
+                ]}
+            return {}
+
+        mock_client.get = _get
+        result = invoke(["quota", "list"])
+        assert result.exit_code == 0, result.output
+        assert "alpha" in result.output
+        assert "beta" in result.output
+        assert "99" in result.output

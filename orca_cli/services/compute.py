@@ -259,6 +259,25 @@ class ComputeService:
         )
         return data.get("quota_set", {})
 
+    def update_quota(self, project_id: str, body: dict, *,
+                     force: bool = False) -> dict:
+        """Nova ``PUT /os-quota-sets/{project}`` — set quota values.
+
+        ``force=True`` skips the over-limit check on resources already in use.
+        """
+        payload = dict(body)
+        if force:
+            payload["force"] = True
+        data = self._client.put(
+            f"{self._base}/os-quota-sets/{project_id}",
+            json={"quota_set": payload},
+        )
+        return data.get("quota_set", {})
+
+    def delete_quota(self, project_id: str) -> None:
+        """Nova ``DELETE /os-quota-sets/{project}`` — reset to defaults."""
+        self._client.delete(f"{self._base}/os-quota-sets/{project_id}")
+
     def get_limits(self, *,
                    params: dict[str, Any] | None = None) -> AbsoluteLimits:
         data = self._client.get(f"{self._base}/limits", params=params)

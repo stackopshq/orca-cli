@@ -487,6 +487,21 @@ class NetworkService:
         data = self._client.get(f"{self._base}/quotas/{project_id}/details")
         return data.get("quota", data)
 
+    def update_quota(self, project_id: str, body: dict) -> dict:
+        """Neutron ``PUT /quotas/{project}`` — set quota values."""
+        data = self._client.put(f"{self._base}/quotas/{project_id}",
+                                json={"quota": body})
+        return data.get("quota", data)
+
+    def delete_quota(self, project_id: str) -> None:
+        """Neutron ``DELETE /quotas/{project}`` — reset to defaults."""
+        self._client.delete(f"{self._base}/quotas/{project_id}")
+
+    def get_default_quota(self) -> dict:
+        """Neutron ``/quotas/default`` — cloud-wide default values."""
+        data = self._client.get(f"{self._base}/quotas/default")
+        return data.get("quota", data)
+
     # ══════════════════════════════════════════════════════════════════
     #  2026-04-28 audit catch-up (lots 2-12) — OSC-parity Neutron
     #  resources. Single CRUD pattern: list / show / create / update /
