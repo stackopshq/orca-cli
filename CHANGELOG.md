@@ -4,6 +4,108 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] — 2026-05-28
+
+Major OSC-parity catch-up — 7 batches landed across compute, volume,
+network, image, object-store, identity and quota/usage. The goal is to
+let an OpenStackClient user transplant their muscle memory to orca
+without re-learning command paths.
+
+### Added — OSC parity (lot 1: aliases)
+
+- ``image set`` / ``image unset`` (alias of ``image update``).
+- ``security-group unset`` (alias of ``security-group update``).
+- ``volume update`` (alias of ``volume set``).
+- ``server migration confirm`` / ``server migration revert``
+  (aliases of ``server confirm-resize`` / ``server revert-resize``).
+
+### Added — OSC parity (lot 2: discovery & misc)
+
+- ``catalog show <service>`` — pretty-prints a single service entry.
+- ``extension list`` / ``extension show <alias>`` — surfaces Neutron
+  extensions (the most useful discoverability axis).
+- ``versions show`` — Keystone API versions advertised on the root
+  endpoint (handles the HTTP 300 Multiple Choices reply).
+- ``qos rule-type list`` / ``qos rule-type show <type>``.
+- ``floating-ip pool list`` — lists external networks usable as FIP
+  pools.
+- ``hypervisor stats show`` — replaces the previous flat ``hypervisor
+  stats`` so the OSC three-word form works.
+- ``server event list`` / ``server event show`` — re-exposes
+  ``orca event`` under ``server`` for muscle memory.
+
+### Added — OSC parity (lot 3: Cinder admin)
+
+- ``volume cluster list/show/set``.
+- ``volume log-level list/set`` — change live log levels on Cinder
+  services.
+- ``volume resource-filter list/show``.
+- ``volume manageable list`` / ``volume snapshot manageable list``.
+
+### Fixed — Cinder micro-version negotiation
+
+- Without an explicit ``OpenStack-API-Version: volume X.Y`` header the
+  Cinder API falls back to 3.0 and returns 500 on ``/clusters``,
+  ``/os-services/{get,set}-log``, ``/resource_filters`` and the
+  ``manageable_*`` collections. orca now pins all admin routes added
+  in lot 3 to 3.70 (Wallaby).
+
+### Added — OSC parity (lot 4: Glance)
+
+- ``image add project`` / ``image remove project`` — wrap
+  ``image member create/delete`` under OSC's three-word form.
+- ``image save`` — alias of ``image download``.
+- ``image stores list`` — alias of ``image stores info``.
+- ``image info import`` — list Glance image-import methods
+  (parity with ``openstack image import info``).
+
+### Added — OSC parity (lot 5: Nova admin)
+
+- ``aggregate add host`` / ``aggregate remove host`` /
+  ``aggregate cache image`` — aliases of the existing ``aggregate
+  host add/remove`` / ``aggregate image cache``.
+- ``server group list/show/create/delete`` — re-exposes the top-level
+  ``server-group`` group under ``server`` for the OSC two-word form.
+
+### Added — OSC parity (lot 6: Swift)
+
+- ``object save`` — alias of ``object download``.
+- ``object account show`` — surface Swift account counters and
+  ``X-Account-Meta-*`` keys via HEAD on the account URL.
+
+### Added — OSC parity (lot 7: quota / usage)
+
+- ``quota`` is now a Click group: ``quota show [--project]`` (current
+  behaviour) and ``quota default [--project]`` (cloud-wide default
+  values per service). Bare ``quota`` still runs ``quota show`` for
+  backward compatibility.
+- ``usage`` is now a Click group: ``usage show [--project]`` (single
+  project) and ``usage list`` (cross-project, admin). Drops the
+  ``detailed`` query param on the per-project endpoint (rejected by
+  recent Nova micro-versions).
+- ``quota set/unset/list/delete`` are explicitly out of scope for this
+  release; tracked for a follow-up.
+
+### Project ID resolution
+
+- Commands that need the current project ID now fall back to
+  ``client.token_data.project.id`` when the profile only declares a
+  ``project_name``. ``quota`` and ``usage`` benefit from this.
+
+### Service layer
+
+- ``IdentityService.find_versions`` (handles HTTP 300 root).
+- ``NetworkService``: ``find_extensions / get_extension /
+  find_qos_rule_types / get_qos_rule_type / find_external_networks /
+  find_service_providers``.
+- ``VolumeService``: ``find_clusters / get_cluster / update_cluster``,
+  ``find_log_levels / set_log_levels``, ``find_resource_filters``,
+  ``find_manageable_volumes / find_manageable_snapshots``,
+  ``get_quota_set / get_quota_set_defaults``. Cinder admin micro-version
+  3.70 negotiated automatically.
+- ``ComputeService``: ``get_quota / get_quota_defaults``.
+- ``ImageService``: ``get_import_info``.
+
 ## [2.4.1] — 2026-05-18
 
 ### Fixed
