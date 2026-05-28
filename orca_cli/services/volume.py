@@ -522,6 +522,26 @@ class VolumeService:
         data = self._client.get(f"{self._base}/os-hosts", params=params)
         return data.get("hosts", [])
 
+    # ── quota sets (admin) ──────────────────────────────────────────────
+
+    def get_quota_set(self, project_id: str, *, usage: bool = False) -> dict:
+        """Cinder ``/os-quota-sets/{project}``.
+
+        ``usage=True`` adds ``in_use`` / ``reserved`` per resource (admin).
+        """
+        params = {"usage": "true"} if usage else None
+        data = self._client.get(
+            f"{self._base}/os-quota-sets/{project_id}", params=params,
+        )
+        return data.get("quota_set", {})
+
+    def get_quota_set_defaults(self, project_id: str) -> dict:
+        """Cinder ``/os-quota-sets/{project}/defaults``."""
+        data = self._client.get(
+            f"{self._base}/os-quota-sets/{project_id}/defaults",
+        )
+        return data.get("quota_set", {})
+
     # Cinder admin endpoints need an explicit micro-version negotiation,
     # otherwise the server falls back to 3.0 and returns 500 on /clusters,
     # /os-services/get-log, /resource_filters, etc. 3.70 covers every

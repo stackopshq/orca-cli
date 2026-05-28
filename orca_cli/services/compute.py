@@ -238,6 +238,27 @@ class ComputeService:
         )
         return data.get("tenant_usage", data)
 
+    # ── quota sets (admin) ─────────────────────────────────────────────
+
+    def get_quota(self, project_id: str, *, detail: bool = False) -> dict:
+        """Nova ``/os-quota-sets/{project}`` — current limits.
+
+        ``detail=True`` returns ``{<resource>: {in_use, reserved, limit}}``
+        (admin-only, micro-version >= 2.36).
+        """
+        suffix = "/detail" if detail else ""
+        data = self._client.get(
+            f"{self._base}/os-quota-sets/{project_id}{suffix}",
+        )
+        return data.get("quota_set", {})
+
+    def get_quota_defaults(self, project_id: str) -> dict:
+        """Nova ``/os-quota-sets/{project}/defaults`` — default values."""
+        data = self._client.get(
+            f"{self._base}/os-quota-sets/{project_id}/defaults",
+        )
+        return data.get("quota_set", {})
+
     def get_limits(self, *,
                    params: dict[str, Any] | None = None) -> AbsoluteLimits:
         data = self._client.get(f"{self._base}/limits", params=params)

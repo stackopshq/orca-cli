@@ -33,7 +33,11 @@ def _setup_mock(mock_client, server_usages=None, empty=False):
 
     def _get(url, **kwargs):
         if "os-simple-tenant-usage" in url:
-            return {"tenant_usages": tenant_usages}
+            # ``usage`` (no args) → ``usage show`` → GET .../<project_id>
+            # ``usage list`` → GET .../<no suffix> → tenant_usages array
+            if url.endswith("os-simple-tenant-usage"):
+                return {"tenant_usages": tenant_usages}
+            return {"tenant_usage": tenant_usages[0] if tenant_usages else {}}
         return {}
 
     mock_client.get = _get
