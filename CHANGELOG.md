@@ -4,6 +4,30 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.3] — 2026-05-28
+
+### Added (compute OSC parity — Phase 1.2 audit closure)
+
+- **``server add floating-ip SERVER IP_OR_ID [--fixed-ip-address ADDR]``**
+  — associate a floating IP with a server. Resolves the second
+  argument as either a literal address (e.g. ``172.24.4.10``) or a
+  UUID, picks the right server port (optionally the one owning a
+  specified fixed IP), and PUTs ``port_id`` on the floating-ip via
+  Neutron. Parity with ``openstack server add floating ip``.
+- **``server remove floating-ip SERVER IP_OR_ID``** — inverse.
+  Warns if the FIP is bound to a different server's port.
+- **``console log show SERVER``** / **``console url show SERVER``**
+  — top-level OSC parity for the existing ``server console log`` /
+  ``server console url`` (same callback).
+
+### Design notes (documented divergence)
+
+- **``server resize confirm/revert``** is exposed as
+  ``server migration confirm/revert`` (same Nova action,
+  semantically equivalent). Click does not support a single name
+  as both a leaf command (``server resize SERVER --flavor``) and a
+  group (``server resize confirm``).
+
 ## [2.5.2] — 2026-05-28
 
 ### Changed (UX consistency, backward-compatible)
