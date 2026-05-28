@@ -733,3 +733,45 @@ add_command_with_alias(object_store, object_account_set,
 add_command_with_alias(object_store, object_account_unset,
                         legacy_name="account-unset",
                         primary_path="object account unset")
+
+
+# ── OSC parity ───────────────────────────────────────────────────────────
+
+# ``openstack object save`` writes object data locally — same semantics
+# as orca's ``object download``.
+object_store.add_command(object_download, name="save")
+
+
+# ``openstack object store account show`` — surface account-level
+# stats (containers, objects, bytes used, custom metadata).
+@object_account.command("show")
+@output_options
+@click.pass_context
+def object_account_show(ctx: click.Context, output_format: str,
+                        columns: tuple[str, ...], fit_width: bool,
+                        max_width: int | None, noindent: bool) -> None:
+    """Show Swift account-level metadata and counters.
+
+    Equivalent to ``openstack object store account show``.
+    """
+    svc = ObjectStoreService(ctx.find_object(OrcaContext).ensure_client())
+    raw = svc.head_account()
+    # httpx normalises response headers to lowercase, so match in lowercase.
+    headers = {k.lower(): v for k, v in raw.items()}
+    fields: list[tuple[str, str]] = []
+    for label, key in (
+        ("Container-Count", "x-account-container-count"),
+        ("Object-Count", "x-account-object-count"),
+        ("Bytes-Used", "x-account-bytes-used"),
+        ("Storage-Policy", "x-account-storage-policy"),
+    ):
+        if val := headers.get(key):
+            fields.append((label, str(val)))
+    meta = {k: v for k, v in headers.items() if k.startswith("x-account-meta-")}
+    if meta:
+        fields.append(("", ""))
+        fields.append(("── Custom Metadata ──", ""))
+        for k, v in sorted(meta.items()):
+            fields.append((k.split("meta-", 1)[-1], str(v)))
+    print_detail(fields, output_format=output_format, fit_width=fit_width,
+                 max_width=max_width, noindent=noindent, columns=columns)
