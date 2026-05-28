@@ -4097,8 +4097,10 @@ always reflects the version installed.</p>
 </table>
 <h4 id="orca-endpoint-group-create">orca endpoint-group create<a class="headerlink" href="#orca-endpoint-group-create" title="Permanent link">&para;</a></h4>
 <p>Create an endpoint group.</p>
+<p>OSC-style: <code>endpoint-group create my-eg --filter ...</code>.
+Legacy: <code>endpoint-group create --name my-eg --filter ...</code>.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>orca endpoint-group create [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>orca endpoint-group create [OPTIONS] [NAME]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4114,8 +4116,8 @@ always reflects the version installed.</p>
 <tr>
 <td><code>--name</code></td>
 <td>text</td>
-<td>Endpoint group name.</td>
-<td><code>Sentinel.UNSET</code></td>
+<td>Endpoint group name (alternative to positional NAME).</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--filter</code></td>

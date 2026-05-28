@@ -4049,8 +4049,11 @@ always reflects the version installed.</p>
 </ul>
 <h4 id="orca-endpoint-create">orca endpoint create<a class="headerlink" href="#orca-endpoint-create" title="Permanent link">&para;</a></h4>
 <p>Create an endpoint.</p>
+<p>OSC-style positional form: <code>endpoint create SERVICE INTERFACE URL</code>.
+Legacy flag form: <code>endpoint create --service ID --interface public
+--url ...</code>. Either works.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>orca endpoint create [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>orca endpoint create [OPTIONS] [SERVICE] [INTERFACE] [URL]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4066,20 +4069,20 @@ always reflects the version installed.</p>
 <tr>
 <td><code>--service</code></td>
 <td>text</td>
-<td>Service ID.</td>
-<td><code>Sentinel.UNSET</code></td>
+<td>Service ID (alternative to positional SERVICE).</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--interface</code></td>
 <td>choice (<code>public</code> &#x7C; <code>internal</code> &#x7C; <code>admin</code>)</td>
-<td>Endpoint interface.</td>
-<td><code>Sentinel.UNSET</code></td>
+<td>Endpoint interface (alternative to positional INTERFACE).</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--url</code></td>
 <td>text</td>
-<td>Endpoint URL.</td>
-<td><code>Sentinel.UNSET</code></td>
+<td>Endpoint URL (alternative to positional URL).</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--region</code></td>

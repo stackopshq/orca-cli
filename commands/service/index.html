@@ -3948,8 +3948,12 @@ always reflects the version installed.</p>
 </ul>
 <h4 id="orca-service-create">orca service create<a class="headerlink" href="#orca-service-create" title="Permanent link">&para;</a></h4>
 <p>Create a Keystone service.</p>
+<p>Accepts the service name as either a positional argument
+(<code>orca service create my-svc --type ...</code>) — matching the
+<code>user</code> / <code>project</code> / <code>domain</code> / <code>role</code> / <code>group</code>
+CRUDs — or via the legacy <code>--name</code> flag.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>orca service create [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>orca service create [OPTIONS] [NAME]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -3965,8 +3969,8 @@ always reflects the version installed.</p>
 <tr>
 <td><code>--name</code></td>
 <td>text</td>
-<td>Service name.</td>
-<td><code>Sentinel.UNSET</code></td>
+<td>Service name (alternative to the positional argument).</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>--type</code></td>
