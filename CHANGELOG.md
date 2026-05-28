@@ -4,6 +4,36 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.2] — 2026-05-28
+
+### Changed (UX consistency, backward-compatible)
+
+- **``service create [NAME]``** — accepts the service name as a
+  positional argument (matching ``user`` / ``project`` / ``domain``
+  / ``role`` / ``group create NAME``). ``--name`` kept as a
+  fallback for existing scripts.
+- **``endpoint create [SERVICE] [INTERFACE] [URL]``** — accepts
+  the OSC three-positional form. ``--service`` / ``--interface``
+  / ``--url`` kept.
+- **``endpoint-group create [NAME]``** — accepts positional NAME.
+  ``--name`` kept.
+- **``role implied delete -y``** — ``--yes`` / ``-y`` was already
+  wired but the brief ``--help`` did not mention it; help text
+  added.
+
+### Added
+
+- **``application-credential create --access-rules JSON``** — pass
+  a JSON array (e.g. ``'[{"path":"/v3/projects","method":"GET","service":"identity"}]'``)
+  to attach Keystone access rules at credential creation time. This
+  is the only API path that supports rule attachment; the resulting
+  rules surface in ``orca access-rule list``. Closes the only orca
+  gap vs. OSC's ``--access-rules`` flag.
+
+All five changes were discovered during the live Phase 1.1 identity
+audit (``tests/devstack/audit/01-identity.md``) and re-validated on
+DevStack after the patch.
+
 ## [2.5.1] — 2026-05-28
 
 ### Added
