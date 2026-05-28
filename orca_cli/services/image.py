@@ -177,6 +177,13 @@ class ImageService:
         data = self._client.get(f"{self._base}{suffix}")
         return data.get("stores", []) if data else []
 
+    def get_import_info(self) -> dict:
+        """Return Glance's advertised import methods + per-method options.
+
+        OSC parity: ``openstack image import info``.
+        """
+        return self._client.get(f"{self._base}/info/import") or {}
+
     # ── async tasks ────────────────────────────────────────────────────
 
     def list_tasks(self, *, task_type: str | None = None,

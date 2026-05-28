@@ -1794,3 +1794,67 @@ add_command_with_alias(image, image_task_show, legacy_name="task-show", primary_
 
 image.add_command(image_update, name="set")
 image.add_command(image_update, name="unset")
+
+# ``openstack image save`` writes the binary to a local file — orca's
+# ``image download`` does the same thing. Re-expose under the OSC name.
+image.add_command(image_download, name="save")
+
+# ``openstack image stores list`` — orca calls it ``stores info`` (the
+# /v2/info/stores endpoint name); register the OSC verb too.
+image_stores.add_command(image_stores_info, name="list")
+
+
+# ``openstack image add project IMAGE PROJECT`` — wrap the existing
+# ``image member create`` so the OSC three-word form works as-is.
+@image.group("add")
+def image_add() -> None:
+    """OSC parity verbs (``image add project …``)."""
+
+
+@image.group("remove")
+def image_remove() -> None:
+    """OSC parity verbs (``image remove project …``)."""
+
+
+image_add.add_command(image_member_create, name="project")
+image_remove.add_command(image_member_delete, name="project")
+
+
+# ``openstack image import info`` — orca exposes the same data under
+# ``image import`` (a new sub-group ``info``). The existing flat
+# ``image import IMAGE`` action remains addressable as a sibling once
+# we convert it; for now we attach ``info`` as a new sibling command
+# at the ``image`` group level. To keep ADR-0008 happy we route through
+# a dedicated group ``image info``.
+
+@image.group("info")
+def image_info() -> None:
+    """Inspect Glance-advertised capabilities (stores, import methods)."""
+
+
+@image_info.command("import")
+@output_options
+@click.pass_context
+def image_info_import(ctx: click.Context, output_format: str,
+                      columns: tuple[str, ...], fit_width: bool,
+                      max_width: int | None, noindent: bool) -> None:
+    """List Glance image-import methods enabled on this cloud.
+
+    Equivalent to ``openstack image import info``.
+    """
+    svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_import_info()
+    methods = data.get("import-methods", {}) or {}
+    rows: list[dict] = []
+    if isinstance(methods, dict):
+        # Glance shape: ``{"type": "array", "value": ["web-download", …]}``.
+        for m in methods.get("value", []) or []:
+            rows.append({"method": m})
+    print_list(
+        rows,
+        [("Method", "method", {"style": "cyan"})],
+        title="Glance image-import methods",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No import methods reported (Glance v2 import disabled?).",
+    )
