@@ -3280,6 +3280,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="orca quota">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-quota-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        default
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-quota-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3766,6 +3794,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="orca quota">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-quota-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        default
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-quota-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3793,9 +3849,10 @@
 <p>The reference below is generated from the live CLI by <code>mkdocs-click</code>. It
 always reflects the version installed.</p>
 <h3 id="orca-quota">orca quota<a class="headerlink" href="#orca-quota" title="Permanent link">&para;</a></h3>
-<p>Show project quotas — Nova, Neutron and Cinder usage vs limits.</p>
+<p>Inspect project quotas across Nova, Neutron and Cinder.</p>
+<p>With no sub-command, runs <code>quota show</code> for backward compatibility.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>orca quota [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>orca quota [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -3808,6 +3865,105 @@ always reflects the version installed.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#orca-quota-default">default</a></em>: Show the cloud-wide default quotas (Nova + Cinder + Neutron).</li>
+<li><em><a href="#orca-quota-show">show</a></em>: Show project quotas — Nova, Neutron and Cinder usage vs limits.</li>
+</ul>
+<h4 id="orca-quota-default">orca quota default<a class="headerlink" href="#orca-quota-default" title="Permanent link">&para;</a></h4>
+<p>Show the cloud-wide default quotas (Nova + Cinder + Neutron).</p>
+<p>Parity with <code>openstack quota show --default</code> — Nova and Cinder
+each expose a <code>/os-quota-sets/&lt;project&gt;/defaults</code> endpoint that
+returns the same values regardless of the project; Neutron uses
+<code>/quotas/default</code>.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>orca quota default [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--project</code></td>
+<td>text</td>
+<td>Project ID (only used to look up defaults; Nova/Cinder return the same answer for any project).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-quota-show">orca quota show<a class="headerlink" href="#orca-quota-show" title="Permanent link">&para;</a></h4>
+<p>Show project quotas — Nova, Neutron and Cinder usage vs limits.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>orca quota show [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--project</code></td>
+<td>text</td>
+<td>Project ID (default: current project).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
 <tr>
 <td><code>--noindent</code></td>
 <td>boolean</td>

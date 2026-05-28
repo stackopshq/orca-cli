@@ -1609,6 +1609,34 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-floating-ip-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pool
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pool">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-floating-ip-pool-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-floating-ip-port-forwarding" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4013,6 +4041,34 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-floating-ip-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pool
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pool">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-floating-ip-pool-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-floating-ip-port-forwarding" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4178,6 +4234,7 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-floating-ip-delete">delete</a></em>: Release a floating IP.</li>
 <li><em><a href="#orca-floating-ip-disassociate">disassociate</a></em>: Disassociate a floating IP from its port.</li>
 <li><em><a href="#orca-floating-ip-list">list</a></em>: List floating IPs.</li>
+<li><em><a href="#orca-floating-ip-pool">pool</a></em>: Inspect the pools (external networks) that floating IPs can come from.</li>
 <li><em><a href="#orca-floating-ip-port-forwarding">port-forwarding</a></em>: Manage port-forwarding rules attached to a floating IP.</li>
 <li><em><a href="#orca-floating-ip-set">set</a></em>: Set floating IP properties.</li>
 <li><em><a href="#orca-floating-ip-show">show</a></em>: Show floating IP details.</li>
@@ -4409,10 +4466,92 @@ cleanup.</p>
 </tr>
 </tbody>
 </table>
+<h4 id="orca-floating-ip-pool">orca floating-ip pool<a class="headerlink" href="#orca-floating-ip-pool" title="Permanent link">&para;</a></h4>
+<p>Inspect the pools (external networks) that floating IPs can come from.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>orca floating-ip pool [OPTIONS] COMMAND [ARGS]...
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#orca-floating-ip-pool-list">list</a></em>: List external networks usable as floating-IP pools.</li>
+</ul>
+<h5 id="orca-floating-ip-pool-list">orca floating-ip pool list<a class="headerlink" href="#orca-floating-ip-pool-list" title="Permanent link">&para;</a></h5>
+<p>List external networks usable as floating-IP pools.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>orca floating-ip pool list [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="orca-floating-ip-port-forwarding">orca floating-ip port-forwarding<a class="headerlink" href="#orca-floating-ip-port-forwarding" title="Permanent link">&para;</a></h4>
 <p>Manage port-forwarding rules attached to a floating IP.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>orca floating-ip port-forwarding [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>orca floating-ip port-forwarding [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4448,7 +4587,7 @@ cleanup.</p>
     --internal-port-id <port-id> --internal-ip-address 10.0.0.5 \
     --internal-port 22 --external-port 2222</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>orca floating-ip port-forwarding create [OPTIONS] FIP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>orca floating-ip port-forwarding create [OPTIONS] FIP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4508,7 +4647,7 @@ cleanup.</p>
 <h5 id="orca-floating-ip-port-forwarding-delete">orca floating-ip port-forwarding delete<a class="headerlink" href="#orca-floating-ip-port-forwarding-delete" title="Permanent link">&para;</a></h5>
 <p>Delete a port-forwarding rule.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>orca floating-ip port-forwarding delete [OPTIONS] FIP_ID PF_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>orca floating-ip port-forwarding delete [OPTIONS] FIP_ID PF_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4538,7 +4677,7 @@ cleanup.</p>
 <h5 id="orca-floating-ip-port-forwarding-list">orca floating-ip port-forwarding list<a class="headerlink" href="#orca-floating-ip-port-forwarding-list" title="Permanent link">&para;</a></h5>
 <p>List port-forwarding rules on a floating IP.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>orca floating-ip port-forwarding list [OPTIONS] FIP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>orca floating-ip port-forwarding list [OPTIONS] FIP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4592,7 +4731,7 @@ cleanup.</p>
 <h5 id="orca-floating-ip-port-forwarding-set">orca floating-ip port-forwarding set<a class="headerlink" href="#orca-floating-ip-port-forwarding-set" title="Permanent link">&para;</a></h5>
 <p>Update a port-forwarding rule.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>orca floating-ip port-forwarding set [OPTIONS] FIP_ID PF_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>orca floating-ip port-forwarding set [OPTIONS] FIP_ID PF_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4652,7 +4791,7 @@ cleanup.</p>
 <h5 id="orca-floating-ip-port-forwarding-show">orca floating-ip port-forwarding show<a class="headerlink" href="#orca-floating-ip-port-forwarding-show" title="Permanent link">&para;</a></h5>
 <p>Show a port-forwarding rule.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>orca floating-ip port-forwarding show [OPTIONS] FIP_ID PF_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>orca floating-ip port-forwarding show [OPTIONS] FIP_ID PF_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4711,7 +4850,7 @@ cleanup.</p>
   orca floating-ip set <id> --qos-policy <qos-id>
   orca floating-ip set <id> --no-qos-policy</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>orca floating-ip set [OPTIONS] FLOATING_IP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>orca floating-ip set [OPTIONS] FLOATING_IP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4765,7 +4904,7 @@ cleanup.</p>
 <h4 id="orca-floating-ip-show">orca floating-ip show<a class="headerlink" href="#orca-floating-ip-show" title="Permanent link">&para;</a></h4>
 <p>Show floating IP details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>orca floating-ip show [OPTIONS] FLOATING_IP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>orca floating-ip show [OPTIONS] FLOATING_IP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4822,7 +4961,7 @@ cleanup.</p>
   orca floating-ip unset <id> --port
   orca floating-ip unset <id> --qos-policy</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>orca floating-ip unset [OPTIONS] FLOATING_IP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>orca floating-ip unset [OPTIONS] FLOATING_IP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>

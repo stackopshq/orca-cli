@@ -1830,6 +1830,45 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rule-type
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rule-type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-type-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-type-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4239,6 +4278,45 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rule-type
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rule-type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-type-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-qos-rule-type-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4304,6 +4382,7 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-qos-rule-create">rule-create</a></em>: [deprecated, use 'qos rule create' instead]</li>
 <li><em><a href="#orca-qos-rule-delete">rule-delete</a></em>: [deprecated, use 'qos rule delete' instead]</li>
 <li><em><a href="#orca-qos-rule-list">rule-list</a></em>: [deprecated, use 'qos rule list' instead]</li>
+<li><em><a href="#orca-qos-rule-type">rule-type</a></em>: Inspect QoS rule types Neutron knows how to enforce (read-only).</li>
 </ul>
 <h4 id="orca-qos-policy">orca qos policy<a class="headerlink" href="#orca-qos-policy" title="Permanent link">&para;</a></h4>
 <p>Manage QoS policies.</p>
@@ -5253,6 +5332,143 @@ always reflects the version installed.</p>
 <td>Rule type.</td>
 <td><code>bandwidth-limit</code></td>
 </tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-qos-rule-type">orca qos rule-type<a class="headerlink" href="#orca-qos-rule-type" title="Permanent link">&para;</a></h4>
+<p>Inspect QoS rule types Neutron knows how to enforce (read-only).</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>orca qos rule-type [OPTIONS] COMMAND [ARGS]...
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#orca-qos-rule-type-list">list</a></em>: List supported QoS rule types.</li>
+<li><em><a href="#orca-qos-rule-type-show">show</a></em>: Show the directions a QoS rule type supports.</li>
+</ul>
+<h5 id="orca-qos-rule-type-list">orca qos rule-type list<a class="headerlink" href="#orca-qos-rule-type-list" title="Permanent link">&para;</a></h5>
+<p>List supported QoS rule types.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>orca qos rule-type list [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="orca-qos-rule-type-show">orca qos rule-type show<a class="headerlink" href="#orca-qos-rule-type-show" title="Permanent link">&para;</a></h5>
+<p>Show the directions a QoS rule type supports.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>orca qos rule-type show [OPTIONS] RULE_TYPE
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>--noindent</code></td>
 <td>boolean</td>

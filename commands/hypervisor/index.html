@@ -1057,6 +1057,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="stats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-hypervisor-stats-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -3850,6 +3867,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="stats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-hypervisor-stats-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -3920,7 +3954,7 @@ always reflects the version installed.</p>
 <ul>
 <li><em><a href="#orca-hypervisor-list">list</a></em>: List hypervisors.</li>
 <li><em><a href="#orca-hypervisor-show">show</a></em>: Show hypervisor details.</li>
-<li><em><a href="#orca-hypervisor-stats">stats</a></em>: Show aggregated hypervisor statistics.</li>
+<li><em><a href="#orca-hypervisor-stats">stats</a></em>: Aggregate hypervisor statistics across the cluster.</li>
 <li><em><a href="#orca-hypervisor-usage">usage</a></em>: Show fill rate per hypervisor, sorted by load.</li>
 </ul>
 <h4 id="orca-hypervisor-list">orca hypervisor list<a class="headerlink" href="#orca-hypervisor-list" title="Permanent link">&para;</a></h4>
@@ -4032,9 +4066,9 @@ always reflects the version installed.</p>
 </tbody>
 </table>
 <h4 id="orca-hypervisor-stats">orca hypervisor stats<a class="headerlink" href="#orca-hypervisor-stats" title="Permanent link">&para;</a></h4>
-<p>Show aggregated hypervisor statistics.</p>
+<p>Aggregate hypervisor statistics across the cluster.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>orca hypervisor stats [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>orca hypervisor stats [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -4055,6 +4089,64 @@ always reflects the version installed.</p>
 </tr>
 </tbody>
 </table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#orca-hypervisor-stats-show">show</a></em>: Show cluster-wide hypervisor stats (vCPUs, RAM, disk, running VMs).</li>
+</ul>
+<h5 id="orca-hypervisor-stats-show">orca hypervisor stats show<a class="headerlink" href="#orca-hypervisor-stats-show" title="Permanent link">&para;</a></h5>
+<p>Show cluster-wide hypervisor stats (vCPUs, RAM, disk, running VMs).</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>orca hypervisor stats show [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="orca-hypervisor-usage">orca hypervisor usage<a class="headerlink" href="#orca-hypervisor-usage" title="Permanent link">&para;</a></h4>
 <p>Show fill rate per hypervisor, sorted by load.</p>
 <p>Combines vCPU, RAM and disk usage into a per-host 'score' (the worst
@@ -4064,7 +4156,7 @@ dimension) so the most-saturated hypervisors surface at the top.</p>
   Yellow 70–90%  — monitor closely
   Red    ≥ 90%   — critical</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>orca hypervisor usage [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>orca hypervisor usage [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>

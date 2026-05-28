@@ -1107,6 +1107,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="orca usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-usage-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-usage-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3766,6 +3794,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="orca usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-usage-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-usage-show" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3793,14 +3849,11 @@
 <p>The reference below is generated from the live CLI by <code>mkdocs-click</code>. It
 always reflects the version installed.</p>
 <h3 id="orca-usage">orca usage<a class="headerlink" href="#orca-usage" title="Permanent link">&para;</a></h3>
-<p>Show project resource usage over a period.</p>
-<p>Displays per-server CPU hours, RAM hours, disk usage, and uptime
-from the Nova simple-tenant-usage API.</p>
-<p>Examples:
-  orca usage
-  orca usage --start 2026-04-01 --end 2026-04-14</p>
+<p>Inspect Nova tenant usage.</p>
+<p>With no sub-command, runs <code>usage show</code> for the current project
+(backward-compatible). OSC parity: <code>usage show</code> and <code>usage list</code>.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>orca usage [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>orca usage [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -3813,6 +3866,156 @@ from the Nova simple-tenant-usage API.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--start</code></td>
+<td>text</td>
+<td>Start date (YYYY-MM-DD). Default: 30 days ago.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--end</code></td>
+<td>text</td>
+<td>End date (YYYY-MM-DD). Default: today.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#orca-usage-list">list</a></em>: List per-project resource usage across the whole cloud (admin).</li>
+<li><em><a href="#orca-usage-show">show</a></em>: Show CPU/RAM/disk hours and per-server breakdown for one project.</li>
+</ul>
+<h4 id="orca-usage-list">orca usage list<a class="headerlink" href="#orca-usage-list" title="Permanent link">&para;</a></h4>
+<p>List per-project resource usage across the whole cloud (admin).</p>
+<p>Parity with <code>openstack usage list</code> — hits Nova
+<code>/os-simple-tenant-usage</code> without a tenant filter, which returns
+one row per project active during the window.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>orca usage list [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--start</code></td>
+<td>text</td>
+<td>Start date (YYYY-MM-DD). Default: 30 days ago.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--end</code></td>
+<td>text</td>
+<td>End date (YYYY-MM-DD). Default: today.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-usage-show">orca usage show<a class="headerlink" href="#orca-usage-show" title="Permanent link">&para;</a></h4>
+<p>Show CPU/RAM/disk hours and per-server breakdown for one project.</p>
+<p>Examples:
+  orca usage show
+  orca usage show --start 2026-04-01 --end 2026-04-14
+  orca usage show --project <uuid></p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>orca usage show [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--project</code></td>
+<td>text</td>
+<td>Project ID (default: current project).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
 <tr>
 <td><code>--start</code></td>
 <td>text</td>
