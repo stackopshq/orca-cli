@@ -882,6 +882,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-server-add-floating-ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        floating-ip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-server-add-network" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1627,6 +1638,17 @@
     <span class="md-ellipsis">
       
         fixed-ip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-server-remove-floating-ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        floating-ip
       
     </span>
   </a>
@@ -5048,6 +5070,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-server-add-floating-ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        floating-ip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-server-add-network" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5800,6 +5833,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-server-remove-floating-ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        floating-ip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-server-remove-interface" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -6430,6 +6474,7 @@ always reflects the version installed.</p>
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#orca-server-add-fixed-ip">fixed-ip</a></em>: Add a fixed IP from a network to a server.</li>
+<li><em><a href="#orca-server-add-floating-ip">floating-ip</a></em>: Associate a floating IP with a server (OSC parity).</li>
 <li><em><a href="#orca-server-add-network">network</a></em>: Attach a network to a server (creates a new port automatically).</li>
 <li><em><a href="#orca-server-add-port">port</a></em>: Attach an existing Neutron port to a server.</li>
 <li><em><a href="#orca-server-add-security-group">security-group</a></em>: Add a security group to a running server.</li>
@@ -6461,13 +6506,48 @@ always reflects the version installed.</p>
 </tr>
 </tbody>
 </table>
+<h5 id="orca-server-add-floating-ip">orca server add floating-ip<a class="headerlink" href="#orca-server-add-floating-ip" title="Permanent link">&para;</a></h5>
+<p>Associate a floating IP with a server (OSC parity).</p>
+<p><code>IP_ADDRESS</code> may be either the floating IP itself (e.g.
+<code>172.24.4.10</code>) or its ID.</p>
+<p>Examples:
+  orca server add floating-ip <server-id> 172.24.4.10
+  orca server add floating-ip <id> 172.24.4.10 --fixed-ip-address 10.0.0.5</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>orca server add floating-ip [OPTIONS] SERVER_ID IP_ADDRESS
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--fixed-ip-address</code></td>
+<td>text</td>
+<td>Bind the FIP to a specific fixed IP of the server (otherwise the first port is chosen).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h5 id="orca-server-add-network">orca server add network<a class="headerlink" href="#orca-server-add-network" title="Permanent link">&para;</a></h5>
 <p>Attach a network to a server (creates a new port automatically).</p>
 <p>Examples:
   orca server add network <server-id> <network-id>
   orca server add network <server-id> <network-id> --fixed-ip 10.0.0.5</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>orca server add network [OPTIONS] SERVER_ID NETWORK_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>orca server add network [OPTIONS] SERVER_ID NETWORK_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6499,7 +6579,7 @@ always reflects the version installed.</p>
 <p>Example:
   orca server add-port <server-id> <port-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>orca server add port [OPTIONS] SERVER_ID PORT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>orca server add port [OPTIONS] SERVER_ID PORT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6523,7 +6603,7 @@ always reflects the version installed.</p>
 <h5 id="orca-server-add-security-group">orca server add security-group<a class="headerlink" href="#orca-server-add-security-group" title="Permanent link">&para;</a></h5>
 <p>Add a security group to a running server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>orca server add security-group [OPTIONS] SERVER_ID SECURITY_GROUP
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>orca server add security-group [OPTIONS] SERVER_ID SECURITY_GROUP
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6550,7 +6630,7 @@ always reflects the version installed.</p>
   orca server attach-volume <server-id> <volume-id>
   orca server attach-volume <server-id> <volume-id> --device /dev/vdc</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>orca server add volume [OPTIONS] SERVER_ID VOLUME_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>orca server add volume [OPTIONS] SERVER_ID VOLUME_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6582,7 +6662,7 @@ always reflects the version installed.</p>
 <p>Example:
   orca server add-fixed-ip <server-id> <network-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>orca server add-fixed-ip [OPTIONS] SERVER_ID NETWORK_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>orca server add-fixed-ip [OPTIONS] SERVER_ID NETWORK_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6609,7 +6689,7 @@ always reflects the version installed.</p>
   orca server add network <server-id> <network-id>
   orca server add network <server-id> <network-id> --fixed-ip 10.0.0.5</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>orca server add-network [OPTIONS] SERVER_ID NETWORK_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>orca server add-network [OPTIONS] SERVER_ID NETWORK_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6641,7 +6721,7 @@ always reflects the version installed.</p>
 <p>Example:
   orca server add-port <server-id> <port-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>orca server add-port [OPTIONS] SERVER_ID PORT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>orca server add-port [OPTIONS] SERVER_ID PORT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6665,7 +6745,7 @@ always reflects the version installed.</p>
 <h4 id="orca-server-add-security-group">orca server add-security-group<a class="headerlink" href="#orca-server-add-security-group" title="Permanent link">&para;</a></h4>
 <p>Add a security group to a running server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>orca server add-security-group [OPTIONS] SERVER_ID SECURITY_GROUP
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>orca server add-security-group [OPTIONS] SERVER_ID SECURITY_GROUP
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6692,7 +6772,7 @@ always reflects the version installed.</p>
   orca server add port <server-id> <port-id>
   orca server add network <server-id> <network-id> [--fixed-ip <ip>]</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>orca server attach-interface [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>orca server attach-interface [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6737,7 +6817,7 @@ always reflects the version installed.</p>
   orca server attach-volume <server-id> <volume-id>
   orca server attach-volume <server-id> <volume-id> --device /dev/vdc</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>orca server attach-volume [OPTIONS] SERVER_ID VOLUME_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>orca server attach-volume [OPTIONS] SERVER_ID VOLUME_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6774,7 +6854,7 @@ most recent images of that type.</p>
   orca server backup <server-id> --name nightly --rotation 7
   orca server backup <server-id> --name weekly --type weekly --rotation 4</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>orca server backup [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>orca server backup [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6822,7 +6902,7 @@ most recent images of that type.</p>
 <h4 id="orca-server-backup_group">orca server backup_group<a class="headerlink" href="#orca-server-backup_group" title="Permanent link">&para;</a></h4>
 <p>OSC-style <code>server backup</code> sub-group (Nova createBackup).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>orca server backup_group [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>orca server backup_group [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6850,7 +6930,7 @@ most recent images of that type.</p>
   orca server bulk delete --status ERROR --yes
   orca server bulk reboot --name "web-</em>" --status ACTIVE</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>orca server bulk [OPTIONS] {start|stop|reboot|delete}
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>orca server bulk [OPTIONS] {start|stop|reboot|delete}
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6906,7 +6986,7 @@ Override with <code>--boot-from-image</code> / <code>--boot-from-volume</code>.<
   orca server clone <id> --name web-02
   orca server clone <id> --name web-02 --boot-from-volume --disk-size 50</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>orca server clone [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>orca server clone [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6954,7 +7034,7 @@ Override with <code>--boot-from-image</code> / <code>--boot-from-volume</code>.<
 <h4 id="orca-server-confirm-resize">orca server confirm-resize<a class="headerlink" href="#orca-server-confirm-resize" title="Permanent link">&para;</a></h4>
 <p>Confirm a pending resize.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>orca server confirm-resize [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>orca server confirm-resize [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6978,7 +7058,7 @@ Override with <code>--boot-from-image</code> / <code>--boot-from-volume</code>.<
 <h4 id="orca-server-console">orca server console<a class="headerlink" href="#orca-server-console" title="Permanent link">&para;</a></h4>
 <p>Inspect the server console (log, URL).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>orca server console [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>orca server console [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7011,7 +7091,7 @@ Override with <code>--boot-from-image</code> / <code>--boot-from-volume</code>.<
   orca server console-log <server-id> --lines 100
   orca server console-log <server-id> --lines 0   # all output</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>orca server console log [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>orca server console log [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7045,7 +7125,7 @@ Override with <code>--boot-from-image</code> / <code>--boot-from-volume</code>.<
   orca server console-url <server-id> --type spice-html5
   orca server console-url <server-id> --open</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>orca server console url [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>orca server console url [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7085,7 +7165,7 @@ Override with <code>--boot-from-image</code> / <code>--boot-from-volume</code>.<
   orca server console-log <server-id> --lines 100
   orca server console-log <server-id> --lines 0   # all output</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>orca server console-log [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>orca server console-log [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7119,7 +7199,7 @@ Override with <code>--boot-from-image</code> / <code>--boot-from-volume</code>.<
   orca server console-url <server-id> --type spice-html5
   orca server console-url <server-id> --open</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>orca server console-url [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>orca server console-url [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7171,7 +7251,7 @@ to override the auto-detection.</p>
 <p>Interactive wizard:
   orca server create -i</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>orca server create [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>orca server create [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7268,7 +7348,7 @@ to override the auto-detection.</p>
       orca volume create --snapshot-id ...
       orca volume upload-to-image ...</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>orca server create-image [OPTIONS] SERVER_ID IMAGE_NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>orca server create-image [OPTIONS] SERVER_ID IMAGE_NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7292,7 +7372,7 @@ to override the auto-detection.</p>
 <h4 id="orca-server-delete">orca server delete<a class="headerlink" href="#orca-server-delete" title="Permanent link">&para;</a></h4>
 <p>Delete a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>orca server delete [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>orca server delete [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7334,7 +7414,7 @@ to override the auto-detection.</p>
 <h4 id="orca-server-detach-interface">orca server detach-interface<a class="headerlink" href="#orca-server-detach-interface" title="Permanent link">&para;</a></h4>
 <p>Detach a network interface (port) from a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>orca server detach-interface [OPTIONS] SERVER_ID PORT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>orca server detach-interface [OPTIONS] SERVER_ID PORT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7358,7 +7438,7 @@ to override the auto-detection.</p>
 <h4 id="orca-server-detach-volume">orca server detach-volume<a class="headerlink" href="#orca-server-detach-volume" title="Permanent link">&para;</a></h4>
 <p>Detach a volume from a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>orca server detach-volume [OPTIONS] SERVER_ID VOLUME_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>orca server detach-volume [OPTIONS] SERVER_ID VOLUME_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7386,7 +7466,7 @@ status, and other configuration.</p>
 <p>Examples:
   orca server diff <id1> <id2></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>orca server diff [OPTIONS] SERVER_A SERVER_B
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>orca server diff [OPTIONS] SERVER_A SERVER_B
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7410,7 +7490,7 @@ status, and other configuration.</p>
 <h4 id="orca-server-dump">orca server dump<a class="headerlink" href="#orca-server-dump" title="Permanent link">&para;</a></h4>
 <p>Manage crash dumps for a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>orca server dump [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>orca server dump [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7440,7 +7520,7 @@ status, and other configuration.</p>
 <p>Sends an NMI to the server which causes the guest OS to generate
 a crash dump. The server must be ACTIVE.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>orca server dump create [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>orca server dump create [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7466,7 +7546,7 @@ a crash dump. The server must be ACTIVE.</p>
 <p>Sends an NMI to the server which causes the guest OS to generate
 a crash dump. The server must be ACTIVE.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>orca server dump-create [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>orca server dump-create [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7494,7 +7574,7 @@ a crash dump. The server must be ACTIVE.</p>
   orca server evacuate <id> --host compute02
   orca server evacuate <id> --on-shared-storage</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>orca server evacuate [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>orca server evacuate [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7536,7 +7616,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-event">orca server event<a class="headerlink" href="#orca-server-event" title="Permanent link">&para;</a></h4>
 <p>Browse Nova instance actions for a server (alias of <code>orca event</code>).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>orca server event [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>orca server event [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7568,7 +7648,7 @@ a crash dump. The server must be ACTIVE.</p>
   orca event list <server-id>
   orca event list <server-id> -f json</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>orca server event list [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>orca server event list [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7624,7 +7704,7 @@ a crash dump. The server must be ACTIVE.</p>
 <p>Examples:
   orca event show <server-id> <request-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>orca server event show [OPTIONS] SERVER_ID REQUEST_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>orca server event show [OPTIONS] SERVER_ID REQUEST_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7678,7 +7758,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-image">orca server image<a class="headerlink" href="#orca-server-image" title="Permanent link">&para;</a></h4>
 <p>Image-level operations on a server (snapshot, ...).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>orca server image [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>orca server image [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7713,7 +7793,7 @@ a crash dump. The server must be ACTIVE.</p>
       orca volume create --snapshot-id ...
       orca volume upload-to-image ...</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>orca server image create [OPTIONS] SERVER_ID IMAGE_NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>orca server image create [OPTIONS] SERVER_ID IMAGE_NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7737,7 +7817,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-interface">orca server interface<a class="headerlink" href="#orca-server-interface" title="Permanent link">&para;</a></h4>
 <p>Network interfaces attached to a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>orca server interface [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>orca server interface [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7765,7 +7845,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h5 id="orca-server-interface-list">orca server interface list<a class="headerlink" href="#orca-server-interface-list" title="Permanent link">&para;</a></h5>
 <p>List network interfaces attached to a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>orca server interface list [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>orca server interface list [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7819,7 +7899,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-list">orca server list<a class="headerlink" href="#orca-server-list" title="Permanent link">&para;</a></h4>
 <p>List servers.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>orca server list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>orca server list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7879,7 +7959,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-list-interfaces">orca server list-interfaces<a class="headerlink" href="#orca-server-list-interfaces" title="Permanent link">&para;</a></h4>
 <p>List network interfaces attached to a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>orca server list-interfaces [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>orca server list-interfaces [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7933,7 +8013,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-list-volumes">orca server list-volumes<a class="headerlink" href="#orca-server-list-volumes" title="Permanent link">&para;</a></h4>
 <p>List volumes attached to a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>orca server list-volumes [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>orca server list-volumes [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7987,7 +8067,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-live-migrate">orca server live-migrate<a class="headerlink" href="#orca-server-live-migrate" title="Permanent link">&para;</a></h4>
 <p>Live-migrate a server (deprecated — use 'server migrate --live').</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>orca server live-migrate [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>orca server live-migrate [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8023,7 +8103,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-lock">orca server lock<a class="headerlink" href="#orca-server-lock" title="Permanent link">&para;</a></h4>
 <p>Lock a server (prevent actions by non-admin).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>orca server lock [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>orca server lock [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8047,7 +8127,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-metadata">orca server metadata<a class="headerlink" href="#orca-server-metadata" title="Permanent link">&para;</a></h4>
 <p>Read or modify server metadata.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>orca server metadata [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>orca server metadata [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8075,7 +8155,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h5 id="orca-server-metadata-list">orca server metadata list<a class="headerlink" href="#orca-server-metadata-list" title="Permanent link">&para;</a></h5>
 <p>Show all metadata key/value pairs for a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>orca server metadata list [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>orca server metadata list [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8099,7 +8179,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-metadata-list">orca server metadata-list<a class="headerlink" href="#orca-server-metadata-list" title="Permanent link">&para;</a></h4>
 <p>Show all metadata key/value pairs for a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>orca server metadata-list [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>orca server metadata-list [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8128,7 +8208,7 @@ a crash dump. The server must be ACTIVE.</p>
   orca server migrate <id> --live                # live migration
   orca server migrate <id> --live --block-migration</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>orca server migrate [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>orca server migrate [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8170,7 +8250,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-migration">orca server migration<a class="headerlink" href="#orca-server-migration" title="Permanent link">&para;</a></h4>
 <p>Inspect or control server migrations.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>orca server migration [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>orca server migration [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8203,7 +8283,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h5 id="orca-server-migration-abort">orca server migration abort<a class="headerlink" href="#orca-server-migration-abort" title="Permanent link">&para;</a></h5>
 <p>Abort an in-progress live migration.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>orca server migration abort [OPTIONS] SERVER_ID MIGRATION_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>orca server migration abort [OPTIONS] SERVER_ID MIGRATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8227,7 +8307,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h5 id="orca-server-migration-confirm-resize">orca server migration confirm-resize<a class="headerlink" href="#orca-server-migration-confirm-resize" title="Permanent link">&para;</a></h5>
 <p>Confirm a pending resize.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>orca server migration confirm-resize [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>orca server migration confirm-resize [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8251,7 +8331,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h5 id="orca-server-migration-force-complete">orca server migration force-complete<a class="headerlink" href="#orca-server-migration-force-complete" title="Permanent link">&para;</a></h5>
 <p>Force an in-progress live migration to complete.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>orca server migration force-complete [OPTIONS] SERVER_ID MIGRATION_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>orca server migration force-complete [OPTIONS] SERVER_ID MIGRATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8275,7 +8355,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h5 id="orca-server-migration-list">orca server migration list<a class="headerlink" href="#orca-server-migration-list" title="Permanent link">&para;</a></h5>
 <p>List migrations for a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>orca server migration list [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>orca server migration list [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8329,7 +8409,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h5 id="orca-server-migration-revert-resize">orca server migration revert-resize<a class="headerlink" href="#orca-server-migration-revert-resize" title="Permanent link">&para;</a></h5>
 <p>Revert a pending resize (restore original flavor).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>orca server migration revert-resize [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>orca server migration revert-resize [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8353,7 +8433,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h5 id="orca-server-migration-show">orca server migration show<a class="headerlink" href="#orca-server-migration-show" title="Permanent link">&para;</a></h5>
 <p>Show details of a specific migration.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>orca server migration show [OPTIONS] SERVER_ID MIGRATION_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>orca server migration show [OPTIONS] SERVER_ID MIGRATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8407,7 +8487,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-migration-abort">orca server migration-abort<a class="headerlink" href="#orca-server-migration-abort" title="Permanent link">&para;</a></h4>
 <p>Abort an in-progress live migration.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>orca server migration-abort [OPTIONS] SERVER_ID MIGRATION_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>orca server migration-abort [OPTIONS] SERVER_ID MIGRATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8431,7 +8511,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-migration-force-complete">orca server migration-force-complete<a class="headerlink" href="#orca-server-migration-force-complete" title="Permanent link">&para;</a></h4>
 <p>Force an in-progress live migration to complete.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>orca server migration-force-complete [OPTIONS] SERVER_ID MIGRATION_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>orca server migration-force-complete [OPTIONS] SERVER_ID MIGRATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8455,7 +8535,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-migration-list">orca server migration-list<a class="headerlink" href="#orca-server-migration-list" title="Permanent link">&para;</a></h4>
 <p>List migrations for a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>orca server migration-list [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>orca server migration-list [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8509,7 +8589,7 @@ a crash dump. The server must be ACTIVE.</p>
 <h4 id="orca-server-migration-show">orca server migration-show<a class="headerlink" href="#orca-server-migration-show" title="Permanent link">&para;</a></h4>
 <p>Show details of a specific migration.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>orca server migration-show [OPTIONS] SERVER_ID MIGRATION_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a>orca server migration-show [OPTIONS] SERVER_ID MIGRATION_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8570,7 +8650,7 @@ decrypts it locally with your private key (RSA only).</p>
   orca server password <server-id> --key ~/.ssh/orca-my-key
   orca server password <server-id> --raw</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a>orca server password [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>orca server password [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8606,7 +8686,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-pause">orca server pause<a class="headerlink" href="#orca-server-pause" title="Permanent link">&para;</a></h4>
 <p>Pause a server (freeze in memory).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>orca server pause [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>orca server pause [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8636,7 +8716,7 @@ decrypts it locally with your private key (RSA only).</p>
   orca server port-forward <id> 9090:localhost:9090 -R     # reverse tunnel
   orca server port-forward <id> 5432:localhost:5432 -b     # background</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>orca server port-forward [OPTIONS] SERVER_ID PORT_MAPPING
+<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>orca server port-forward [OPTIONS] SERVER_ID PORT_MAPPING
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8690,7 +8770,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-reboot">orca server reboot<a class="headerlink" href="#orca-server-reboot" title="Permanent link">&para;</a></h4>
 <p>Reboot a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>orca server reboot [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>orca server reboot [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8726,7 +8806,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-rebuild">orca server rebuild<a class="headerlink" href="#orca-server-rebuild" title="Permanent link">&para;</a></h4>
 <p>Rebuild a server with a new image (reinstall).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>orca server rebuild [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>orca server rebuild [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8774,7 +8854,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-remove">orca server remove<a class="headerlink" href="#orca-server-remove" title="Permanent link">&para;</a></h4>
 <p>Detach a sub-resource from a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>orca server remove [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>orca server remove [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8798,6 +8878,7 @@ decrypts it locally with your private key (RSA only).</p>
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#orca-server-remove-fixed-ip">fixed-ip</a></em>: Remove a specific fixed IP from a server.</li>
+<li><em><a href="#orca-server-remove-floating-ip">floating-ip</a></em>: Disassociate a floating IP from a server (OSC parity).</li>
 <li><em><a href="#orca-server-remove-interface">interface</a></em>: Detach a network interface (port) from a server.</li>
 <li><em><a href="#orca-server-remove-network">network</a></em>: Detach all interfaces on a specific network from a server.</li>
 <li><em><a href="#orca-server-remove-port">port</a></em>: Detach a Neutron port from a server.</li>
@@ -8809,7 +8890,33 @@ decrypts it locally with your private key (RSA only).</p>
 <p>Example:
   orca server remove-fixed-ip <server-id> 10.0.0.5</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>orca server remove fixed-ip [OPTIONS] SERVER_ID IP_ADDRESS
+<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>orca server remove fixed-ip [OPTIONS] SERVER_ID IP_ADDRESS
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="orca-server-remove-floating-ip">orca server remove floating-ip<a class="headerlink" href="#orca-server-remove-floating-ip" title="Permanent link">&para;</a></h5>
+<p>Disassociate a floating IP from a server (OSC parity).</p>
+<p>Example:
+  orca server remove floating-ip <server-id> 172.24.4.10</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a>orca server remove floating-ip [OPTIONS] SERVER_ID IP_ADDRESS
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8833,7 +8940,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h5 id="orca-server-remove-interface">orca server remove interface<a class="headerlink" href="#orca-server-remove-interface" title="Permanent link">&para;</a></h5>
 <p>Detach a network interface (port) from a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>orca server remove interface [OPTIONS] SERVER_ID PORT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a>orca server remove interface [OPTIONS] SERVER_ID PORT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8860,7 +8967,7 @@ decrypts it locally with your private key (RSA only).</p>
 <p>Example:
   orca server remove-network <server-id> <network-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a>orca server remove network [OPTIONS] SERVER_ID NETWORK_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a>orca server remove network [OPTIONS] SERVER_ID NETWORK_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8886,7 +8993,7 @@ decrypts it locally with your private key (RSA only).</p>
 <p>Example:
   orca server remove-port <server-id> <port-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a>orca server remove port [OPTIONS] SERVER_ID PORT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>orca server remove port [OPTIONS] SERVER_ID PORT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8910,7 +9017,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h5 id="orca-server-remove-security-group">orca server remove security-group<a class="headerlink" href="#orca-server-remove-security-group" title="Permanent link">&para;</a></h5>
 <p>Remove a security group from a running server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a>orca server remove security-group [OPTIONS] SERVER_ID SECURITY_GROUP
+<div class="highlight"><pre><span></span><code><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a>orca server remove security-group [OPTIONS] SERVER_ID SECURITY_GROUP
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8934,7 +9041,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h5 id="orca-server-remove-volume">orca server remove volume<a class="headerlink" href="#orca-server-remove-volume" title="Permanent link">&para;</a></h5>
 <p>Detach a volume from a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>orca server remove volume [OPTIONS] SERVER_ID VOLUME_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a>orca server remove volume [OPTIONS] SERVER_ID VOLUME_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8960,7 +9067,7 @@ decrypts it locally with your private key (RSA only).</p>
 <p>Example:
   orca server remove-fixed-ip <server-id> 10.0.0.5</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a>orca server remove-fixed-ip [OPTIONS] SERVER_ID IP_ADDRESS
+<div class="highlight"><pre><span></span><code><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a>orca server remove-fixed-ip [OPTIONS] SERVER_ID IP_ADDRESS
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -8987,7 +9094,7 @@ decrypts it locally with your private key (RSA only).</p>
 <p>Example:
   orca server remove-network <server-id> <network-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a>orca server remove-network [OPTIONS] SERVER_ID NETWORK_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a>orca server remove-network [OPTIONS] SERVER_ID NETWORK_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9013,7 +9120,7 @@ decrypts it locally with your private key (RSA only).</p>
 <p>Example:
   orca server remove-port <server-id> <port-id></p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a>orca server remove-port [OPTIONS] SERVER_ID PORT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a>orca server remove-port [OPTIONS] SERVER_ID PORT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9037,7 +9144,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-remove-security-group">orca server remove-security-group<a class="headerlink" href="#orca-server-remove-security-group" title="Permanent link">&para;</a></h4>
 <p>Remove a security group from a running server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a>orca server remove-security-group [OPTIONS] SERVER_ID SECURITY_GROUP
+<div class="highlight"><pre><span></span><code><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a>orca server remove-security-group [OPTIONS] SERVER_ID SECURITY_GROUP
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9061,7 +9168,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-rename">orca server rename<a class="headerlink" href="#orca-server-rename" title="Permanent link">&para;</a></h4>
 <p>Rename a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a>orca server rename [OPTIONS] SERVER_ID NEW_NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-78-1" name="__codelineno-78-1" href="#__codelineno-78-1"></a>orca server rename [OPTIONS] SERVER_ID NEW_NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9085,7 +9192,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-rescue">orca server rescue<a class="headerlink" href="#orca-server-rescue" title="Permanent link">&para;</a></h4>
 <p>Put a server in rescue mode.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a>orca server rescue [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-79-1" name="__codelineno-79-1" href="#__codelineno-79-1"></a>orca server rescue [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9120,8 +9227,12 @@ decrypts it locally with your private key (RSA only).</p>
 </table>
 <h4 id="orca-server-resize">orca server resize<a class="headerlink" href="#orca-server-resize" title="Permanent link">&para;</a></h4>
 <p>Resize a server to a new flavor.</p>
+<p>OSC's <code>server resize confirm/revert</code> form is exposed under
+<code>orca server migration confirm/revert</code> (same Nova action) —
+Click does not support a group with both a positional argument
+and sub-commands.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-78-1" name="__codelineno-78-1" href="#__codelineno-78-1"></a>orca server resize [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-80-1" name="__codelineno-80-1" href="#__codelineno-80-1"></a>orca server resize [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9153,7 +9264,7 @@ decrypts it locally with your private key (RSA only).</p>
 <p>Only valid when Nova is configured with soft-delete
 (reclaim_instance_interval &gt; 0) and the server status is SOFT_DELETED.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-79-1" name="__codelineno-79-1" href="#__codelineno-79-1"></a>orca server restore [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-81-1" name="__codelineno-81-1" href="#__codelineno-81-1"></a>orca server restore [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9177,7 +9288,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-resume">orca server resume<a class="headerlink" href="#orca-server-resume" title="Permanent link">&para;</a></h4>
 <p>Resume a suspended server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-80-1" name="__codelineno-80-1" href="#__codelineno-80-1"></a>orca server resume [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-82-1" name="__codelineno-82-1" href="#__codelineno-82-1"></a>orca server resume [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9201,7 +9312,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-revert-resize">orca server revert-resize<a class="headerlink" href="#orca-server-revert-resize" title="Permanent link">&para;</a></h4>
 <p>Revert a pending resize (restore original flavor).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-81-1" name="__codelineno-81-1" href="#__codelineno-81-1"></a>orca server revert-resize [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-83-1" name="__codelineno-83-1" href="#__codelineno-83-1"></a>orca server revert-resize [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9225,7 +9336,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-server-group">orca server server-group<a class="headerlink" href="#orca-server-server-group" title="Permanent link">&para;</a></h4>
 <p>Manage server groups (Nova).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-82-1" name="__codelineno-82-1" href="#__codelineno-82-1"></a>orca server server-group [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-84-1" name="__codelineno-84-1" href="#__codelineno-84-1"></a>orca server server-group [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9261,7 +9372,7 @@ decrypts it locally with your private key (RSA only).</p>
   soft-anti-affinity — prefer different hosts
   soft-affinity      — prefer same host</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-83-1" name="__codelineno-83-1" href="#__codelineno-83-1"></a>orca server server-group create [OPTIONS] NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-85-1" name="__codelineno-85-1" href="#__codelineno-85-1"></a>orca server server-group create [OPTIONS] NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9291,7 +9402,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h5 id="orca-server-server-group-delete">orca server server-group delete<a class="headerlink" href="#orca-server-server-group-delete" title="Permanent link">&para;</a></h5>
 <p>Delete a server group.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-84-1" name="__codelineno-84-1" href="#__codelineno-84-1"></a>orca server server-group delete [OPTIONS] GROUP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-86-1" name="__codelineno-86-1" href="#__codelineno-86-1"></a>orca server server-group delete [OPTIONS] GROUP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9321,7 +9432,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h5 id="orca-server-server-group-list">orca server server-group list<a class="headerlink" href="#orca-server-server-group-list" title="Permanent link">&para;</a></h5>
 <p>List server groups.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-85-1" name="__codelineno-85-1" href="#__codelineno-85-1"></a>orca server server-group list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-87-1" name="__codelineno-87-1" href="#__codelineno-87-1"></a>orca server server-group list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9381,7 +9492,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h5 id="orca-server-server-group-show">orca server server-group show<a class="headerlink" href="#orca-server-server-group-show" title="Permanent link">&para;</a></h5>
 <p>Show server group details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-86-1" name="__codelineno-86-1" href="#__codelineno-86-1"></a>orca server server-group show [OPTIONS] GROUP_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-88-1" name="__codelineno-88-1" href="#__codelineno-88-1"></a>orca server server-group show [OPTIONS] GROUP_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9440,7 +9551,7 @@ decrypts it locally with your private key (RSA only).</p>
   orca server set <id> --tag web --tag frontend
   orca server set <id> --admin-password s3cr3t</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-87-1" name="__codelineno-87-1" href="#__codelineno-87-1"></a>orca server set [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-89-1" name="__codelineno-89-1" href="#__codelineno-89-1"></a>orca server set [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9488,7 +9599,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-shelve">orca server shelve<a class="headerlink" href="#orca-server-shelve" title="Permanent link">&para;</a></h4>
 <p>Shelve a server (snapshot + shut down, frees resources).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-88-1" name="__codelineno-88-1" href="#__codelineno-88-1"></a>orca server shelve [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-90-1" name="__codelineno-90-1" href="#__codelineno-90-1"></a>orca server shelve [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9518,7 +9629,7 @@ decrypts it locally with your private key (RSA only).</p>
 <h4 id="orca-server-show">orca server show<a class="headerlink" href="#orca-server-show" title="Permanent link">&para;</a></h4>
 <p>Show server details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-89-1" name="__codelineno-89-1" href="#__codelineno-89-1"></a>orca server show [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-91-1" name="__codelineno-91-1" href="#__codelineno-91-1"></a>orca server show [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9577,7 +9688,7 @@ attached volume — all in one command.</p>
   orca server snapshot <server-id>
   orca server snapshot <server-id> --name "before-upgrade"</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-90-1" name="__codelineno-90-1" href="#__codelineno-90-1"></a>orca server snapshot [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-92-1" name="__codelineno-92-1" href="#__codelineno-92-1"></a>orca server snapshot [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9616,7 +9727,7 @@ keypair name in <code>~/.ssh/</code>).</p>
   orca server ssh web-1 --fixed              # use fixed IP
   orca server ssh web-1 --dry-run            # print command, don't exec</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-91-1" name="__codelineno-91-1" href="#__codelineno-91-1"></a>orca server ssh [OPTIONS] SERVER_ID [REMOTE_ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-93-1" name="__codelineno-93-1" href="#__codelineno-93-1"></a>orca server ssh [OPTIONS] SERVER_ID [REMOTE_ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9676,7 +9787,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-start">orca server start<a class="headerlink" href="#orca-server-start" title="Permanent link">&para;</a></h4>
 <p>Start (resume) a stopped server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-92-1" name="__codelineno-92-1" href="#__codelineno-92-1"></a>orca server start [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-94-1" name="__codelineno-94-1" href="#__codelineno-94-1"></a>orca server start [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9706,7 +9817,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-stop">orca server stop<a class="headerlink" href="#orca-server-stop" title="Permanent link">&para;</a></h4>
 <p>Stop (shut down) a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-93-1" name="__codelineno-93-1" href="#__codelineno-93-1"></a>orca server stop [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-95-1" name="__codelineno-95-1" href="#__codelineno-95-1"></a>orca server stop [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9736,7 +9847,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-suspend">orca server suspend<a class="headerlink" href="#orca-server-suspend" title="Permanent link">&para;</a></h4>
 <p>Suspend a server (save to disk).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-94-1" name="__codelineno-94-1" href="#__codelineno-94-1"></a>orca server suspend [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-96-1" name="__codelineno-96-1" href="#__codelineno-96-1"></a>orca server suspend [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9760,7 +9871,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-tag">orca server tag<a class="headerlink" href="#orca-server-tag" title="Permanent link">&para;</a></h4>
 <p>Read or modify server tags.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-95-1" name="__codelineno-95-1" href="#__codelineno-95-1"></a>orca server tag [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-97-1" name="__codelineno-97-1" href="#__codelineno-97-1"></a>orca server tag [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9788,7 +9899,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h5 id="orca-server-tag-list">orca server tag list<a class="headerlink" href="#orca-server-tag-list" title="Permanent link">&para;</a></h5>
 <p>List tags on a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-96-1" name="__codelineno-96-1" href="#__codelineno-96-1"></a>orca server tag list [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-98-1" name="__codelineno-98-1" href="#__codelineno-98-1"></a>orca server tag list [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9812,7 +9923,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-tag-list">orca server tag-list<a class="headerlink" href="#orca-server-tag-list" title="Permanent link">&para;</a></h4>
 <p>List tags on a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-97-1" name="__codelineno-97-1" href="#__codelineno-97-1"></a>orca server tag-list [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-99-1" name="__codelineno-99-1" href="#__codelineno-99-1"></a>orca server tag-list [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9836,7 +9947,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-unlock">orca server unlock<a class="headerlink" href="#orca-server-unlock" title="Permanent link">&para;</a></h4>
 <p>Unlock a locked server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-98-1" name="__codelineno-98-1" href="#__codelineno-98-1"></a>orca server unlock [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-100-1" name="__codelineno-100-1" href="#__codelineno-100-1"></a>orca server unlock [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9860,7 +9971,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-unpause">orca server unpause<a class="headerlink" href="#orca-server-unpause" title="Permanent link">&para;</a></h4>
 <p>Unpause a paused server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-99-1" name="__codelineno-99-1" href="#__codelineno-99-1"></a>orca server unpause [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-101-1" name="__codelineno-101-1" href="#__codelineno-101-1"></a>orca server unpause [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9884,7 +9995,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-unrescue">orca server unrescue<a class="headerlink" href="#orca-server-unrescue" title="Permanent link">&para;</a></h4>
 <p>Exit rescue mode.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-100-1" name="__codelineno-100-1" href="#__codelineno-100-1"></a>orca server unrescue [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-102-1" name="__codelineno-102-1" href="#__codelineno-102-1"></a>orca server unrescue [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9911,7 +10022,7 @@ keypair name in <code>~/.ssh/</code>).</p>
   orca server unset <id> --property env --property team
   orca server unset <id> --tag web --tag frontend</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-101-1" name="__codelineno-101-1" href="#__codelineno-101-1"></a>orca server unset [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-103-1" name="__codelineno-103-1" href="#__codelineno-103-1"></a>orca server unset [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9947,7 +10058,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-unshelve">orca server unshelve<a class="headerlink" href="#orca-server-unshelve" title="Permanent link">&para;</a></h4>
 <p>Unshelve (restore) a shelved server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-102-1" name="__codelineno-102-1" href="#__codelineno-102-1"></a>orca server unshelve [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-104-1" name="__codelineno-104-1" href="#__codelineno-104-1"></a>orca server unshelve [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -9977,7 +10088,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h4 id="orca-server-volume">orca server volume<a class="headerlink" href="#orca-server-volume" title="Permanent link">&para;</a></h4>
 <p>Volumes attached to a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-103-1" name="__codelineno-103-1" href="#__codelineno-103-1"></a>orca server volume [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-105-1" name="__codelineno-105-1" href="#__codelineno-105-1"></a>orca server volume [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -10007,7 +10118,7 @@ keypair name in <code>~/.ssh/</code>).</p>
 <h5 id="orca-server-volume-list">orca server volume list<a class="headerlink" href="#orca-server-volume-list" title="Permanent link">&para;</a></h5>
 <p>List volumes attached to a server.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-104-1" name="__codelineno-104-1" href="#__codelineno-104-1"></a>orca server volume list [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-106-1" name="__codelineno-106-1" href="#__codelineno-106-1"></a>orca server volume list [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -10064,7 +10175,7 @@ keypair name in <code>~/.ssh/</code>).</p>
   orca server volume set <server-id> <volume-id> --delete-on-termination
   orca server volume set <server-id> <volume-id> --preserve-on-termination</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-105-1" name="__codelineno-105-1" href="#__codelineno-105-1"></a>orca server volume set [OPTIONS] SERVER_ID VOLUME_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-107-1" name="__codelineno-107-1" href="#__codelineno-107-1"></a>orca server volume set [OPTIONS] SERVER_ID VOLUME_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -10097,7 +10208,7 @@ keypair name in <code>~/.ssh/</code>).</p>
   orca server volume set <server-id> <volume-id> --delete-on-termination
   orca server volume set <server-id> <volume-id> --preserve-on-termination</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-106-1" name="__codelineno-106-1" href="#__codelineno-106-1"></a>orca server volume set [OPTIONS] SERVER_ID VOLUME_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-108-1" name="__codelineno-108-1" href="#__codelineno-108-1"></a>orca server volume set [OPTIONS] SERVER_ID VOLUME_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -10132,7 +10243,7 @@ is reached. Useful in scripts and automation.</p>
   orca server wait <id> --status ACTIVE
   orca server wait <id> --status SHUTOFF --timeout 120</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-107-1" name="__codelineno-107-1" href="#__codelineno-107-1"></a>orca server wait [OPTIONS] SERVER_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-109-1" name="__codelineno-109-1" href="#__codelineno-109-1"></a>orca server wait [OPTIONS] SERVER_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
