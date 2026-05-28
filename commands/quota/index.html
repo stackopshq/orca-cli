@@ -3295,6 +3295,39 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-quota-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-quota-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-quota-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-quota-show" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3809,6 +3842,39 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-quota-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-quota-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-quota-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-quota-show" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3876,6 +3942,9 @@ always reflects the version installed.</p>
 <p><strong>Subcommands</strong></p>
 <ul>
 <li><em><a href="#orca-quota-default">default</a></em>: Show the cloud-wide default quotas (Nova + Cinder + Neutron).</li>
+<li><em><a href="#orca-quota-delete">delete</a></em>: Reset project quotas to the cloud defaults (admin).</li>
+<li><em><a href="#orca-quota-list">list</a></em>: List projects with non-default quotas (admin).</li>
+<li><em><a href="#orca-quota-set">set</a></em>: Set quotas on Nova / Cinder / Neutron (admin).</li>
 <li><em><a href="#orca-quota-show">show</a></em>: Show project quotas — Nova, Neutron and Cinder usage vs limits.</li>
 </ul>
 <h4 id="orca-quota-default">orca quota default<a class="headerlink" href="#orca-quota-default" title="Permanent link">&para;</a></h4>
@@ -3942,10 +4011,291 @@ returns the same values regardless of the project; Neutron uses
 </tr>
 </tbody>
 </table>
+<h4 id="orca-quota-delete">orca quota delete<a class="headerlink" href="#orca-quota-delete" title="Permanent link">&para;</a></h4>
+<p>Reset project quotas to the cloud defaults (admin).</p>
+<p>Parity with <code>openstack quota delete</code>. With <code>--service all</code> (default)
+issues DELETE on Nova, Cinder and Neutron quota-sets for the project.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>orca quota delete [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--project</code></td>
+<td>text</td>
+<td>Project ID (default: current project).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--service</code></td>
+<td>choice (<code>all</code> &#x7C; <code>compute</code> &#x7C; <code>volume</code> &#x7C; <code>network</code>)</td>
+<td>Which service's quota to reset.</td>
+<td><code>all</code></td>
+</tr>
+<tr>
+<td><code>--yes</code></td>
+<td>boolean</td>
+<td>Skip the confirmation prompt.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-quota-list">orca quota list<a class="headerlink" href="#orca-quota-list" title="Permanent link">&para;</a></h4>
+<p>List projects with non-default quotas (admin).</p>
+<p>Parity with <code>openstack quota list</code> — restricted to Neutron because
+Nova and Cinder do not expose a cross-project list endpoint.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>orca quota list [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--service</code></td>
+<td>choice (<code>network</code>)</td>
+<td>Only Neutron exposes a list-all endpoint; Compute and Volume require a per-project fan-out (use <code>orca quota show --project &lt;id&gt;</code> instead).</td>
+<td><code>network</code></td>
+</tr>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-quota-set">orca quota set<a class="headerlink" href="#orca-quota-set" title="Permanent link">&para;</a></h4>
+<p>Set quotas on Nova / Cinder / Neutron (admin).</p>
+<p>Pass any combination of resource flags — only services with at least
+one flag receive a PUT. Use <code>-1</code> for unlimited (Compute / Volume)
+or the explicit Neutron sentinel.</p>
+<p>Examples:
+  orca quota set --instances 50 --cores 100
+  orca quota set --project <uuid> --volumes 20 --gigabytes 1000
+  orca quota set --networks 200 --routers 50</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>orca quota set [OPTIONS]
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--project</code></td>
+<td>text</td>
+<td>Project ID (default: current project).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--instances</code></td>
+<td>integer</td>
+<td>Compute: max instances.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--cores</code></td>
+<td>integer</td>
+<td>Compute: max vCPUs.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--ram</code></td>
+<td>integer</td>
+<td>Compute: max RAM (MB).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--key-pairs</code></td>
+<td>integer</td>
+<td>Compute: max key pairs.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--server-groups</code></td>
+<td>integer</td>
+<td>Compute: max server groups.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--server-group-members</code></td>
+<td>integer</td>
+<td>Compute: max members per server group.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--metadata-items</code></td>
+<td>integer</td>
+<td>Compute: max metadata items per server.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--volumes</code></td>
+<td>integer</td>
+<td>Volume: max volumes.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--snapshots</code></td>
+<td>integer</td>
+<td>Volume: max snapshots.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--backups</code></td>
+<td>integer</td>
+<td>Volume: max backups.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--gigabytes</code></td>
+<td>integer</td>
+<td>Volume: total volume storage (GB).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--backup-gigabytes</code></td>
+<td>integer</td>
+<td>Volume: total backup storage (GB).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--per-volume-gigabytes</code></td>
+<td>integer</td>
+<td>Volume: max size per volume (GB).</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--networks</code></td>
+<td>integer</td>
+<td>Network: max networks.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--subnets</code></td>
+<td>integer</td>
+<td>Network: max subnets.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--ports</code></td>
+<td>integer</td>
+<td>Network: max ports.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--routers</code></td>
+<td>integer</td>
+<td>Network: max routers.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--floating-ips</code></td>
+<td>integer</td>
+<td>Network: max floating IPs.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--security-groups</code></td>
+<td>integer</td>
+<td>Network: max security groups.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--security-group-rules</code></td>
+<td>integer</td>
+<td>Network: max security-group rules.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--subnetpools</code></td>
+<td>integer</td>
+<td>Network: max subnet pools.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--rbac-policies</code></td>
+<td>integer</td>
+<td>Network: max RBAC policies.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>boolean</td>
+<td>Compute only: bypass the over-limit check on resources in use.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="orca-quota-show">orca quota show<a class="headerlink" href="#orca-quota-show" title="Permanent link">&para;</a></h4>
 <p>Show project quotas — Nova, Neutron and Cinder usage vs limits.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>orca quota show [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>orca quota show [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
