@@ -6,6 +6,7 @@ import click
 
 from orca_cli.core.aliases import add_command_with_alias
 from orca_cli.core.context import OrcaContext
+from orca_cli.core.exceptions import OrcaCLIError
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
 from orca_cli.services.identity import IdentityService
@@ -58,15 +59,24 @@ def eg_show(ctx, endpoint_group_id, output_format, columns, fit_width, max_width
 
 
 @endpoint_group.command("create")
-@click.option("--name", required=True, help="Endpoint group name.")
+@click.argument("name_arg", metavar="[NAME]", required=False)
+@click.option("--name", "name_opt", default=None,
+              help="Endpoint group name (alternative to positional NAME).")
 @click.option("--filter", "filters", multiple=True, metavar="KEY=VALUE",
               help="Filter criterion (e.g. service_id=xxx). Repeatable.")
 @click.option("--description", default="", help="Description.")
 @output_options
 @click.pass_context
-def eg_create(ctx, name, filters, description,
+def eg_create(ctx, name_arg, name_opt, filters, description,
               output_format, columns, fit_width, max_width, noindent):
-    """Create an endpoint group."""
+    """Create an endpoint group.
+
+    OSC-style: ``endpoint-group create my-eg --filter ...``.
+    Legacy: ``endpoint-group create --name my-eg --filter ...``.
+    """
+    name = name_arg or name_opt
+    if not name:
+        raise OrcaCLIError("Missing endpoint group name (positional or --name).")
     svc = IdentityService(ctx.find_object(OrcaContext).ensure_client())
     filter_dict: dict = {}
     for f in filters:

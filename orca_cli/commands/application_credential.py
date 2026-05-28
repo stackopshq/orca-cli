@@ -91,12 +91,16 @@ def app_credential_show(ctx, credential_id, user_id,
 @click.option("--expires", "expires_at", default=None, help="Expiry (ISO 8601, e.g. 2026-12-31T00:00:00).")
 @click.option("--unrestricted", is_flag=True, help="Allow creation of other credentials (dangerous).")
 @click.option("--user", "user_id", default=None)
+@click.option("--access-rules", "access_rules", default=None, metavar="JSON",
+              help="Access rules as a JSON array, e.g. "
+                   "'[{\"path\":\"/v3/projects\",\"method\":\"GET\",\"service\":\"identity\"}]'. "
+                   "Keystone only attaches access rules at create time.")
 @click.option("--save-profile", "save_profile_name", default=None,
               metavar="PROFILE",
               help="Save the new credential as an orca profile of this name.")
 @click.pass_context
 def app_credential_create(ctx, name, description, secret, expires_at,
-                          unrestricted, user_id, save_profile_name):
+                          unrestricted, user_id, access_rules, save_profile_name):
     """Create an application credential."""
     client = ctx.find_object(OrcaContext).ensure_client()
     svc = IdentityService(client)
@@ -108,6 +112,17 @@ def app_credential_create(ctx, name, description, secret, expires_at,
         body["secret"] = secret
     if expires_at:
         body["expires_at"] = expires_at
+    if access_rules:
+        import json as _json
+        try:
+            parsed = _json.loads(access_rules)
+        except _json.JSONDecodeError as exc:
+            raise OrcaCLIError(
+                f"--access-rules must be a JSON array; got: {exc}"
+            ) from exc
+        if not isinstance(parsed, list):
+            raise OrcaCLIError("--access-rules must decode to a JSON array.")
+        body["access_rules"] = parsed
 
     a = svc.create_application_credential(uid, body)
     console.print(f"[green]Application credential '{a.get('name')}' ({a.get('id')}) created.[/green]")

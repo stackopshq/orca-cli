@@ -273,7 +273,7 @@ def role_implied_create(ctx, prior_role_id, implied_role_id):
 @role_implied.command("delete")
 @click.argument("prior_role_id", callback=validate_id)
 @click.argument("implied_role_id", callback=validate_id)
-@click.option("--yes", "-y", is_flag=True)
+@click.option("--yes", "-y", is_flag=True, help="Skip the interactive confirmation.")
 @click.pass_context
 def role_implied_delete(ctx, prior_role_id, implied_role_id, yes):
     """Delete an implied role relationship."""

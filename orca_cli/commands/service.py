@@ -5,6 +5,7 @@ from __future__ import annotations
 import click
 
 from orca_cli.core.context import OrcaContext
+from orca_cli.core.exceptions import OrcaCLIError
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
 from orca_cli.services.identity import IdentityService
@@ -63,13 +64,24 @@ def service_show(ctx, service_id, output_format, columns, fit_width, max_width, 
 
 
 @service.command("create")
-@click.option("--name", required=True, help="Service name.")
+@click.argument("name_arg", metavar="[NAME]", required=False)
+@click.option("--name", "name_opt", default=None,
+              help="Service name (alternative to the positional argument).")
 @click.option("--type", "service_type", required=True, help="Service type (e.g. identity, compute).")
 @click.option("--description", default=None, help="Service description.")
 @click.option("--enable/--disable", default=True, help="Enable or disable the service.")
 @click.pass_context
-def service_create(ctx, name, service_type, description, enable):
-    """Create a Keystone service."""
+def service_create(ctx, name_arg, name_opt, service_type, description, enable):
+    """Create a Keystone service.
+
+    Accepts the service name as either a positional argument
+    (``orca service create my-svc --type ...``) — matching the
+    ``user`` / ``project`` / ``domain`` / ``role`` / ``group``
+    CRUDs — or via the legacy ``--name`` flag.
+    """
+    name = name_arg or name_opt
+    if not name:
+        raise OrcaCLIError("Missing service name (positional argument or --name).")
     ident = IdentityService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {"name": name, "type": service_type, "enabled": enable}
     if description:

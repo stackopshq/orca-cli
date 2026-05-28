@@ -5,6 +5,7 @@ from __future__ import annotations
 import click
 
 from orca_cli.core.context import OrcaContext
+from orca_cli.core.exceptions import OrcaCLIError
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
 from orca_cli.services.identity import IdentityService
@@ -87,16 +88,36 @@ def endpoint_show(ctx, endpoint_id, output_format, columns, fit_width, max_width
 
 
 @endpoint.command("create")
-@click.option("--service", required=True, help="Service ID.")
-@click.option("--interface", required=True,
+@click.argument("service_arg", metavar="[SERVICE]", required=False)
+@click.argument("interface_arg", metavar="[INTERFACE]", required=False,
+                type=click.Choice(["public", "internal", "admin"]))
+@click.argument("url_arg", metavar="[URL]", required=False)
+@click.option("--service", "service_opt", default=None,
+              help="Service ID (alternative to positional SERVICE).")
+@click.option("--interface", "interface_opt", default=None,
               type=click.Choice(["public", "internal", "admin"]),
-              help="Endpoint interface.")
-@click.option("--url", required=True, help="Endpoint URL.")
+              help="Endpoint interface (alternative to positional INTERFACE).")
+@click.option("--url", "url_opt", default=None,
+              help="Endpoint URL (alternative to positional URL).")
 @click.option("--region", default=None, help="Region ID.")
 @click.option("--enable/--disable", default=True, help="Enable or disable the endpoint.")
 @click.pass_context
-def endpoint_create(ctx, service, interface, url, region, enable):
-    """Create an endpoint."""
+def endpoint_create(ctx, service_arg, interface_arg, url_arg,
+                    service_opt, interface_opt, url_opt, region, enable):
+    """Create an endpoint.
+
+    OSC-style positional form: ``endpoint create SERVICE INTERFACE URL``.
+    Legacy flag form: ``endpoint create --service ID --interface public
+    --url ...``. Either works.
+    """
+    service = service_arg or service_opt
+    interface = interface_arg or interface_opt
+    url = url_arg or url_opt
+    if not service or not interface or not url:
+        raise OrcaCLIError(
+            "Missing required value(s): provide SERVICE INTERFACE URL as "
+            "positionals or via --service / --interface / --url."
+        )
     svc = IdentityService(ctx.find_object(OrcaContext).ensure_client())
     body: dict = {
         "service_id": service,
