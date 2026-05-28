@@ -199,3 +199,26 @@ def aggregate_image_cache(ctx, aggregate_id, image_ids):
 add_command_with_alias(aggregate, aggregate_image_cache,
                         legacy_name="cache-image",
                         primary_path="aggregate image cache")
+
+
+# ── OSC-parity sub-groups (``aggregate add host`` / ``aggregate remove
+# host`` / ``aggregate cache image``) ──────────────────────────────────
+
+@aggregate.group("add")
+def aggregate_add() -> None:
+    """OSC parity verbs (``aggregate add host …``)."""
+
+
+@aggregate.group("remove")
+def aggregate_remove() -> None:
+    """OSC parity verbs (``aggregate remove host …``)."""
+
+
+@aggregate.group("cache")
+def aggregate_cache() -> None:
+    """OSC parity verbs (``aggregate cache image …``)."""
+
+
+aggregate_add.add_command(aggregate_host_add, name="host")
+aggregate_remove.add_command(aggregate_host_remove, name="host")
+aggregate_cache.add_command(aggregate_image_cache, name="image")

@@ -13,6 +13,7 @@ import click
 
 from orca_cli.commands.event import event_list as _event_list
 from orca_cli.commands.event import event_show as _event_show
+from orca_cli.commands.server_group import server_group as _server_group
 from orca_cli.core import cache
 from orca_cli.core.aliases import add_command_with_alias
 from orca_cli.core.completions import (
@@ -2670,3 +2671,9 @@ def server_event() -> None:
 
 server_event.add_command(_event_list, name="list")
 server_event.add_command(_event_show, name="show")
+
+
+# OSC parity: ``openstack server group …`` — orca already exposes a
+# top-level ``orca server-group`` group; re-attach it under ``server``
+# so the OSC two-word form ``orca server group list`` works.
+server.add_command(_server_group, name="group")
