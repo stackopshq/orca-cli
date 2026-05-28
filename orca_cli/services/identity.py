@@ -666,13 +666,20 @@ class IdentityService:
     def find_versions(self) -> list[dict]:
         """List Keystone API versions exposed by the catalog endpoint.
 
-        Hits the unversioned root of identity_url (drops the ``/v3`` suffix)
-        and returns the ``versions`` array Keystone advertises.
+        Hits the unversioned root of identity_url (drops the ``/v3`` suffix).
+        Keystone replies HTTP 300 (Multiple Choices) on that root, which
+        OrcaClient treats as an error — reuse the client's own httpx
+        session (which carries the right TLS / proxy / timeout config)
+        and parse the 300 body directly.
         """
         import re
 
         root = re.sub(r"/v3/?$", "", self._client.identity_url)
-        data = self._client.get(root)
+        resp = self._client._http.get(root)  # noqa: SLF001 — service-layer access (ADR-0007)
+        try:
+            data = resp.json()
+        except ValueError:
+            return []
         v = data.get("versions", data)
         if isinstance(v, dict):
             return v.get("values", [])
