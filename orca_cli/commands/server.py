@@ -854,9 +854,18 @@ def server_unshelve(ctx: click.Context, server_id: str, wait: bool) -> None:
 @click.option("--flavor", required=True, help="Target flavor ID.")
 @click.pass_context
 def server_resize(ctx: click.Context, server_id: str, flavor: str) -> None:
-    """Resize a server to a new flavor."""
+    """Resize a server to a new flavor.
+
+    OSC's ``server resize confirm/revert`` form is exposed under
+    ``orca server migration confirm/revert`` (same Nova action) —
+    Click does not support a group with both a positional argument
+    and sub-commands.
+    """
     _server_action(ctx, server_id, {"resize": {"flavorRef": flavor}}, "Resize")
-    console.print("[dim]Use 'orca server confirm-resize' or 'orca server revert-resize' after.[/dim]")
+    console.print(
+        "[dim]Use 'orca server migration confirm' or "
+        "'orca server migration revert' after.[/dim]"
+    )
 
 
 @server.command("confirm-resize")
@@ -2553,6 +2562,118 @@ def server_remove_network(ctx: click.Context, server_id: str, network_id: str) -
 
     console.print(
         f"[green]{len(matching)} interface(s) on network {network_id} removed from server {server_id}.[/green]"
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  add / remove floating-ip  (OSC parity)
+# ══════════════════════════════════════════════════════════════════════════
+
+
+def _resolve_floating_ip(net_svc: NetworkService, ref: str) -> Mapping[str, Any]:
+    """Find a FIP by ID (UUID-looking) or by floating IP address."""
+    # ID lookups only when the ref looks like a UUID — otherwise we'd
+    # surface a noisy 404 every time someone passes an IP address.
+    if re.fullmatch(r"[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}",
+                    ref.lower()):
+        try:
+            return net_svc.get_floating_ip(ref)
+        except Exception:  # noqa: BLE001 — fall back to address lookup
+            pass
+    matches = [fip for fip in net_svc.find_floating_ips()
+               if fip.get("floating_ip_address") == ref]
+    if not matches:
+        raise OrcaCLIError(f"Floating IP {ref!r} not found.")
+    if len(matches) > 1:
+        raise OrcaCLIError(
+            f"Floating IP {ref!r} is ambiguous ({len(matches)} matches)."
+        )
+    return matches[0]
+
+
+def _server_first_port(net_svc: NetworkService, server_id: str,
+                       fixed_ip: str | None = None) -> Mapping[str, Any]:
+    """Pick a port for FIP attachment.
+
+    If ``fixed_ip`` is set, the chosen port must own that address.
+    Otherwise, returns the first port owned by the server.
+    """
+    ports = net_svc.find_ports(params={"device_id": server_id})
+    if not ports:
+        raise OrcaCLIError(f"Server {server_id} has no Neutron ports.")
+    if fixed_ip:
+        for p in ports:
+            for f in p.get("fixed_ips", []) or []:
+                if f.get("ip_address") == fixed_ip:
+                    return p
+        raise OrcaCLIError(
+            f"No port on server {server_id} owns fixed IP {fixed_ip}."
+        )
+    return ports[0]
+
+
+@server_add.command("floating-ip")
+@click.argument("server_id")
+@click.argument("ip_address")
+@click.option("--fixed-ip-address", "fixed_ip", default=None,
+              help="Bind the FIP to a specific fixed IP of the server "
+                   "(otherwise the first port is chosen).")
+@click.pass_context
+def server_add_floating_ip(ctx: click.Context, server_id: str,
+                           ip_address: str, fixed_ip: str | None) -> None:
+    """Associate a floating IP with a server (OSC parity).
+
+    ``IP_ADDRESS`` may be either the floating IP itself (e.g.
+    ``172.24.4.10``) or its ID.
+
+    \b
+    Examples:
+      orca server add floating-ip <server-id> 172.24.4.10
+      orca server add floating-ip <id> 172.24.4.10 --fixed-ip-address 10.0.0.5
+    """
+    client = ctx.find_object(OrcaContext).ensure_client()
+    net_svc = NetworkService(client)
+    fip = _resolve_floating_ip(net_svc, ip_address)
+    port = _server_first_port(net_svc, server_id, fixed_ip)
+    body: dict = {"port_id": port["id"]}
+    if fixed_ip:
+        body["fixed_ip_address"] = fixed_ip
+    net_svc.update_floating_ip(fip["id"], body)
+    console.print(
+        f"[green]Floating IP {fip.get('floating_ip_address', '?')} "
+        f"associated with server {server_id} (port {port['id']}).[/green]"
+    )
+
+
+@server_remove.command("floating-ip")
+@click.argument("server_id")
+@click.argument("ip_address")
+@click.pass_context
+def server_remove_floating_ip(ctx: click.Context, server_id: str,
+                              ip_address: str) -> None:
+    """Disassociate a floating IP from a server (OSC parity).
+
+    \b
+    Example:
+      orca server remove floating-ip <server-id> 172.24.4.10
+    """
+    client = ctx.find_object(OrcaContext).ensure_client()
+    net_svc = NetworkService(client)
+    fip = _resolve_floating_ip(net_svc, ip_address)
+    # Sanity: verify the FIP is actually bound to a port of this server.
+    bound_port = fip.get("port_id")
+    if bound_port:
+        server_ports = {p["id"] for p in
+                        net_svc.find_ports(params={"device_id": server_id})}
+        if bound_port not in server_ports:
+            console.print(
+                f"[yellow]Warning: FIP {fip['floating_ip_address']} is bound "
+                f"to port {bound_port}, not on server {server_id}.[/yellow]"
+            )
+    net_svc.update_floating_ip(fip["id"], {"port_id": None})
+    console.print(
+        f"[green]Floating IP {fip.get('floating_ip_address', '?')} "
+        f"disassociated.[/green]"
     )
 
 

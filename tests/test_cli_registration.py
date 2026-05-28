@@ -20,7 +20,7 @@ EXPECTED_COMMANDS = [
     "limit", "registered-limit", "access-rule", "token", "endpoint-group",
     "share",
     "address-group", "address-scope", "ip-availability", "local-ip",
-    "extension", "versions",
+    "extension", "versions", "console",
 ]
 
 
