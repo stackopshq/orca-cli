@@ -542,6 +542,18 @@ class VolumeService:
         )
         return data.get("quota_set", {})
 
+    def update_quota_set(self, project_id: str, body: dict) -> dict:
+        """Cinder ``PUT /os-quota-sets/{project}`` — set quota values."""
+        data = self._client.put(
+            f"{self._base}/os-quota-sets/{project_id}",
+            json={"quota_set": body},
+        )
+        return data.get("quota_set", {})
+
+    def delete_quota_set(self, project_id: str) -> None:
+        """Cinder ``DELETE /os-quota-sets/{project}`` — reset to defaults."""
+        self._client.delete(f"{self._base}/os-quota-sets/{project_id}")
+
     # Cinder admin endpoints need an explicit micro-version negotiation,
     # otherwise the server falls back to 3.0 and returns 500 on /clusters,
     # /os-services/get-log, /resource_filters, etc. 3.70 covers every
@@ -591,9 +603,9 @@ class VolumeService:
             body["server"] = server
         if prefix:
             body["prefix"] = prefix
+        # Cinder expects the body un-wrapped, unlike most other PUT endpoints.
         data = self._client.put(f"{self._base}/os-services/get-log",
-                                json={"os-services_get-log": body},
-                                headers=self._MV_ADMIN)
+                                json=body, headers=self._MV_ADMIN)
         return data.get("log_levels", [])
 
     def set_log_levels(self, level: str, *, binary: str | None = None,
@@ -607,8 +619,7 @@ class VolumeService:
         if prefix:
             body["prefix"] = prefix
         self._client.put(f"{self._base}/os-services/set-log",
-                         json={"os-services_set-log": body},
-                         headers=self._MV_ADMIN)
+                         json=body, headers=self._MV_ADMIN)
 
     # ────────────────────────────────────────────────────────────────────
     #  Resource filters — Cinder admin, micro-version >= 3.33
