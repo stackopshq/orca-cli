@@ -4,6 +4,39 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] — 2026-05-29
+
+Phase 1.3 Neutron audit closure — orca now answers to **every**
+OpenStackClient ``network`` / ``port`` / ``router`` / ``subnet``
+verb word-for-word (156/156 OSC paths).
+
+### Added (OSC parity)
+
+- **Top-level aliases** ``orca port``, ``orca router``, ``orca
+  subnet`` re-expose the existing ``network port`` / ``network
+  router`` / ``network subnet`` sub-groups.
+- **Inverse aliases under ``network``** ``network qos``,
+  ``network trunk``, ``network subport list`` re-expose the
+  top-level ``qos`` / ``trunk`` groups.
+- **``router add gateway ROUTER --network NET [--fixed-ip IP …]``**
+  (sets ``external_gateway_info``) and **``router remove gateway
+  ROUTER``** (clears it).
+- **``router add port ROUTER PORT_ID``** /
+  **``router remove port ROUTER PORT_ID``**.
+- **``router add subnet ROUTER SUBNET_ID``** /
+  **``router remove subnet ROUTER SUBNET_ID``** (alias of the
+  interface add by subnet_id — same Neutron endpoint).
+- **``network auto-allocated-topology create``** mapped to the
+  same callback as ``show`` (Neutron exposes a single GET-with-
+  implicit-create endpoint upstream).
+
+### Breaking (niche admin SDN)
+
+- ``network flavor add FLAVOR PROFILE`` → ``network flavor add
+  profile FLAVOR PROFILE``. Same for ``remove``. Aligns with OSC's
+  4-word verb. If you scripted the 3-word form, update to add the
+  ``profile`` token between ``add``/``remove`` and the IDs.
+
 ## [2.5.3] — 2026-05-28
 
 ### Added (compute OSC parity — Phase 1.2 audit closure)
