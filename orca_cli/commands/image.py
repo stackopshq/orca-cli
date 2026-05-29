@@ -1858,3 +1858,63 @@ def image_info_import(ctx: click.Context, output_format: str,
         fit_width=fit_width, max_width=max_width, noindent=noindent,
         empty_msg="No import methods reported (Glance v2 import disabled?).",
     )
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  OSC parity — final 3 paths
+# ══════════════════════════════════════════════════════════════════════════
+
+
+# ``image member get`` is the OSC name for what orca calls
+# ``image member show``. Same callback, additional name.
+image_member.add_command(image_member_show, name="get")
+
+
+# ``image import info`` (OSC 3-word path) cannot live under
+# ``image import`` because the latter is already a leaf command
+# (``image import IMAGE --method ...``). Click does not allow a name
+# to be both a leaf and a group. orca exposes the same information
+# as ``image info import`` (4 words, same callback) — semantic
+# parity, path divergence documented in the audit report.
+
+
+# ``image metadef object property show NAMESPACE OBJECT PROP``
+# Glance has no isolated endpoint for a single property; OSC reads the
+# whole object then extracts ``properties[PROP]``. Replicate.
+@image_metadef_object.group("property")
+def metadef_object_property() -> None:
+    """Inspect a property nested inside a metadef object."""
+
+
+@metadef_object_property.command("show")
+@click.argument("namespace")
+@click.argument("object_name")
+@click.argument("property_name")
+@output_options
+@click.pass_context
+def metadef_object_property_show(ctx, namespace, object_name, property_name,
+                                 output_format, columns, fit_width,
+                                 max_width, noindent):
+    """Show one property nested inside a metadef object.
+
+    Equivalent to ``openstack image metadef object property show``.
+    Glance returns the property as a key inside the object's
+    ``properties`` dict — we resolve it client-side.
+    """
+    svc = ImageService(ctx.find_object(OrcaContext).ensure_client())
+    obj = svc.get_metadef_object(namespace, object_name)
+    props = (obj.get("properties", {}) or {}) if isinstance(obj, dict) else {}
+    if property_name not in props:
+        raise OrcaCLIError(
+            f"Property {property_name!r} not found on object "
+            f"{object_name!r} of namespace {namespace!r}."
+        )
+    prop = props[property_name]
+    fields: list[tuple[str, str]] = [("name", property_name)]
+    if isinstance(prop, dict):
+        for k, v in prop.items():
+            fields.append((k, str(v)))
+    else:
+        fields.append(("value", str(prop)))
+    print_detail(fields, output_format=output_format, columns=columns,
+                 fit_width=fit_width, max_width=max_width, noindent=noindent)
