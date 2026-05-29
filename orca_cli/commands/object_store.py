@@ -775,3 +775,8 @@ def object_account_show(ctx: click.Context, output_format: str,
             fields.append((k.split("meta-", 1)[-1], str(v)))
     print_detail(fields, output_format=output_format, fit_width=fit_width,
                  max_width=max_width, noindent=noindent, columns=columns)
+
+
+# OSC parity: ``object create`` is the same action as ``object upload``
+# (Swift PUT). Expose the OSC verb pointing at the existing upload.
+object_store.add_command(object_upload, name="create")

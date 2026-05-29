@@ -40,6 +40,7 @@ _COMMAND_OVERRIDES: dict[str, list[str]] = {
     "limit": ["limit", "registered-limit"],
     "ip_whois": ["ip"],
     "object_store": ["object"],
+    "object_store_alias": ["object-store"],
     "qos_policy": ["qos"],
 }
 
