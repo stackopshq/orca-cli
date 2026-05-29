@@ -803,6 +803,83 @@ def router_remove_interface(ctx: click.Context, router_id: str, subnet_id: str) 
     console.print(f"[green]Subnet {subnet_id} removed from router {router_id}.[/green]")
 
 
+# ── OSC parity: router add/remove gateway / port / subnet ─────────────────
+
+
+@network_router_add.command("gateway")
+@click.argument("router_id", callback=validate_id)
+@click.option("--network", "network_id", required=True, metavar="NETWORK",
+              help="External network ID to use as gateway.")
+@click.option("--fixed-ip", "fixed_ips", multiple=True, metavar="IP",
+              help="Fixed IP on the external network (repeatable).")
+@click.pass_context
+def router_add_gateway(ctx: click.Context, router_id: str,
+                       network_id: str, fixed_ips: tuple[str, ...]) -> None:
+    """Set an external gateway on a router (OSC ``router add gateway``)."""
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    gw: dict = {"network_id": network_id}
+    if fixed_ips:
+        gw["external_fixed_ips"] = [{"ip_address": ip} for ip in fixed_ips]
+    svc.update_router(router_id, {"external_gateway_info": gw})
+    console.print(
+        f"[green]Gateway set on router {router_id} → network {network_id}.[/green]"
+    )
+
+
+@network_router_remove.command("gateway")
+@click.argument("router_id", callback=validate_id)
+@click.pass_context
+def router_remove_gateway(ctx: click.Context, router_id: str) -> None:
+    """Clear a router's external gateway (OSC ``router remove gateway``)."""
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_router(router_id, {"external_gateway_info": None})
+    console.print(f"[green]Gateway cleared on router {router_id}.[/green]")
+
+
+@network_router_add.command("port")
+@click.argument("router_id", callback=validate_id)
+@click.argument("port_id", callback=validate_id)
+@click.pass_context
+def router_add_port(ctx: click.Context, router_id: str, port_id: str) -> None:
+    """Attach an existing port to a router (OSC ``router add port``)."""
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.add_router_interface(router_id, {"port_id": port_id})
+    console.print(f"[green]Port {port_id} added to router {router_id}.[/green]")
+
+
+@network_router_remove.command("port")
+@click.argument("router_id", callback=validate_id)
+@click.argument("port_id", callback=validate_id)
+@click.pass_context
+def router_remove_port(ctx: click.Context, router_id: str, port_id: str) -> None:
+    """Detach a port from a router (OSC ``router remove port``)."""
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.remove_router_interface(router_id, {"port_id": port_id})
+    console.print(f"[green]Port {port_id} removed from router {router_id}.[/green]")
+
+
+@network_router_add.command("subnet")
+@click.argument("router_id", callback=validate_id)
+@click.argument("subnet_id", callback=validate_id)
+@click.pass_context
+def router_add_subnet(ctx: click.Context, router_id: str, subnet_id: str) -> None:
+    """Add a subnet to a router (OSC ``router add subnet``)."""
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.add_router_interface(router_id, {"subnet_id": subnet_id})
+    console.print(f"[green]Subnet {subnet_id} added to router {router_id}.[/green]")
+
+
+@network_router_remove.command("subnet")
+@click.argument("router_id", callback=validate_id)
+@click.argument("subnet_id", callback=validate_id)
+@click.pass_context
+def router_remove_subnet(ctx: click.Context, router_id: str, subnet_id: str) -> None:
+    """Remove a subnet from a router (OSC ``router remove subnet``)."""
+    svc = NetworkService(ctx.find_object(OrcaContext).ensure_client())
+    svc.remove_router_interface(router_id, {"subnet_id": subnet_id})
+    console.print(f"[green]Subnet {subnet_id} removed from router {router_id}.[/green]")
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  Topology
 # ══════════════════════════════════════════════════════════════════════════
@@ -1698,6 +1775,15 @@ def network_auto_allocated_topology_delete(ctx, project_id, yes):
     console.print("[green]Auto-allocated topology deleted.[/green]")
 
 
+# OSC parity: ``network auto allocated topology create`` is implemented
+# by Neutron as a GET on the same endpoint with implicit creation.
+# orca's ``show`` already triggers that path, so we expose ``create``
+# as the same callback.
+network_auto_allocated_topology.add_command(
+    network_auto_allocated_topology_show, name="create"
+)
+
+
 # ── Deprecated aliases (ADR-0008) ─────────────────────────────────────────
 
 for _legacy, _primary, _path in [
@@ -2024,22 +2110,32 @@ def nflavor_delete(ctx, flavor_id, yes):
     console.print(f"[green]Flavor {flavor_id} deleted.[/green]")
 
 
-@network_flavor.command("add")
+@network_flavor.group("add")
+def network_flavor_add() -> None:
+    """Attach sub-resources to a network flavor."""
+
+
+@network_flavor.group("remove")
+def network_flavor_remove() -> None:
+    """Detach sub-resources from a network flavor."""
+
+
+@network_flavor_add.command("profile")
 @click.argument("flavor_id")
 @click.argument("profile_id")
 @click.pass_context
-def nflavor_add(ctx, flavor_id, profile_id):
-    """Attach a service profile to a flavor (OSC: ``flavor add profile``)."""
+def nflavor_add_profile(ctx, flavor_id, profile_id):
+    """Attach a service profile to a flavor (OSC ``network flavor add profile``)."""
     _net_svc(ctx).add_flavor_profile(flavor_id, profile_id)
     console.print(f"[green]Profile {profile_id} added to flavor {flavor_id}.[/green]")
 
 
-@network_flavor.command("remove")
+@network_flavor_remove.command("profile")
 @click.argument("flavor_id")
 @click.argument("profile_id")
 @click.pass_context
-def nflavor_remove(ctx, flavor_id, profile_id):
-    """Detach a service profile from a flavor (OSC: ``flavor remove profile``)."""
+def nflavor_remove_profile(ctx, flavor_id, profile_id):
+    """Detach a service profile from a flavor (OSC ``network flavor remove profile``)."""
     _net_svc(ctx).remove_flavor_profile(flavor_id, profile_id)
     console.print(f"[green]Profile {profile_id} removed from flavor {flavor_id}.[/green]")
 
@@ -2548,3 +2644,29 @@ def nsp_list(ctx, output_format, columns, fit_width, max_width, noindent):
         columns=columns,
         empty_msg="No service providers reported.",
     )
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  OSC parity: ``network qos`` / ``network trunk`` re-expose the
+#  top-level ``qos`` and ``trunk`` groups underneath ``network``.
+# ══════════════════════════════════════════════════════════════════════════
+
+from orca_cli.commands.qos_policy import qos_policy as _qos_policy  # noqa: E402
+from orca_cli.commands.trunk import trunk as _trunk  # noqa: E402
+
+network.add_command(_qos_policy, name="qos")
+network.add_command(_trunk, name="trunk")
+
+
+# OSC parity: ``network subport list TRUNK`` is identical to
+# ``trunk subport list TRUNK``. We re-expose the leaf list command
+# under a ``network subport`` group.
+from orca_cli.commands.trunk import trunk_subport_list as _trunk_subport_list  # noqa: E402
+
+
+@network.group("subport")
+def network_subport() -> None:
+    """Sub-ports of a trunk (alias of ``orca trunk subport``)."""
+
+
+network_subport.add_command(_trunk_subport_list, name="list")

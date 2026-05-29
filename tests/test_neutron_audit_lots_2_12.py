@@ -161,7 +161,7 @@ class TestNetworkFlavor:
 
     def test_add_profile(self, invoke, mock_client):
         mock_client.post = MagicMock(return_value={})
-        invoke(["network", "flavor", "add", NF, SP])
+        invoke(["network", "flavor", "add", "profile", NF, SP])
         url = mock_client.post.call_args.args[0]
         body = mock_client.post.call_args.kwargs["json"]
         assert f"/flavors/{NF}/service_profiles" in url
@@ -169,7 +169,7 @@ class TestNetworkFlavor:
 
     def test_remove_profile(self, invoke, mock_client):
         mock_client.delete = MagicMock(return_value=None)
-        invoke(["network", "flavor", "remove", NF, SP])
+        invoke(["network", "flavor", "remove", "profile", NF, SP])
         url = mock_client.delete.call_args[0][0]
         assert f"/flavors/{NF}/service_profiles/{SP}" in url
 

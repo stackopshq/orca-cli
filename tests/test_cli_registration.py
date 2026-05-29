@@ -21,6 +21,7 @@ EXPECTED_COMMANDS = [
     "share",
     "address-group", "address-scope", "ip-availability", "local-ip",
     "extension", "versions", "console",
+    "port", "router", "subnet",
 ]
 
 
