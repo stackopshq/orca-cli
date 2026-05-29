@@ -4,6 +4,39 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] — 2026-05-29
+
+Phase 1.4 Cinder audit closure — orca now answers to **every**
+OpenStackClient ``volume`` and ``block storage`` verb word-for-word
+(82/82 OSC paths).
+
+### Added (OSC parity)
+
+- **New top-level group ``block-storage``** re-exposes Cinder admin
+  verbs OSC moved under ``openstack block storage …``:
+  ``cluster``, ``log-level``, ``resource-filter``,
+  ``volume manageable list``, ``snapshot manageable list``, and a
+  new ``cleanup`` leaf.
+- **``block-storage cleanup``** (new) — POST ``/workers/cleanup``
+  with standard filters (--cluster, --host, --binary,
+  --resource-id, --resource-type, --service-id).
+- **``volume backend pool list``** — alias of the existing
+  ``volume pool list`` under the OSC-compatible 4-word path.
+- **``volume transfer request {accept,create,delete,list,show}``**
+  — sub-group of ``volume transfer`` whose 5 verbs share the
+  same callbacks (OSC uses 4 words, orca's 3-word form remains).
+
+### Service helper
+
+- ``VolumeService.workers_cleanup(filters)`` — POST
+  ``/workers/cleanup`` with Cinder micro-version 3.70.
+
+### Breaking (niche admin)
+
+- ``volume backend capability HOST`` → ``volume backend
+  capability show HOST``. Refactor of the leaf into a sub-group
+  with a ``show`` leaf, required to match OSC's 4-word path.
+
 ## [2.6.0] — 2026-05-29
 
 Phase 1.3 Neutron audit closure — orca now answers to **every**
