@@ -266,31 +266,33 @@ def zone_tree(ctx: click.Context, zone: str) -> None:
     console.print(root)
 
 
-@zone.command("export")
+@zone.group("export")
+def zone_export() -> None:
+    """Manage zone export tasks (BIND-format)."""
+
+
+@zone_export.command("create")
 @click.argument("zone")
 @click.option("--file", "output_file", default=None, type=click.Path(),
               help="Write zone file to this path (default: stdout).")
 @click.pass_context
-def zone_export(ctx: click.Context, zone: str, output_file: str | None) -> None:
-    """Export a zone as a BIND-format zone file.
+def zone_export_create(ctx: click.Context, zone: str,
+                       output_file: str | None) -> None:
+    """Trigger a zone export and stream the resulting BIND file.
 
     \b
     Examples:
-      orca zone export example.com.
-      orca zone export example.com. --file example.com.zone
+      orca zone export create example.com.
+      orca zone export create example.com. --file example.com.zone
     """
     client = ctx.find_object(OrcaContext).ensure_client()
     svc = DnsService(client)
     zone_id = _resolve_zone_id(svc, zone)
-
-    # Create the export task
     task = svc.export_zone(zone_id)
     export_id = task.get("id", "")
     if not export_id:
         console.print("[red]Failed to create zone export task.[/red]")
         return
-
-    # Poll until the export is complete
     with console.status("[bold cyan]Exporting zone…[/bold cyan]"):
         for _ in range(60):
             status_data = svc.get_export_task(export_id)
@@ -305,7 +307,6 @@ def zone_export(ctx: click.Context, zone: str, output_file: str | None) -> None:
         else:
             console.print("[red]Zone export timed out.[/red]")
             return
-
     zone_content = svc.fetch_export_text(export_id)
     if output_file:
         out = safe_output_path(output_file)
@@ -315,29 +316,102 @@ def zone_export(ctx: click.Context, zone: str, output_file: str | None) -> None:
         console.print(zone_content)
 
 
-@zone.command("import")
+@zone_export.command("list")
+@output_options
+@click.pass_context
+def zone_export_list(ctx: click.Context, output_format: str,
+                     columns: tuple[str, ...], fit_width: bool,
+                     max_width: int | None, noindent: bool) -> None:
+    """List recorded zone export tasks (OSC parity)."""
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.find_exports()
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Zone ID", "zone_id"),
+            ("Status", "status"),
+            ("Created", "created_at"),
+        ],
+        title="Zone exports",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No zone exports recorded.",
+    )
+
+
+@zone_export.command("show")
+@click.argument("export_id")
+@output_options
+@click.pass_context
+def zone_export_show(ctx: click.Context, export_id: str, output_format: str,
+                     columns: tuple[str, ...], fit_width: bool,
+                     max_width: int | None, noindent: bool) -> None:
+    """Show a zone export task."""
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_export_task(export_id)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+    )
+
+
+@zone_export.command("showfile")
+@click.argument("export_id")
+@click.option("--file", "output_file", default=None, type=click.Path(),
+              help="Write the BIND file to this path (default: stdout).")
+@click.pass_context
+def zone_export_showfile(ctx: click.Context, export_id: str,
+                         output_file: str | None) -> None:
+    """Fetch the BIND content produced by a completed zone export."""
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    content = svc.fetch_export_text(export_id)
+    if output_file:
+        out = safe_output_path(output_file)
+        out.write_text(content)
+        console.print(f"[green]Export file written to {out}.[/green]")
+    else:
+        console.print(content)
+
+
+@zone_export.command("delete")
+@click.argument("export_id")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation.")
+@click.pass_context
+def zone_export_delete(ctx: click.Context, export_id: str, yes: bool) -> None:
+    """Delete a recorded export task."""
+    if not yes:
+        click.confirm(f"Delete zone export {export_id}?", abort=True)
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    svc.delete_export(export_id)
+    console.print(f"[green]Zone export {export_id} deleted.[/green]")
+
+
+@zone.group("import")
+def zone_import() -> None:
+    """Manage zone import tasks (BIND-format)."""
+
+
+@zone_import.command("create")
 @click.option("--file", "input_file", required=True, type=click.Path(exists=True),
               help="BIND-format zone file to import.")
 @click.pass_context
-def zone_import(ctx: click.Context, input_file: str) -> None:
+def zone_import_create(ctx: click.Context, input_file: str) -> None:
     """Import a zone from a BIND-format zone file.
 
     \b
-    Examples:
-      orca zone import --file example.com.zone
+    Example:
+      orca zone import create --file example.com.zone
     """
     client = ctx.find_object(OrcaContext).ensure_client()
     svc = DnsService(client)
-
     with open(input_file) as fh:
         content = fh.read()
-
     data = svc.import_zone_text(content)
     status = data.get("status", "")
     import_id = data.get("id", "")
     console.print(f"[green]Zone import initiated (ID: {import_id}, status: {status}).[/green]")
-
-    # Poll briefly to report final status
     with console.status("[bold cyan]Importing zone…[/bold cyan]"):
         for _ in range(30):
             check = svc.get_import_task(import_id)
@@ -351,8 +425,61 @@ def zone_import(ctx: click.Context, input_file: str) -> None:
                 console.print(f"[red]Zone import failed: {msg}[/red]")
                 return
             time.sleep(1)
-
     console.print("[yellow]Zone import still in progress — check status later.[/yellow]")
+
+
+@zone_import.command("list")
+@output_options
+@click.pass_context
+def zone_import_list(ctx: click.Context, output_format: str,
+                     columns: tuple[str, ...], fit_width: bool,
+                     max_width: int | None, noindent: bool) -> None:
+    """List recorded zone import tasks (OSC parity)."""
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.find_imports()
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Zone ID", "zone_id"),
+            ("Status", "status"),
+            ("Created", "created_at"),
+        ],
+        title="Zone imports",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No zone imports recorded.",
+    )
+
+
+@zone_import.command("show")
+@click.argument("import_id")
+@output_options
+@click.pass_context
+def zone_import_show(ctx: click.Context, import_id: str, output_format: str,
+                     columns: tuple[str, ...], fit_width: bool,
+                     max_width: int | None, noindent: bool) -> None:
+    """Show a zone import task."""
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_import_task(import_id)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+    )
+
+
+@zone_import.command("delete")
+@click.argument("import_id")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation.")
+@click.pass_context
+def zone_import_delete(ctx: click.Context, import_id: str, yes: bool) -> None:
+    """Delete a recorded import task."""
+    if not yes:
+        click.confirm(f"Delete zone import {import_id}?", abort=True)
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    svc.delete_import(import_id)
+    console.print(f"[green]Zone import {import_id} deleted.[/green]")
 
 
 @zone.command("reverse-lookup")
@@ -507,16 +634,107 @@ def zone_transfer_request_delete(ctx: click.Context, transfer_id: str, yes: bool
 #  Zone Transfer Accepts
 # ══════════════════════════════════════════════════════════════════════════
 
-@zone_transfer.command("accept")
+@zone_transfer.group("accept")
+def zone_transfer_accept() -> None:
+    """Manage zone transfer accepts (OSC parity)."""
+
+
+@zone_transfer_accept.command("request")
 @click.argument("transfer_id")
 @click.argument("key")
 @click.pass_context
-def zone_transfer_accept(ctx: click.Context, transfer_id: str, key: str) -> None:
-    """Accept a zone transfer request."""
+def zone_transfer_accept_request(ctx: click.Context, transfer_id: str,
+                                 key: str) -> None:
+    """Submit an accept for a pending zone-transfer request."""
     client = ctx.find_object(OrcaContext).ensure_client()
     svc = DnsService(client)
     t = svc.accept_transfer({"zone_transfer_request_id": transfer_id, "key": key})
     console.print(f"[green]Transfer accepted. Zone ID: {t.get('zone_id', '?')}[/green]")
+
+
+@zone_transfer_accept.command("list")
+@output_options
+@click.pass_context
+def zone_transfer_accept_list(ctx: click.Context, output_format: str,
+                              columns: tuple[str, ...], fit_width: bool,
+                              max_width: int | None, noindent: bool) -> None:
+    """List all zone-transfer accepts visible to the caller."""
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.find_transfer_accepts()
+    print_list(
+        items,
+        [
+            ("ID", "id", {"style": "cyan", "no_wrap": True}),
+            ("Zone ID", "zone_id"),
+            ("Status", "status"),
+            ("Created", "created_at"),
+        ],
+        title="Zone transfer accepts",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No zone transfer accepts.",
+    )
+
+
+@zone_transfer_accept.command("show")
+@click.argument("accept_id")
+@output_options
+@click.pass_context
+def zone_transfer_accept_show(ctx: click.Context, accept_id: str,
+                              output_format: str, columns: tuple[str, ...],
+                              fit_width: bool, max_width: int | None,
+                              noindent: bool) -> None:
+    """Show a zone-transfer accept by ID."""
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_transfer_accept(accept_id)
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+    )
+
+
+@zone_transfer_request.command("set")
+@click.argument("transfer_id")
+@click.option("--description", default=None)
+@click.option("--target-project", default=None,
+              help="Restrict the request to this target project.")
+@click.pass_context
+def zone_transfer_request_set(ctx: click.Context, transfer_id: str,
+                              description: str | None,
+                              target_project: str | None) -> None:
+    """Update a zone-transfer request (OSC ``zone transfer request set``)."""
+    body: dict = {}
+    if description is not None:
+        body["description"] = description
+    if target_project is not None:
+        body["target_project_id"] = target_project
+    if not body:
+        from orca_cli.core.exceptions import OrcaCLIError
+        raise OrcaCLIError(
+            "Nothing to update — pass --description or --target-project."
+        )
+    svc = DnsService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_transfer_request(transfer_id, body)
+    console.print(f"[green]Transfer request {transfer_id} updated.[/green]")
+
+
+@zone.command("move")
+@click.argument("zone_id_or_name")
+@click.option("--project", "target_project", required=True,
+              help="Destination project ID for the zone.")
+@click.pass_context
+def zone_move(ctx: click.Context, zone_id_or_name: str,
+              target_project: str) -> None:
+    """Move a zone to a different project (admin, OSC ``zone move``)."""
+    client = ctx.find_object(OrcaContext).ensure_client()
+    svc = DnsService(client)
+    zone_id = _resolve_zone_id(svc, zone_id_or_name)
+    svc.move_zone(zone_id, target_project)
+    console.print(
+        f"[green]Zone {zone_id_or_name} move queued → project "
+        f"{target_project}.[/green]"
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════════

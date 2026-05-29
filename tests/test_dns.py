@@ -627,7 +627,7 @@ class TestZoneTransferRequest:
     def test_accept(self, invoke, mock_client):
         mock_client.dns_url = DNS_URL
         mock_client.post.return_value = {"zone_id": _ZONE_ID2}
-        result = invoke(["zone", "transfer-accept", _XFER_ID, "mykey"])
+        result = invoke(["zone", "transfer", "accept", "request", _XFER_ID, "mykey"])
         assert result.exit_code == 0
         body = mock_client.post.call_args[1]["json"]
         assert body["key"] == "mykey"
@@ -640,7 +640,7 @@ class TestZoneTransferRequest:
         assert invoke(["zone", "transfer-request-list", "--help"]).exit_code == 0
 
     def test_help_accept(self, invoke):
-        assert invoke(["zone", "transfer-accept", "--help"]).exit_code == 0
+        assert invoke(["zone", "transfer", "accept", "request", "--help"]).exit_code == 0
 
 
 class TestZoneTld:

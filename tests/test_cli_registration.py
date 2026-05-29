@@ -22,7 +22,7 @@ EXPECTED_COMMANDS = [
     "address-group", "address-scope", "ip-availability", "local-ip",
     "extension", "versions", "console",
     "port", "router", "subnet",
-    "block-storage",
+    "block-storage", "tld", "ptr", "tsigkey",
 ]
 
 

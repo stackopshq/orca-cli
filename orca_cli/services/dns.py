@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from orca_cli.core.client import OrcaClient, with_version
 from orca_cli.models.dns import Recordset, Tld, Zone, ZoneTransferRequest
@@ -173,17 +173,95 @@ class DnsService:
             f"{self._base}/zones/tasks/transfer_requests/{transfer_id}"
         )
 
+    def update_transfer_request(self, transfer_id: str,
+                                body: dict[str, Any]) -> dict:
+        data = self._client.patch(
+            f"{self._base}/zones/tasks/transfer_requests/{transfer_id}",
+            json=body,
+        )
+        return data if isinstance(data, dict) else {}
+
     def accept_transfer(self, body: dict[str, Any]) -> dict:
         return self._client.post(
             f"{self._base}/zones/tasks/transfer_accepts",
             json=body,
         ) or {}
 
+    def find_transfer_accepts(self) -> list[dict]:
+        data = self._client.get(
+            f"{self._base}/zones/tasks/transfer_accepts"
+        )
+        return data.get("transfer_accepts", [])
+
+    def get_transfer_accept(self, accept_id: str) -> dict:
+        data = self._client.get(
+            f"{self._base}/zones/tasks/transfer_accepts/{accept_id}"
+        )
+        return data if isinstance(data, dict) else {}
+
+    def move_zone(self, zone_id: str, target_project: str) -> dict:
+        """Move a zone to a different project (admin).
+
+        Designate's `/zones/{id}/tasks/move` task initiates the
+        re-parenting. Returns the task body.
+        """
+        data = self._client.post(
+            f"{self._base}/zones/{zone_id}/tasks/move",
+            json={"project_id": target_project},
+        )
+        return data if isinstance(data, dict) else {}
+
     # ── reverse DNS (PTR) ──────────────────────────────────────────────
 
     def find_reverse_floatingips(self) -> list[dict]:
         data = self._client.get(f"{self._base}/reverse/floatingips")
         return data.get("floatingips", [])
+
+    def get_reverse_floatingip(self, fip_ref: str) -> dict:
+        """Read a single PTR record. ``fip_ref`` = ``region:fip-uuid``."""
+        data = self._client.get(f"{self._base}/reverse/floatingips/{fip_ref}")
+        return data if isinstance(data, dict) else {}
+
+    def set_reverse_floatingip(self, fip_ref: str, ptrdname: str | None,
+                               description: str | None = None,
+                               ttl: int | None = None) -> dict:
+        """Set or update the PTR record for a floating-IP.
+
+        ``ptrdname=None`` unsets the PTR (Designate API uses PATCH with
+        ``ptrdname: null`` to clear).
+        """
+        body: dict[str, Any] = {"ptrdname": ptrdname}
+        if description is not None:
+            body["description"] = description
+        if ttl is not None:
+            body["ttl"] = ttl
+        data = self._client.patch(
+            f"{self._base}/reverse/floatingips/{fip_ref}", json=body,
+        )
+        return data if isinstance(data, dict) else {}
+
+    # ── TSIG keys (admin) ──────────────────────────────────────────────
+
+    def find_tsigkeys(self) -> list[dict]:
+        data = self._client.get(f"{self._base}/tsigkeys")
+        return data.get("tsigkeys", [])
+
+    def get_tsigkey(self, tsigkey_id: str) -> dict:
+        data = self._client.get(f"{self._base}/tsigkeys/{tsigkey_id}")
+        return data if isinstance(data, dict) else {}
+
+    def create_tsigkey(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(f"{self._base}/tsigkeys", json=body)
+        return data if isinstance(data, dict) else {}
+
+    def update_tsigkey(self, tsigkey_id: str, body: dict[str, Any]) -> dict:
+        data = self._client.patch(
+            f"{self._base}/tsigkeys/{tsigkey_id}", json=body,
+        )
+        return data if isinstance(data, dict) else {}
+
+    def delete_tsigkey(self, tsigkey_id: str) -> None:
+        self._client.delete(f"{self._base}/tsigkeys/{tsigkey_id}")
 
     # ── TLDs ───────────────────────────────────────────────────────────
 
@@ -197,6 +275,14 @@ class DnsService:
 
     def delete_tld(self, tld_id: str) -> None:
         self._client.delete(f"{self._base}/tlds/{tld_id}")
+
+    def get_tld(self, tld_id: str) -> Tld:
+        data = self._client.get(f"{self._base}/tlds/{tld_id}")
+        return cast(Tld, data) if isinstance(data, dict) else cast(Tld, {})
+
+    def update_tld(self, tld_id: str, body: dict[str, Any]) -> Tld:
+        data = self._client.patch(f"{self._base}/tlds/{tld_id}", json=body)
+        return cast(Tld, data) if isinstance(data, dict) else cast(Tld, {})
 
     # ── zone abandon / move (admin) ────────────────────────────────────
 
