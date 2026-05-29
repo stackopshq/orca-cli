@@ -1758,6 +1758,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-object-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4437,6 +4448,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#orca-object-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upload
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4511,6 +4533,7 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-object-stats">stats</a></em>: Show account-level storage statistics.</li>
 <li><em><a href="#orca-object-tree">tree</a></em>: Show containers and objects as a tree.</li>
 <li><em><a href="#orca-object-unset">unset</a></em>: Remove metadata from an object.</li>
+<li><em><a href="#orca-object-upload">upload</a></em>: Upload file(s) to a container.</li>
 <li><em><a href="#orca-object-upload">upload</a></em>: Upload file(s) to a container.</li>
 </ul>
 <h4 id="orca-object-account">orca object account<a class="headerlink" href="#orca-object-account" title="Permanent link">&para;</a></h4>
@@ -5571,6 +5594,44 @@ shows the pseudo-folder structure of objects within it.</p>
 using Swift SLO (Static Large Object).</p>
 <p><strong>Usage:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>orca object upload [OPTIONS] CONTAINER FILES...
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--name</code></td>
+<td>text</td>
+<td>Override the object name (only valid for single file upload).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--segment-size</code></td>
+<td>integer</td>
+<td>Segment size in MB for large files (default: 4096 MB).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="orca-object-upload">orca object upload<a class="headerlink" href="#orca-object-upload" title="Permanent link">&para;</a></h4>
+<p>Upload file(s) to a container.</p>
+<p>Files larger than 5 GB are automatically split into segments
+using Swift SLO (Static Large Object).</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>orca object upload [OPTIONS] CONTAINER FILES...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>

@@ -2110,6 +2110,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-stack-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-stack-failures" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2154,6 +2165,45 @@
     <span class="md-ellipsis">
       
         list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-stack-hook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hook
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="hook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-stack-hook-clear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-stack-hook-poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        poll
       
     </span>
   </a>
@@ -4579,6 +4629,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#orca-stack-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#orca-stack-failures" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4623,6 +4684,45 @@
     <span class="md-ellipsis">
       
         list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-stack-hook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hook
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="hook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orca-stack-hook-clear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orca-stack-hook-poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        poll
       
     </span>
   </a>
@@ -5115,8 +5215,10 @@ always reflects the version installed.</p>
 <li><em><a href="#orca-stack-event">event</a></em>: Inspect stack events.</li>
 <li><em><a href="#orca-stack-event-list">event-list</a></em>: [deprecated, use 'stack event list' instead]</li>
 <li><em><a href="#orca-stack-event-show">event-show</a></em>: [deprecated, use 'stack event show' instead]</li>
+<li><em><a href="#orca-stack-export">export</a></em>: Export the full serialised state of a stack.</li>
 <li><em><a href="#orca-stack-failures">failures</a></em>: Inspect failed events on a stack.</li>
 <li><em><a href="#orca-stack-file">file</a></em>: Inspect files referenced by a stack template.</li>
+<li><em><a href="#orca-stack-hook">hook</a></em>: Manage pre-create / pre-update hooks on stack resources.</li>
 <li><em><a href="#orca-stack-list">list</a></em>: List stacks.</li>
 <li><em><a href="#orca-stack-output">output</a></em>: Inspect stack outputs.</li>
 <li><em><a href="#orca-stack-output-list">output-list</a></em>: [deprecated, use 'stack output list' instead]</li>
@@ -5722,10 +5824,67 @@ against the local file so you can review changes before running
 </tr>
 </tbody>
 </table>
+<h4 id="orca-stack-export">orca stack export<a class="headerlink" href="#orca-stack-export" title="Permanent link">&para;</a></h4>
+<p>Export the full serialised state of a stack.</p>
+<p>Heat <code>GET /v1/stacks/{name}/{id}/export</code> returns the same body
+as <code>abandon</code> would, without actually removing the stack.
+Useful as a backup or for <code>stack adopt</code> later.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>orca stack export [OPTIONS] STACK_NAME
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="orca-stack-failures">orca stack failures<a class="headerlink" href="#orca-stack-failures" title="Permanent link">&para;</a></h4>
 <p>Inspect failed events on a stack.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>orca stack failures [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>orca stack failures [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5753,7 +5912,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-failures-list">orca stack failures list<a class="headerlink" href="#orca-stack-failures-list" title="Permanent link">&para;</a></h5>
 <p>List events on a stack whose resource_status is FAILED.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>orca stack failures list [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>orca stack failures list [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5777,7 +5936,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-file">orca stack file<a class="headerlink" href="#orca-stack-file" title="Permanent link">&para;</a></h4>
 <p>Inspect files referenced by a stack template.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>orca stack file [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>orca stack file [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5805,7 +5964,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-file-list">orca stack file list<a class="headerlink" href="#orca-stack-file-list" title="Permanent link">&para;</a></h5>
 <p>List local files referenced by a stack template.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>orca stack file list [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>orca stack file list [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5826,10 +5985,123 @@ against the local file so you can review changes before running
 </tr>
 </tbody>
 </table>
+<h4 id="orca-stack-hook">orca stack hook<a class="headerlink" href="#orca-stack-hook" title="Permanent link">&para;</a></h4>
+<p>Manage pre-create / pre-update hooks on stack resources.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>orca stack hook [OPTIONS] COMMAND [ARGS]...
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#orca-stack-hook-clear">clear</a></em>: Clear a hook so the paused resource can proceed.</li>
+<li><em><a href="#orca-stack-hook-poll">poll</a></em>: List resources whose hooks are still pending on a stack.</li>
+</ul>
+<h5 id="orca-stack-hook-clear">orca stack hook clear<a class="headerlink" href="#orca-stack-hook-clear" title="Permanent link">&para;</a></h5>
+<p>Clear a hook so the paused resource can proceed.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>orca stack hook clear [OPTIONS] STACK_NAME RESOURCE_NAME
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--hook</code></td>
+<td>choice (<code>pre-create</code> &#x7C; <code>pre-update</code> &#x7C; <code>pre-delete</code>)</td>
+<td>Hook to clear on the resource.</td>
+<td><code>pre-create</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="orca-stack-hook-poll">orca stack hook poll<a class="headerlink" href="#orca-stack-hook-poll" title="Permanent link">&para;</a></h5>
+<p>List resources whose hooks are still pending on a stack.</p>
+<p><strong>Usage:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>orca stack hook poll [OPTIONS] STACK_NAME
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--noindent</code></td>
+<td>boolean</td>
+<td>Disable JSON indentation.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--max-width</code></td>
+<td>integer</td>
+<td>Maximum table width (0 = unlimited).</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--fit-width</code></td>
+<td>boolean</td>
+<td>Fit table to terminal width.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--column</code>, <code>-c</code></td>
+<td>text</td>
+<td>Column to include (repeatable). Shows all if omitted.</td>
+<td><code>Sentinel.UNSET</code></td>
+</tr>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>choice (<code>table</code> &#x7C; <code>json</code> &#x7C; <code>value</code>)</td>
+<td>Output format.</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="orca-stack-list">orca stack list<a class="headerlink" href="#orca-stack-list" title="Permanent link">&para;</a></h4>
 <p>List stacks.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>orca stack list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>orca stack list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5883,7 +6155,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-output">orca stack output<a class="headerlink" href="#orca-stack-output" title="Permanent link">&para;</a></h4>
 <p>Inspect stack outputs.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>orca stack output [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>orca stack output [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5912,7 +6184,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-output-list">orca stack output list<a class="headerlink" href="#orca-stack-output-list" title="Permanent link">&para;</a></h5>
 <p>List stack outputs.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>orca stack output list [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>orca stack output list [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -5966,7 +6238,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-output-show">orca stack output show<a class="headerlink" href="#orca-stack-output-show" title="Permanent link">&para;</a></h5>
 <p>Show a specific stack output value.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>orca stack output show [OPTIONS] STACK_NAME_OR_ID KEY
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>orca stack output show [OPTIONS] STACK_NAME_OR_ID KEY
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6020,7 +6292,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-output-list">orca stack output-list<a class="headerlink" href="#orca-stack-output-list" title="Permanent link">&para;</a></h4>
 <p>List stack outputs.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>orca stack output-list [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>orca stack output-list [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6074,7 +6346,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-output-show">orca stack output-show<a class="headerlink" href="#orca-stack-output-show" title="Permanent link">&para;</a></h4>
 <p>Show a specific stack output value.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>orca stack output-show [OPTIONS] STACK_NAME_OR_ID KEY
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>orca stack output-show [OPTIONS] STACK_NAME_OR_ID KEY
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6128,7 +6400,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-resource">orca stack resource<a class="headerlink" href="#orca-stack-resource" title="Permanent link">&para;</a></h4>
 <p>Per-resource actions and inspection on a stack.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>orca stack resource [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>orca stack resource [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6160,7 +6432,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-resource-list">orca stack resource list<a class="headerlink" href="#orca-stack-resource-list" title="Permanent link">&para;</a></h5>
 <p>List resources in a stack.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>orca stack resource list [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>orca stack resource list [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6214,7 +6486,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-resource-mark-unhealthy">orca stack resource mark-unhealthy<a class="headerlink" href="#orca-stack-resource-mark-unhealthy" title="Permanent link">&para;</a></h5>
 <p>Mark a stack resource as unhealthy (forces re-create on update).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>orca stack resource mark-unhealthy [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>orca stack resource mark-unhealthy [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6244,7 +6516,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-resource-metadata">orca stack resource metadata<a class="headerlink" href="#orca-stack-resource-metadata" title="Permanent link">&para;</a></h5>
 <p>Show the metadata of a stack resource.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>orca stack resource metadata [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>orca stack resource metadata [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6268,7 +6540,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-resource-show">orca stack resource show<a class="headerlink" href="#orca-stack-resource-show" title="Permanent link">&para;</a></h5>
 <p>Show resource details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>orca stack resource show [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>orca stack resource show [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6322,7 +6594,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-resource-signal">orca stack resource signal<a class="headerlink" href="#orca-stack-resource-signal" title="Permanent link">&para;</a></h5>
 <p>Send a signal to a stack resource (e.g. WaitCondition).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>orca stack resource signal [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>orca stack resource signal [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6352,7 +6624,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-resource-list">orca stack resource-list<a class="headerlink" href="#orca-stack-resource-list" title="Permanent link">&para;</a></h4>
 <p>List resources in a stack.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>orca stack resource-list [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>orca stack resource-list [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6406,7 +6678,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-resource-show">orca stack resource-show<a class="headerlink" href="#orca-stack-resource-show" title="Permanent link">&para;</a></h4>
 <p>Show resource details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>orca stack resource-show [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>orca stack resource-show [OPTIONS] STACK_NAME_OR_ID RESOURCE_NAME
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6460,7 +6732,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-resource-type">orca stack resource-type<a class="headerlink" href="#orca-stack-resource-type" title="Permanent link">&para;</a></h4>
 <p>Inspect Heat resource types (compound noun).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>orca stack resource-type [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>orca stack resource-type [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6489,7 +6761,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-resource-type-list">orca stack resource-type list<a class="headerlink" href="#orca-stack-resource-type-list" title="Permanent link">&para;</a></h5>
 <p>List available Heat resource types.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>orca stack resource-type list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>orca stack resource-type list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6549,7 +6821,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-resource-type-show">orca stack resource-type show<a class="headerlink" href="#orca-stack-resource-type-show" title="Permanent link">&para;</a></h5>
 <p>Show the schema for a Heat resource type.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>orca stack resource-type show [OPTIONS] RESOURCE_TYPE
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>orca stack resource-type show [OPTIONS] RESOURCE_TYPE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6579,7 +6851,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-resource-type-list">orca stack resource-type-list<a class="headerlink" href="#orca-stack-resource-type-list" title="Permanent link">&para;</a></h4>
 <p>List available Heat resource types.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>orca stack resource-type-list [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>orca stack resource-type-list [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6639,7 +6911,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-resource-type-show">orca stack resource-type-show<a class="headerlink" href="#orca-stack-resource-type-show" title="Permanent link">&para;</a></h4>
 <p>Show the schema for a Heat resource type.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>orca stack resource-type-show [OPTIONS] RESOURCE_TYPE
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>orca stack resource-type-show [OPTIONS] RESOURCE_TYPE
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6669,7 +6941,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-resume">orca stack resume<a class="headerlink" href="#orca-stack-resume" title="Permanent link">&para;</a></h4>
 <p>Resume a suspended stack.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>orca stack resume [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>orca stack resume [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6693,7 +6965,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-show">orca stack show<a class="headerlink" href="#orca-stack-show" title="Permanent link">&para;</a></h4>
 <p>Show stack details.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>orca stack show [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>orca stack show [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6747,7 +7019,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-snapshot">orca stack snapshot<a class="headerlink" href="#orca-stack-snapshot" title="Permanent link">&para;</a></h4>
 <p>Manage stack snapshots (Heat snapshot/restore).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>orca stack snapshot [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>orca stack snapshot [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6779,7 +7051,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-snapshot-create">orca stack snapshot create<a class="headerlink" href="#orca-stack-snapshot-create" title="Permanent link">&para;</a></h5>
 <p>Take a snapshot of a stack's current state.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>orca stack snapshot create [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>orca stack snapshot create [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6809,7 +7081,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-snapshot-delete">orca stack snapshot delete<a class="headerlink" href="#orca-stack-snapshot-delete" title="Permanent link">&para;</a></h5>
 <p>Delete a stack snapshot.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>orca stack snapshot delete [OPTIONS] STACK_NAME_OR_ID SNAPSHOT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>orca stack snapshot delete [OPTIONS] STACK_NAME_OR_ID SNAPSHOT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6839,7 +7111,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-snapshot-list">orca stack snapshot list<a class="headerlink" href="#orca-stack-snapshot-list" title="Permanent link">&para;</a></h5>
 <p>List snapshots of a stack.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>orca stack snapshot list [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>orca stack snapshot list [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6893,7 +7165,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-snapshot-restore">orca stack snapshot restore<a class="headerlink" href="#orca-stack-snapshot-restore" title="Permanent link">&para;</a></h5>
 <p>Restore a stack to a previous snapshot.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>orca stack snapshot restore [OPTIONS] STACK_NAME_OR_ID SNAPSHOT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>orca stack snapshot restore [OPTIONS] STACK_NAME_OR_ID SNAPSHOT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6917,7 +7189,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-snapshot-show">orca stack snapshot show<a class="headerlink" href="#orca-stack-snapshot-show" title="Permanent link">&para;</a></h5>
 <p>Show a stack snapshot.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>orca stack snapshot show [OPTIONS] STACK_NAME_OR_ID SNAPSHOT_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>orca stack snapshot show [OPTIONS] STACK_NAME_OR_ID SNAPSHOT_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6971,7 +7243,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-suspend">orca stack suspend<a class="headerlink" href="#orca-stack-suspend" title="Permanent link">&para;</a></h4>
 <p>Suspend a stack.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>orca stack suspend [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>orca stack suspend [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -6995,7 +7267,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-template">orca stack template<a class="headerlink" href="#orca-stack-template" title="Permanent link">&para;</a></h4>
 <p>Inspect or validate Heat templates.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>orca stack template [OPTIONS] COMMAND [ARGS]...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>orca stack template [OPTIONS] COMMAND [ARGS]...
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7024,7 +7296,7 @@ against the local file so you can review changes before running
 <h5 id="orca-stack-template-show">orca stack template show<a class="headerlink" href="#orca-stack-template-show" title="Permanent link">&para;</a></h5>
 <p>Show the stack template (YAML output).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>orca stack template show [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>orca stack template show [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7051,7 +7323,7 @@ against the local file so you can review changes before running
   orca stack template-validate -t template.yaml
   orca stack template-validate -t template.yaml -e env.yaml</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>orca stack template validate [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>orca stack template validate [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7093,7 +7365,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-template-show">orca stack template-show<a class="headerlink" href="#orca-stack-template-show" title="Permanent link">&para;</a></h4>
 <p>Show the stack template (YAML output).</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>orca stack template-show [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>orca stack template-show [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7120,7 +7392,7 @@ against the local file so you can review changes before running
   orca stack template-validate -t template.yaml
   orca stack template-validate -t template.yaml -e env.yaml</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>orca stack template-validate [OPTIONS]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>orca stack template-validate [OPTIONS]
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7162,7 +7434,7 @@ against the local file so you can review changes before running
 <h4 id="orca-stack-topology">orca stack topology<a class="headerlink" href="#orca-stack-topology" title="Permanent link">&para;</a></h4>
 <p>Show stack resource topology as a tree.</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>orca stack topology [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>orca stack topology [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -7189,7 +7461,7 @@ against the local file so you can review changes before running
   orca stack update my-stack -t template.yaml
   orca stack update my-stack -t template.yaml -e env.yaml --parameter key1=val1 --wait</p>
 <p><strong>Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>orca stack update [OPTIONS] STACK_NAME_OR_ID
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>orca stack update [OPTIONS] STACK_NAME_OR_ID
 </code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
