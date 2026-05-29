@@ -357,3 +357,65 @@ def alarm_quota_set(ctx, project_id, alarm_quota_value):
 
 add_command_with_alias(alarm, alarm_quota_set,
                         legacy_name="quota-set", primary_path="alarm quota set")
+
+
+# ── OSC parity ────────────────────────────────────────────────────────────
+
+
+# ``alarm update`` is OSC's name for ``alarm set``.
+alarm.add_command(alarm_set, name="update")
+
+
+@alarm_quota.command("show")
+@click.option("--project", "project_id", default=None,
+              help="Project to query (default: caller's project).")
+@output_options
+@click.pass_context
+def alarm_quota_show(ctx: click.Context, project_id: str | None,
+                     output_format: str, columns: tuple[str, ...],
+                     fit_width: bool, max_width: int | None,
+                     noindent: bool) -> None:
+    """Show the alarm quota for a project (OSC ``alarm quota show``)."""
+    svc = AlarmService(ctx.find_object(OrcaContext).ensure_client())
+    data = svc.get_quota(project_id)
+    quotas = data.get("quotas", []) if isinstance(data, dict) else []
+    rows = [
+        {"project_id": q.get("project_id", project_id or "—"),
+         "resource": q.get("resource", "alarms"),
+         "limit": q.get("limit", -1)}
+        for q in quotas
+    ]
+    print_list(
+        rows,
+        [
+            ("Project ID", "project_id", {"style": "cyan", "no_wrap": True}),
+            ("Resource", "resource"),
+            ("Limit", "limit", {"justify": "right"}),
+        ],
+        title="Aodh alarm quotas",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No alarm quotas reported.",
+    )
+
+
+@alarm.command("metrics")
+@output_options
+@click.pass_context
+def alarm_metrics(ctx: click.Context, output_format: str,
+                  columns: tuple[str, ...], fit_width: bool,
+                  max_width: int | None, noindent: bool) -> None:
+    """Show Aodh evaluator metrics (OSC ``alarm metrics``)."""
+    svc = AlarmService(ctx.find_object(OrcaContext).ensure_client())
+    items = svc.get_metrics()
+    print_list(
+        items,
+        [
+            ("Name", "name", {"style": "cyan"}),
+            ("Value", "value", {"justify": "right"}),
+        ],
+        title="Aodh evaluator metrics",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No metrics reported.",
+    )

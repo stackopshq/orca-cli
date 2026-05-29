@@ -26,6 +26,7 @@ EXPECTED_COMMANDS = [
     "resource", "trait", "allocation",
     "orchestration", "software",
     "object-store", "acl", "ca",
+    "coe",
 ]
 
 

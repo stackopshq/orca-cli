@@ -58,5 +58,16 @@ class AlarmService:
     def get_capabilities(self) -> dict:
         return self._client.get(f"{self._base}/capabilities")
 
+    def get_quota(self, project_id: str | None = None) -> dict:
+        """Aodh ``GET /v2/quotas[/{project}]``."""
+        suffix = f"/{project_id}" if project_id else ""
+        data = self._client.get(f"{self._base}/quotas{suffix}")
+        return data if isinstance(data, dict) else {}
+
+    def get_metrics(self) -> list[dict]:
+        """Aodh ``GET /v2/metrics`` — evaluator metrics."""
+        data = self._client.get(f"{self._base}/metrics")
+        return data if isinstance(data, list) else []
+
     def update_quota(self, body: dict[str, Any]) -> None:
         self._client.post(f"{self._base}/quotas", json=body)
