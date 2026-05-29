@@ -6,6 +6,7 @@ import click
 
 from orca_cli.core.aliases import add_command_with_alias
 from orca_cli.core.context import OrcaContext
+from orca_cli.core.exceptions import OrcaCLIError
 from orca_cli.core.output import console, output_options, print_detail, print_list
 from orca_cli.core.validators import validate_id
 from orca_cli.services.placement import PlacementService
@@ -338,6 +339,21 @@ def rc_delete(ctx, name, yes):
     console.print(f"Resource class [bold]{name}[/bold] deleted.")
 
 
+@placement_resource_class.command("set")
+@click.argument("current_name")
+@click.option("--name", "new_name", required=True,
+              help="New resource class name (must start with CUSTOM_).")
+@click.pass_context
+def rc_set(ctx: click.Context, current_name: str, new_name: str) -> None:
+    """Rename a custom resource class (OSC parity)."""
+    svc = PlacementService(ctx.find_object(OrcaContext).ensure_client())
+    svc.update_resource_class(current_name, new_name)
+    console.print(
+        f"Resource class [bold]{current_name}[/bold] renamed to "
+        f"[bold]{new_name}[/bold]."
+    )
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  Traits
 # ══════════════════════════════════════════════════════════════════════════════
@@ -396,6 +412,23 @@ def trait_delete(ctx, name, yes):
         click.confirm(f"Delete trait {name}?", abort=True)
     svc.delete_trait(name)
     console.print(f"Trait [bold]{name}[/bold] deleted.")
+
+
+@placement_trait.command("show")
+@click.argument("name")
+@click.pass_context
+def trait_show(ctx, name):
+    """Show a trait (existence check — Placement traits have no body).
+
+    Equivalent to ``openstack trait show``. Raises ``OrcaCLIError``
+    if the trait does not exist.
+    """
+    svc = PlacementService(ctx.find_object(OrcaContext).ensure_client())
+    try:
+        svc.get_trait(name)
+    except Exception as exc:  # noqa: BLE001 — surface 404 as orca error
+        raise OrcaCLIError(f"Trait {name!r} not found ({exc}).") from exc
+    console.print(f"Trait [bold]{name}[/bold] exists.")
 
 
 @placement_resource_provider.command("trait-list")
@@ -781,3 +814,154 @@ add_command_with_alias(placement, allocation_set,
 add_command_with_alias(placement, allocation_candidate_list,
                         legacy_name="allocation-candidate-list",
                         primary_path="placement allocation candidate-list")
+
+
+# OSC parity ``resource usage show`` — orca's ``usage list`` returns
+# the same per-project / per-user aggregate. Expose ``show`` as the
+# same callback for the OSC path.
+placement_usage.add_command(usage_list, name="show")
+
+
+# OSC parity ``resource provider allocation unset`` — remove the
+# allocation against one resource class on a consumer.
+@placement_allocation.command("unset")
+@click.argument("consumer_uuid", callback=validate_id)
+@click.option("--resource-class", "rc_name", required=True,
+              metavar="CLASS", help="Resource class to clear "
+              "(e.g. VCPU, MEMORY_MB).")
+@click.option("--rp-uuid", "rp_uuid", default=None,
+              help="Optional: limit to allocations on this resource "
+              "provider (default: all providers).")
+@click.pass_context
+def allocation_unset(ctx, consumer_uuid: str, rc_name: str,
+                     rp_uuid: str | None) -> None:
+    """Drop a single resource-class allocation for a consumer.
+
+    Reads the consumer's full allocations, strips ``rc_name`` from
+    each provider entry (optionally only on ``--rp-uuid``), then PUTs
+    the remaining allocations back. Empty entries are dropped.
+    """
+    svc = PlacementService(ctx.find_object(OrcaContext).ensure_client())
+    current = svc.get_allocations(consumer_uuid)
+    allocs = (current.get("allocations") or {}).copy()
+    touched = False
+    for prov, entry in list(allocs.items()):
+        if rp_uuid is not None and prov != rp_uuid:
+            continue
+        resources = (entry.get("resources") or {}).copy()
+        if rc_name in resources:
+            del resources[rc_name]
+            touched = True
+            if resources:
+                allocs[prov] = {**entry, "resources": resources}
+            else:
+                del allocs[prov]
+    if not touched:
+        raise OrcaCLIError(
+            f"No allocation of resource-class {rc_name!r} found on "
+            f"consumer {consumer_uuid}."
+        )
+    body: dict = {"allocations": allocs}
+    current_dict: dict = dict(current)
+    for k in ("project_id", "user_id", "consumer_generation"):
+        if k in current_dict:
+            body[k] = current_dict[k]
+    svc.set_allocations(consumer_uuid, body)
+    console.print(
+        f"[green]Resource class {rc_name} cleared on consumer "
+        f"{consumer_uuid}.[/green]"
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  OSC parity sub-groups under ``placement resource-provider`` and
+#  ``placement allocation``. Each one re-exposes the existing flat leaf
+#  under the OSC 3-word form (``resource provider inventory list``,
+#  ``resource provider aggregate set`` …).
+# ══════════════════════════════════════════════════════════════════════════
+
+
+@placement_resource_provider.group("aggregate")
+def placement_rp_aggregate() -> None:
+    """Aggregate associations of a resource provider (OSC parity)."""
+
+
+placement_rp_aggregate.add_command(rp_aggregate_list, name="list")
+placement_rp_aggregate.add_command(rp_aggregate_set, name="set")
+placement_rp_aggregate.add_command(rp_aggregate_delete, name="delete")
+
+
+@placement_resource_provider.group("inventory")
+def placement_rp_inventory() -> None:
+    """Inventories of a resource provider (OSC parity)."""
+
+
+placement_rp_inventory.add_command(rp_inventory_list, name="list")
+placement_rp_inventory.add_command(rp_inventory_set, name="set")
+placement_rp_inventory.add_command(rp_inventory_show, name="show")
+placement_rp_inventory.add_command(rp_inventory_delete, name="delete")
+placement_rp_inventory.add_command(rp_inventory_delete_all, name="delete-all")
+
+
+# ``resource provider inventory class set`` (OSC 5-word form) is what
+# orca already calls ``inventory set RP --resource-class CLASS``.
+# Provide a sub-group ``class`` whose only leaf ``set`` delegates back
+# to the same callback.
+@placement_rp_inventory.group("class")
+def placement_rp_inventory_class() -> None:
+    """Per-resource-class inventory verbs (OSC parity)."""
+
+
+placement_rp_inventory_class.add_command(rp_inventory_set, name="set")
+
+
+@placement_resource_provider.group("trait")
+def placement_rp_trait() -> None:
+    """Traits associated with a resource provider (OSC parity)."""
+
+
+placement_rp_trait.add_command(rp_trait_list, name="list")
+placement_rp_trait.add_command(rp_trait_set, name="set")
+placement_rp_trait.add_command(rp_trait_delete, name="delete")
+
+
+@placement_resource_provider.group("usage")
+def placement_rp_usage() -> None:
+    """Per-resource-provider usage (OSC parity)."""
+
+
+# ``resource provider usage show`` reuses the existing ``usage`` leaf.
+placement_rp_usage.add_command(rp_usage, name="show")
+
+
+# OSC parity ``resource provider allocation list/show/set/delete``.
+# Placement allocations are keyed by the **consumer**, not the
+# provider — OSC's ``resource provider allocation`` is a thin
+# wrapper that delegates to ``GET /resource_providers/{rp}/allocations``
+# (the per-provider view) for ``list``/``show``, and to the same
+# consumer-keyed PUT/DELETE for ``set``/``delete``. orca already
+# exposes those under ``placement allocation``; re-expose them under
+# the OSC path.
+@placement_resource_provider.group("allocation")
+def placement_rp_allocation() -> None:
+    """Allocations against a resource provider (OSC parity)."""
+
+
+# For ``list`` and ``show`` we surface the existing consumer-keyed
+# ``allocation_show`` — the user passes the consumer UUID in both
+# orca and OSC.
+placement_rp_allocation.add_command(allocation_show, name="show")
+placement_rp_allocation.add_command(allocation_set, name="set")
+placement_rp_allocation.add_command(allocation_delete, name="delete")
+placement_rp_allocation.add_command(allocation_unset, name="unset")
+
+
+# OSC ``allocation candidate list`` — orca calls it ``placement
+# allocation candidate-list`` (hyphen). Expose a sub-group ``candidate``
+# so the OSC 3-word form works.
+@placement_allocation.group("candidate")
+def placement_allocation_candidate() -> None:
+    """Placement allocation candidates."""
+
+
+placement_allocation_candidate.add_command(allocation_candidate_list, name="list")

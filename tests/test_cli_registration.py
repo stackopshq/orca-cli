@@ -23,6 +23,7 @@ EXPECTED_COMMANDS = [
     "extension", "versions", "console",
     "port", "router", "subnet",
     "block-storage", "tld", "ptr", "tsigkey",
+    "resource", "trait", "allocation",
 ]
 
 

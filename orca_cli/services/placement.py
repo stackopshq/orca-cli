@@ -154,6 +154,23 @@ class PlacementService:
         self._client.delete(f"{self._base}/resource_classes/{name}",
                             headers=_ph())
 
+    def update_resource_class(self, current_name: str,
+                              new_name: str) -> None:
+        """Rename a resource class (PUT ``/resource_classes/{old}``)."""
+        self._client.put(
+            f"{self._base}/resource_classes/{current_name}",
+            json={"name": new_name}, headers=_ph(),
+        )
+
+    def get_trait(self, name: str) -> dict:
+        """Return ``{name}`` if the trait exists (Placement GET
+        ``/traits/{name}`` returns 204 No Content; we synthesise a
+        minimal payload).
+        """
+        # Placement returns 204; ``client.get`` returns None for 204.
+        self._client.get(f"{self._base}/traits/{name}", headers=_ph())
+        return {"name": name}
+
     # ── traits ─────────────────────────────────────────────────────────
 
     def find_traits(self, *,
