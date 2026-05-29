@@ -95,7 +95,7 @@ def _stringify_dates(obj: object) -> object:
         return {k: _stringify_dates(v) for k, v in obj.items()}
     if isinstance(obj, list):
         return [_stringify_dates(i) for i in obj]
-    if isinstance(obj, (datetime.datetime, datetime.date)):
+    if isinstance(obj, datetime.datetime | datetime.date):
         return obj.isoformat()
     return obj
 
@@ -1107,3 +1107,82 @@ add_command_with_alias(stack, stack_resource_type_list,
 add_command_with_alias(stack, stack_resource_type_show,
                         legacy_name="resource-type-show",
                         primary_path="stack resource-type show")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  OSC parity: ``stack export`` and ``stack hook clear/poll``
+# ══════════════════════════════════════════════════════════════════════════
+
+
+@stack.command("export")
+@click.argument("stack_name")
+@output_options
+@click.pass_context
+def stack_export(ctx: click.Context, stack_name: str, output_format: str,
+                 columns: tuple[str, ...], fit_width: bool,
+                 max_width: int | None, noindent: bool) -> None:
+    """Export the full serialised state of a stack.
+
+    Heat ``GET /v1/stacks/{name}/{id}/export`` returns the same body
+    as ``abandon`` would, without actually removing the stack.
+    Useful as a backup or for ``stack adopt`` later.
+    """
+    svc = OrchestrationService(ctx.find_object(OrcaContext).ensure_client())
+    stk = svc.get(stack_name)
+    data = svc.export_stack(stack_name, stk["id"])
+    print_detail(
+        [(k, str(v)) for k, v in data.items()],
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+    )
+
+
+@stack.group("hook")
+def stack_hook() -> None:
+    """Manage pre-create / pre-update hooks on stack resources."""
+
+
+@stack_hook.command("clear")
+@click.argument("stack_name")
+@click.argument("resource_name")
+@click.option("--hook", default="pre-create",
+              type=click.Choice(["pre-create", "pre-update", "pre-delete"]),
+              show_default=True,
+              help="Hook to clear on the resource.")
+@click.pass_context
+def stack_hook_clear(ctx: click.Context, stack_name: str,
+                     resource_name: str, hook: str) -> None:
+    """Clear a hook so the paused resource can proceed."""
+    svc = OrchestrationService(ctx.find_object(OrcaContext).ensure_client())
+    stk = svc.get(stack_name)
+    svc.hook_clear(stack_name, stk["id"], resource_name, hook)
+    console.print(
+        f"[green]Hook {hook!r} cleared on {stack_name}/{resource_name}.[/green]"
+    )
+
+
+@stack_hook.command("poll")
+@click.argument("stack_name")
+@output_options
+@click.pass_context
+def stack_hook_poll(ctx: click.Context, stack_name: str,
+                    output_format: str, columns: tuple[str, ...],
+                    fit_width: bool, max_width: int | None,
+                    noindent: bool) -> None:
+    """List resources whose hooks are still pending on a stack."""
+    svc = OrchestrationService(ctx.find_object(OrcaContext).ensure_client())
+    stk = svc.get(stack_name)
+    items = svc.hook_poll(stack_name, stk["id"])
+    print_list(
+        items,
+        [
+            ("Resource", "resource_name", {"style": "cyan"}),
+            ("Type", "resource_type"),
+            ("Status", "resource_status"),
+            ("Reason", "resource_status_reason"),
+        ],
+        title=f"Pending hooks on {stack_name}",
+        output_format=output_format, columns=columns,
+        fit_width=fit_width, max_width=max_width, noindent=noindent,
+        empty_msg="No pending hooks on this stack.",
+    )

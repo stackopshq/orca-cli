@@ -24,6 +24,7 @@ EXPECTED_COMMANDS = [
     "port", "router", "subnet",
     "block-storage", "tld", "ptr", "tsigkey",
     "resource", "trait", "allocation",
+    "orchestration", "software",
 ]
 
 

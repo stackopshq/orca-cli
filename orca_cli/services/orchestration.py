@@ -230,3 +230,116 @@ class OrchestrationService:
             f"/resources/{resource_name}/metadata"
         )
         return data.get("metadata", data) if isinstance(data, dict) else {}
+
+    # ── Service / build info / template versions / functions ──────────
+
+    def get_build_info(self) -> dict:
+        """Heat ``GET /v1/build_info`` — engine + API versions."""
+        return self._client.get(f"{self._base}/build_info") or {}
+
+    def find_services(self) -> list[dict]:
+        """Heat ``GET /v1/services`` — list of heat-engine workers."""
+        data = self._client.get(f"{self._base}/services")
+        return data.get("services", []) if isinstance(data, dict) else []
+
+    def find_template_versions(self) -> list[dict]:
+        """Heat ``GET /v1/template_versions``."""
+        data = self._client.get(f"{self._base}/template_versions")
+        return data.get("template_versions", []) if isinstance(data, dict) else []
+
+    def find_template_functions(self, version: str) -> list[dict]:
+        """Heat ``GET /v1/template_versions/{version}/functions``."""
+        data = self._client.get(
+            f"{self._base}/template_versions/{version}/functions"
+        )
+        return data.get("template_functions", []) if isinstance(data, dict) else []
+
+    def export_stack(self, name: str, stack_id: str) -> dict:
+        """Heat ``GET /v1/stacks/{name}/{id}/export`` — serialised state.
+
+        Used by ``stack export``. Includes the same body as ``abandon``
+        but does not actually remove the stack.
+        """
+        return self._client.get(
+            f"{self._base}/stacks/{name}/{stack_id}/export"
+        ) or {}
+
+    def hook_clear(self, name: str, stack_id: str,
+                   resource_name: str, hook: str) -> None:
+        """Clear a pre-create / pre-update hook (DELETE).
+
+        Heat does not expose a dedicated DELETE; clearing is done via
+        PATCH on the resource with ``unset_hook: <hook>``.
+        """
+        self._client.patch(
+            f"{self._base}/stacks/{name}/{stack_id}"
+            f"/resources/{resource_name}",
+            json={"unset_hook": hook},
+        )
+
+    def hook_poll(self, name: str, stack_id: str) -> list[dict]:
+        """Return the list of resources whose hooks are still pending.
+
+        Heat does not expose ``hook poll`` natively — OSC emulates it
+        by walking the stack resources and surfacing those with
+        ``required_by`` empty and ``resource_status_reason`` ending
+        with ``Hook``. We do the same.
+        """
+        items = self.find_resources(name, stack_id)
+        return [
+            dict(r) for r in items
+            if "hook" in (r.get("resource_status_reason") or "").lower()
+        ]
+
+    # ── software configs / deployments ───────────────────────────────
+
+    def find_software_configs(self, *, limit: int | None = None) -> list[dict]:
+        params: dict[str, Any] = {}
+        if limit is not None:
+            params["limit"] = limit
+        data = self._client.get(f"{self._base}/software_configs",
+                                params=params or None)
+        return data.get("software_configs", []) if isinstance(data, dict) else []
+
+    def get_software_config(self, config_id: str) -> dict:
+        data = self._client.get(f"{self._base}/software_configs/{config_id}")
+        return data.get("software_config", data) if isinstance(data, dict) else {}
+
+    def create_software_config(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(f"{self._base}/software_configs", json=body)
+        return data.get("software_config", data) if isinstance(data, dict) else {}
+
+    def delete_software_config(self, config_id: str) -> None:
+        self._client.delete(f"{self._base}/software_configs/{config_id}")
+
+    def find_software_deployments(self, *,
+                                  server_id: str | None = None) -> list[dict]:
+        params: dict[str, Any] = {}
+        if server_id:
+            params["server_id"] = server_id
+        data = self._client.get(f"{self._base}/software_deployments",
+                                params=params or None)
+        return data.get("software_deployments", []) if isinstance(data, dict) else []
+
+    def get_software_deployment(self, deployment_id: str) -> dict:
+        data = self._client.get(
+            f"{self._base}/software_deployments/{deployment_id}"
+        )
+        return data.get("software_deployment", data) if isinstance(data, dict) else {}
+
+    def create_software_deployment(self, body: dict[str, Any]) -> dict:
+        data = self._client.post(f"{self._base}/software_deployments",
+                                 json=body)
+        return data.get("software_deployment", data) if isinstance(data, dict) else {}
+
+    def delete_software_deployment(self, deployment_id: str) -> None:
+        self._client.delete(
+            f"{self._base}/software_deployments/{deployment_id}"
+        )
+
+    def get_deployment_metadata(self, server_id: str) -> list[dict]:
+        """Heat ``GET /v1/software_deployments/metadata/{server_id}``."""
+        data = self._client.get(
+            f"{self._base}/software_deployments/metadata/{server_id}"
+        )
+        return data.get("metadata", []) if isinstance(data, dict) else []
