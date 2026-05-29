@@ -4,6 +4,74 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] — 2026-05-29
+
+Live API audit closure — orca now answers to every ``openstack
+<verb>`` an OSC user types across the 10 core services (635/635
+OSC paths). 17 new top-level groups, 30+ sub-group refactors,
+~40 new service-helper methods. See ``tests/devstack/audit/`` for
+the per-service reports.
+
+### Phase 1 — 10 core services at 100 % OSC parity
+
+* **Identity** (1.1) — 5 UX fixes (service/endpoint/endpoint-group
+  positional NAME, access-rules JSON, role implied delete -y).
+* **Compute** (1.2) — ``server add/remove floating-ip``, top-level
+  ``console log show`` / ``console url show``.
+* **Network** (1.3) — top-level ``port`` / ``router`` / ``subnet``;
+  ``network qos`` / ``network trunk`` / ``network subport`` inverse
+  aliases; new ``router add/remove gateway/port/subnet``;
+  ``network flavor add/remove profile`` (breaking).
+* **Volume** (1.4) — new top-level ``block-storage`` with cluster /
+  log-level / resource-filter / manageable / cleanup; ``volume
+  backend pool list``; ``volume transfer request *``. Breaking:
+  ``volume backend capability HOST`` → ``volume backend capability
+  show HOST``.
+* **Image** (1.5) — ``image member get``, ``image metadef object
+  property show``. ``image import info`` documented as Click
+  leaf-vs-group limitation.
+* **DNS** (1.6) — new top-level ``tld``, ``ptr``, ``tsigkey``.
+  Breaking: ``zone export``, ``zone import``, ``zone transfer
+  accept`` refactored from leafs to sub-groups. New ``zone move``,
+  ``zone transfer request set``.
+* **Placement** (1.7) — full sub-group refactor of
+  ``resource-provider``; new top-level ``resource``, ``trait``,
+  ``allocation``; new verbs ``resource class set``, ``trait show``,
+  ``resource usage show``, ``allocation unset``.
+* **Orchestration** (1.8) — new top-level ``orchestration`` (build
+  info / service list / template function/version list / validate /
+  resource-type); new top-level ``software`` (config + deployment
+  CRUD); ``stack export``; ``stack hook clear/poll``.
+* **Object Store** (1.9) — new top-level ``object-store`` (account
+  set/show/unset); ``object create`` alias.
+* **Key Manager** (1.10) — new top-level ``acl`` and ``ca``;
+  ``secret container`` and ``secret order`` sub-groups; new ACL
+  user add/remove verbs; ``secret get`` and ``secret update``
+  aliases.
+
+### Phase 2 — partial (easy wins committed)
+
+* **Aodh** — ``alarm update``, ``alarm quota show``, ``alarm
+  metrics``.
+* **Magnum** — new top-level ``coe`` re-exposing ``cluster`` at
+  the OSC path.
+* Remaining gaps on Octavia / Manila / Gnocchi / CloudKitty fully
+  inventoried in ``tests/devstack/audit/11-phase2-services.md``.
+
+### Breaking changes (cumulative)
+
+If you scripted any of the following, add the new word(s):
+
+* ``volume backend capability HOST`` → ``… capability show HOST``.
+* ``network flavor add FLAVOR PROFILE`` → ``… add profile FLAVOR
+  PROFILE``. Same for ``remove``.
+* ``zone export ZONE`` → ``zone export create ZONE``.
+* ``zone import --file F`` → ``zone import create --file F``.
+* ``zone transfer accept TRANSFER KEY`` → ``zone transfer accept
+  request TRANSFER KEY``.
+
+Every other change is additive.
+
 ## [2.6.1] — 2026-05-29
 
 Phase 1.4 Cinder audit closure — orca now answers to **every**
