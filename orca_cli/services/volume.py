@@ -632,6 +632,16 @@ class VolumeService:
                                 headers=self._MV_ADMIN)
         return data.get("resource_filters", [])
 
+    def workers_cleanup(self, body: dict[str, Any]) -> dict:
+        """Cinder admin ``POST /workers/cleanup`` (micro-version >= 3.24).
+
+        OSC parity: ``openstack block storage cleanup``. Returns the
+        ``{cleaning, unavailable}`` lists Cinder produces.
+        """
+        data = self._client.post(f"{self._base}/workers/cleanup",
+                                 json=body, headers=self._MV_ADMIN)
+        return data or {}
+
     # ────────────────────────────────────────────────────────────────────
     #  Manageable resources — Cinder admin
     #  (OSC: ``openstack block storage {volume,snapshot} manageable list``)

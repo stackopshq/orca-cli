@@ -2688,6 +2688,42 @@ def volume_backend_capability(ctx: click.Context, host: str,
                  max_width=max_width, noindent=noindent, columns=columns)
 
 
+# OSC parity ``volume backend pool list`` — under the existing
+# ``volume backend`` group, expose a ``pool`` sub-group with the
+# same callback as ``volume pool list``.
+@volume_backend.group("pool")
+def volume_backend_pool() -> None:
+    """Cinder scheduler pools, surfaced under ``volume backend``."""
+
+
+volume_backend_pool.add_command(volume_pool_list, name="list")
+
+
+# OSC parity ``volume backend capability show`` — the existing
+# ``volume backend capability HOST`` becomes the body of a new
+# ``capability show`` sub-group leaf.
+@volume_backend.group("capability")
+def volume_backend_capability_grp() -> None:
+    """Backend capabilities — OSC ``volume backend capability show``."""
+
+
+volume_backend_capability_grp.add_command(volume_backend_capability, name="show")
+
+
+# OSC parity ``volume transfer request <verb>`` is identical to
+# ``volume transfer <verb>``. Re-expose the same commands under a
+# ``request`` sub-group attached to ``volume transfer``.
+@volume_transfer.group("request")
+def volume_transfer_request() -> None:
+    """OSC parity alias — same callbacks as ``volume transfer``."""
+
+
+for _n in ("accept", "create", "delete", "list", "show"):
+    _cmd = volume_transfer.get_command(None, _n)
+    if _cmd is not None:
+        volume_transfer_request.add_command(_cmd, name=_n)
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  Cinder admin — clusters / log levels / resource filters / manageable
 #  (OSC parity: ``openstack block storage …``)

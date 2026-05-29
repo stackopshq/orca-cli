@@ -283,7 +283,7 @@ class TestVolumeBackendCapability:
             "vendor_name": "Acme",
             "storage_protocol": "iSCSI",
         }
-        result = invoke(["volume", "backend", "capability", "cinder@lvm", "-f", "json"])
+        result = invoke(["volume", "backend", "capability", "show", "cinder@lvm", "-f", "json"])
         assert result.exit_code == 0
         assert "driver_version" in result.output
         assert "Acme" in result.output
