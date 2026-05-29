@@ -495,3 +495,85 @@ def secret_store(ctx, secret_id, payload_str, payload_file,
                            content_type=content_type,
                            content_encoding=content_encoding)
     console.print(f"[green]Payload stored on secret {secret_id}.[/green]")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  OSC parity sub-groups + ``get`` / ``update`` / extended ACL verbs.
+# ══════════════════════════════════════════════════════════════════════════
+
+
+# ``secret get SECRET_ID`` — OSC alias of ``secret show``.
+secret.add_command(secret_show, name="get")
+
+
+# ``secret update SECRET_ID --payload …`` — OSC ``secret update`` is
+# the same Barbican ``PUT /v1/secrets/{id}`` call orca calls ``store``.
+secret.add_command(secret_store, name="update")
+
+
+# ``secret container`` sub-group with full CRUD (mirrors the hyphened
+# leafs that stay for back-compat).
+@secret.group("container")
+def secret_container_grp() -> None:
+    """Manage Barbican secret containers."""
+
+
+secret_container_grp.add_command(container_list, name="list")
+secret_container_grp.add_command(container_show, name="show")
+secret_container_grp.add_command(container_show, name="get")
+secret_container_grp.add_command(container_create, name="create")
+secret_container_grp.add_command(container_delete, name="delete")
+
+
+# ``secret order`` sub-group.
+@secret.group("order")
+def secret_order_grp() -> None:
+    """Manage Barbican key/certificate orders."""
+
+
+secret_order_grp.add_command(secret_order_list, name="list")
+secret_order_grp.add_command(secret_order_show, name="show")
+secret_order_grp.add_command(secret_order_show, name="get")
+secret_order_grp.add_command(secret_order_create, name="create")
+secret_order_grp.add_command(secret_order_delete, name="delete")
+
+
+# ACL — OSC parity expands ``set`` into ``submit / user add / user remove``.
+secret_acl.add_command(secret_acl_set, name="submit")
+
+
+@secret_acl.group("user")
+def secret_acl_user() -> None:
+    """Per-user ACL operations on a secret."""
+
+
+@secret_acl_user.command("add")
+@click.argument("secret_id", callback=validate_id)
+@click.option("--user", "users", multiple=True, required=True,
+              metavar="USER_ID",
+              help="User ID to grant read access (repeatable).")
+@click.pass_context
+def secret_acl_user_add(ctx: click.Context, secret_id: str,
+                        users: tuple[str, ...]) -> None:
+    """Add users to a secret's read ACL."""
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    svc.add_acl_users(secret_id, list(users))
+    console.print(
+        f"[green]ACL updated on {secret_id} (+ {len(users)} user(s)).[/green]"
+    )
+
+
+@secret_acl_user.command("remove")
+@click.argument("secret_id", callback=validate_id)
+@click.option("--user", "users", multiple=True, required=True,
+              metavar="USER_ID",
+              help="User ID to revoke read access from (repeatable).")
+@click.pass_context
+def secret_acl_user_remove(ctx: click.Context, secret_id: str,
+                           users: tuple[str, ...]) -> None:
+    """Remove users from a secret's read ACL."""
+    svc = KeyManagerService(ctx.find_object(OrcaContext).ensure_client())
+    svc.remove_acl_users(secret_id, list(users))
+    console.print(
+        f"[green]ACL updated on {secret_id} (- {len(users)} user(s)).[/green]"
+    )

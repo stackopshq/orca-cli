@@ -25,7 +25,7 @@ EXPECTED_COMMANDS = [
     "block-storage", "tld", "ptr", "tsigkey",
     "resource", "trait", "allocation",
     "orchestration", "software",
-    "object-store",
+    "object-store", "acl", "ca",
 ]
 
 

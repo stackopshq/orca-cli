@@ -146,3 +146,44 @@ class KeyManagerService:
             extra_headers=({"Content-Encoding": content_encoding}
                            if content_encoding else None),
         )
+
+    # ── Certificate Authorities (CAs) ────────────────────────────────
+
+    def find_cas(self) -> list[dict[str, Any]]:
+        """Barbican ``GET /v1/cas`` — registered Certificate Authorities."""
+        data = self._client.get(f"{self._base}/cas")
+        return data.get("cas", []) if isinstance(data, dict) else []
+
+    def get_ca(self, ca_id: str) -> dict[str, Any]:
+        """Barbican ``GET /v1/cas/{ca_id}``."""
+        data = self._client.get(f"{self._base}/cas/{ca_id}")
+        return data if isinstance(data, dict) else {}
+
+    # ── ACL user add/remove (read-modify-write) ──────────────────────
+
+    def add_acl_users(self, secret_id: str,
+                      users: list[str]) -> dict[str, Any]:
+        """Add users to the secret's read ACL.
+
+        Barbican only exposes ``PATCH /v1/secrets/{id}/acl``; orca
+        merges the existing user list with the new ones, dedups, and
+        PATCHes the result.
+        """
+        existing = self.get_secret_acl(secret_id) or {}
+        read = existing.get("read", {}) or {}
+        current_users: list[str] = list(read.get("users", []) or [])
+        merged = sorted(set(current_users) | set(users))
+        body = {"read": {"users": merged,
+                          "project-access": read.get("project-access", True)}}
+        return self.update_secret_acl(secret_id, body)
+
+    def remove_acl_users(self, secret_id: str,
+                         users: list[str]) -> dict[str, Any]:
+        """Remove users from the secret's read ACL."""
+        existing = self.get_secret_acl(secret_id) or {}
+        read = existing.get("read", {}) or {}
+        current_users: list[str] = list(read.get("users", []) or [])
+        kept = sorted(set(current_users) - set(users))
+        body = {"read": {"users": kept,
+                          "project-access": read.get("project-access", True)}}
+        return self.update_secret_acl(secret_id, body)
