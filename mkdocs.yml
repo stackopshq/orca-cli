@@ -49,6 +49,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
+  - Coming from OSC: from-osc.md
   - CLI Reference: reference.md
   - Commands:
       - Overview: commands/index.md
@@ -73,30 +74,50 @@ nav:
           - server-group: commands/server-group.md
           - event: commands/event.md
           - usage: commands/usage.md
+      - Compute (extra):
+          - console: commands/console.md
       - Image:
           - image: commands/image.md
       - Block Storage:
           - volume: commands/volume.md
+          - block-storage (admin): commands/block-storage.md
           - backup (Freezer): commands/backup.md
       - Object Storage:
           - container: commands/container.md
           - object: commands/object.md
+          - object-store (admin): commands/object-store.md
       - Network:
           - network: commands/network.md
+          - port: commands/port.md
+          - router: commands/router.md
+          - subnet: commands/subnet.md
           - floating-ip: commands/floating-ip.md
           - security-group: commands/security-group.md
           - qos: commands/qos.md
           - subnet-pool: commands/subnet-pool.md
           - trunk: commands/trunk.md
+          - address-group: commands/address-group.md
+          - address-scope: commands/address-scope.md
+          - ip-availability: commands/ip-availability.md
+          - local-ip: commands/local-ip.md
+          - extension: commands/extension.md
       - Load Balancer:
           - loadbalancer: commands/loadbalancer.md
       - DNS:
           - zone: commands/zone.md
           - recordset: commands/recordset.md
+          - tld: commands/tld.md
+          - ptr: commands/ptr.md
+          - tsigkey: commands/tsigkey.md
       - Orchestration:
           - stack (Heat): commands/stack.md
+          - orchestration: commands/orchestration.md
+          - software: commands/software.md
       - Clusters:
           - cluster (Magnum): commands/cluster.md
+          - coe: commands/coe.md
+      - Shared File Systems:
+          - share (Manila): commands/share.md
       - Metrics & Alarms:
           - metric (Gnocchi): commands/metric.md
           - alarm (Aodh): commands/alarm.md
@@ -104,8 +125,13 @@ nav:
           - rating (CloudKitty): commands/rating.md
       - Placement:
           - placement: commands/placement.md
+          - resource: commands/resource.md
+          - trait: commands/trait.md
+          - allocation: commands/allocation.md
       - Secrets:
           - secret (Barbican): commands/secret.md
+          - acl: commands/acl.md
+          - ca: commands/ca.md
       - Identity:
           - user: commands/user.md
           - project: commands/project.md
@@ -135,6 +161,7 @@ nav:
           - limits: commands/limits.md
           - quota: commands/quota.md
           - catalog: commands/catalog.md
+          - versions: commands/versions.md
           - completion: commands/completion.md
   - Architecture Decisions:
       - Index: adr/README.md

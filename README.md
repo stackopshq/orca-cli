@@ -14,12 +14,28 @@
 
 ## Highlights
 
-- **60+ command groups** covering every major OpenStack service (Keystone, Nova, Neutron, Cinder, Glance, Swift, Heat, Octavia, Designate, Barbican, Magnum, Gnocchi, Aodh, CloudKitty, Placement, Freezer)
-- **Typed service layer** — every resource flows through a typed `*Service` class with TypedDict models, catching field-name typos at mypy time
-- **Rich terminal output** — coloured tables, trees and progress bars powered by [Rich](https://github.com/Textualize/rich)
-- **Multi-account profiles** — named profiles, `clouds.yaml` and `OS_*` env var support, transparent token caching
-- **Shell auto-completion** — Bash, Zsh, and Fish, with per-profile resource caching
-- **Orca-exclusive commands** — `overview`, `watch`, `doctor`, `audit`, `cleanup`, `export`, `find`, `ip-whois`
+- **100 % OSC parity** on the 10 core services (635/635 verbs).
+  Drop-in replacement: `alias openstack=orca` and you're done.
+  See [Coming from OSC](https://stackopshq.github.io/orca-cli/from-osc/).
+- **80+ top-level command groups** — every major OpenStack service
+  (Keystone, Nova, Neutron, Cinder, Glance, Swift, Heat, Designate,
+  Barbican, Placement, Octavia, Magnum, Manila, Gnocchi, Aodh,
+  CloudKitty, Freezer) plus OSC-compatible admin top-levels
+  (`block-storage`, `object-store`, `orchestration`, `software`,
+  `coe`, `resource`, …).
+- **Typed service layer** — every resource flows through a typed
+  `*Service` class with TypedDict models, catching field-name
+  typos at mypy time.
+- **Rich terminal output** — coloured tables, trees, progress
+  bars (Rich).
+- **Multi-account profiles** — named profiles, `clouds.yaml` and
+  `OS_*` env var support, transparent token caching.
+- **Shell auto-completion** — Bash, Zsh, Fish, with per-profile
+  resource caching.
+- **Orca-exclusive commands** — `overview`, `find`, `audit`,
+  `cleanup`, `watch`, `doctor`, `server diff`, `server clone`,
+  `server bulk`, `server port-forward`, `subnet inspect`,
+  `zone tree`, `stack topology`, …
 
 ## Quick Start
 
@@ -38,30 +54,30 @@ poetry install --with dev
 poetry run orca --help
 ```
 
-Requires Python **3.9 – 3.14**.
+Requires Python **3.10 – 3.14**.
 
 ## Commands at a glance
 
 ### Compute (Nova)
-`server` · `server bulk` · `flavor` · `keypair` · `aggregate` · `hypervisor` · `availability-zone` · `compute-service` · `server-group` · `usage` · `limits` · `event`
+`server` · `server bulk` · `server clone` · `server diff` · `server port-forward` · `console` · `flavor` · `keypair` · `aggregate` · `hypervisor` · `availability-zone` · `compute-service` · `server-group` · `usage` · `limits` · `event`
 
 ### Networking (Neutron)
-`network` · `floating-ip` · `security-group` · `subnet-pool` · `trunk` · `qos`
+`network` · `port` · `router` · `subnet` · `floating-ip` · `security-group` · `subnet-pool` · `trunk` · `qos` · `address-group` · `address-scope` · `ip-availability` · `local-ip` · `extension`
 
 ### Storage
-`volume` · `image` (Glance) · `object` / `container` (Swift) · `backup` (Freezer)
+`volume` · `block-storage` · `image` (Glance) · `object` / `container` / `object-store` (Swift) · `share` (Manila) · `backup` (Freezer)
 
 ### Identity (Keystone)
-`project` · `user` · `role` · `domain` · `group` · `credential` · `application-credential` · `endpoint` · `endpoint-group` · `service` · `region` · `policy` · `trust` · `token` · `auth` · `access-rule` · `limit` · `registered-limit` · `catalog`
+`project` · `user` · `role` · `domain` · `group` · `credential` · `application-credential` · `endpoint` · `endpoint-group` · `service` · `region` · `policy` · `trust` · `token` · `auth` · `access-rule` · `limit` · `registered-limit` · `catalog` · `versions`
 
 ### Federation (Keystone)
 `identity-provider` · `federation-protocol` · `mapping` · `service-provider`
 
 ### Platform services
-`stack` (Heat) · `loadbalancer` (Octavia) · `zone` / `recordset` (Designate) · `secret` (Barbican) · `cluster` (Magnum) · `metric` (Gnocchi) · `alarm` (Aodh) · `rating` (CloudKitty) · `placement`
+`stack` / `orchestration` / `software` (Heat) · `loadbalancer` (Octavia) · `zone` / `recordset` / `tld` / `ptr` / `tsigkey` (Designate) · `secret` / `acl` / `ca` (Barbican) · `cluster` / `coe` (Magnum) · `metric` (Gnocchi) · `alarm` (Aodh) · `rating` (CloudKitty) · `placement` / `resource` / `trait` / `allocation`
 
 ### Orca-exclusive
-`overview` · `watch` · `doctor` · `audit` · `cleanup` · `export` · `find` · `ip` · `quota` · `profile` · `setup`
+`overview` · `find` · `audit` · `cleanup` · `watch` · `doctor` · `export` · `ip` · `quota` · `profile` · `setup`
 
 ## Documentation
 

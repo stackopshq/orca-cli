@@ -1,48 +1,81 @@
 # orca
 
-OpenStack Rich Command-line Alternative — a unified CLI for managing OpenStack cloud infrastructure.
+OpenStack Rich Command-line Alternative — a unified, batteries-included
+CLI for managing OpenStack cloud infrastructure.
 
 ## What is orca?
 
-`orca` lets you manage your entire OpenStack infrastructure from the terminal — virtual machines, networks, load balancers, secrets, Kubernetes clusters, metrics, and more — through one consistent interface.
+`orca` is a drop-in alternative to `python-openstackclient` (OSC).
+It manages virtual machines, networks, load balancers, secrets,
+Kubernetes clusters, metrics, DNS, object storage, identity, and
+more through one consistent interface — with extras OSC doesn't
+have.
+
+**100 % OSC parity** on the 10 core services (635/635 verbs).
+If you have OSC muscle memory, `alias openstack=orca` and you're
+done. See [Coming from OSC](from-osc.md) for the handful of
+differences and orca-exclusive commands.
 
 ## Highlights
 
-- **60+ command groups** covering every major OpenStack service (Keystone, Nova, Neutron, Cinder, Glance, Swift, Heat, Octavia, Designate, Barbican, Magnum, Gnocchi, Aodh, CloudKitty, Placement, Freezer, Federation)
-- **Typed service layer** — every resource flows through a typed `*Service` class with `TypedDict` models, catching field-name typos at mypy time
-- **Rich terminal output** — coloured tables, trees and progress bars powered by [Rich](https://github.com/Textualize/rich)
-- **Multi-account profiles** — named profiles, `clouds.yaml` and `OS_*` env var support, transparent token caching
-- **Shell auto-completion** — Bash, Zsh, and Fish, with per-profile resource caching for IDs and names
-- **Orca-exclusive commands** — `overview`, `watch`, `doctor`, `audit`, `cleanup`, `export`, `find`, `ip`
+- **80+ top-level command groups** covering Keystone, Nova, Neutron,
+  Cinder, Glance, Swift, Heat, Designate, Barbican, Placement,
+  Octavia, Magnum, Manila, Gnocchi, Aodh, CloudKitty, Freezer,
+  Federation, and admin top-levels (`block-storage`,
+  `object-store`, `orchestration`, `software`, `coe`, …).
+- **635/635 OSC verbs** answered word-for-word on the 10 core
+  services (99,4 % path-exact + 4 documented Click leaf-vs-group
+  divergences).
+- **Typed service layer** — every resource flows through a
+  `*Service` class with `TypedDict` models, catching field-name
+  typos at mypy time.
+- **Rich terminal output** — coloured tables, trees, progress
+  bars (Rich).
+- **Multi-account profiles** — named profiles, `clouds.yaml` and
+  `OS_*` env var support, transparent token caching.
+- **Shell auto-completion** — Bash, Zsh, Fish, with per-profile
+  resource caching for IDs and names.
+- **Orca-exclusive commands** — `overview`, `find`, `audit`,
+  `cleanup`, `watch`, `doctor`, `diff`, `clone`, `bulk`,
+  `port-forward`, `inspect`, `tree`, `topology`, … see
+  [Coming from OSC](from-osc.md).
 
-## Supported Services
+## Supported services
 
-| Service | Command | Backend |
+| Service | Top-level command(s) | Backend |
 |---|---|---|
-| Compute | `orca server`, `orca flavor`, `orca keypair`, `orca aggregate`, `orca hypervisor`, `orca availability-zone`, `orca compute-service`, `orca server-group`, `orca event`, `orca usage` | Nova |
-| Image | `orca image` | Glance |
-| Block Storage | `orca volume` (incl. `volume upload-to-image`), `orca backup` | Cinder, Freezer |
-| Object Storage | `orca container`, `orca object` | Swift |
-| Network | `orca network`, `orca floating-ip`, `orca security-group`, `orca qos`, `orca subnet-pool`, `orca trunk` | Neutron |
-| Load Balancer | `orca loadbalancer` | Octavia |
-| DNS | `orca zone`, `orca recordset` | Designate |
-| Orchestration | `orca stack` | Heat |
-| Clusters | `orca cluster` | Magnum |
-| Metrics & Alarms | `orca metric`, `orca alarm` | Gnocchi, Aodh |
-| Rating | `orca rating` | CloudKitty |
-| Placement | `orca placement` | Placement |
-| Secrets | `orca secret` | Barbican |
-| Identity | `orca user`, `orca project`, `orca domain`, `orca role`, `orca group`, `orca policy`, `orca credential`, `orca application-credential`, `orca access-rule`, `orca trust`, `orca token`, `orca auth`, `orca endpoint`, `orca endpoint-group`, `orca region`, `orca service`, `orca limit`, `orca registered-limit` | Keystone |
-| Federation | `orca identity-provider`, `orca federation-protocol`, `orca mapping`, `orca service-provider` | Keystone |
-| Utilities | `orca ip`, `orca limits`, `orca quota`, `orca catalog`, `orca completion` | — |
-| Orca-exclusive | `orca overview`, `orca watch`, `orca doctor`, `orca audit`, `orca cleanup`, `orca export`, `orca find`, `orca profile`, `orca setup` | — |
+| Compute | `server`, `flavor`, `keypair`, `aggregate`, `hypervisor`, `availability-zone`, `compute-service`, `server-group`, `event`, `usage`, `console` | Nova |
+| Image | `image` | Glance |
+| Block Storage | `volume`, `block-storage`, `backup` | Cinder, Freezer |
+| Object Storage | `container`, `object`, `object-store` | Swift |
+| Network | `network`, `port`, `router`, `subnet`, `floating-ip`, `security-group`, `qos`, `subnet-pool`, `trunk`, `address-group`, `address-scope`, `ip-availability`, `local-ip`, `extension` | Neutron |
+| Load Balancer | `loadbalancer` | Octavia |
+| DNS | `zone`, `recordset`, `tld`, `ptr`, `tsigkey` | Designate |
+| Orchestration | `stack`, `orchestration`, `software` | Heat |
+| Clusters | `cluster`, `coe` | Magnum |
+| Shared File Systems | `share` | Manila |
+| Metrics & Alarms | `metric`, `alarm` | Gnocchi, Aodh |
+| Rating | `rating` | CloudKitty |
+| Placement | `placement`, `resource`, `trait`, `allocation` | Placement |
+| Secrets | `secret`, `acl`, `ca` | Barbican |
+| Identity | `user`, `project`, `domain`, `role`, `group`, `policy`, `credential`, `application-credential`, `access-rule`, `trust`, `token`, `auth`, `endpoint`, `endpoint-group`, `region`, `service`, `limit`, `registered-limit`, `versions` | Keystone |
+| Federation | `identity-provider`, `federation-protocol`, `mapping`, `service-provider` | Keystone |
+| Utilities | `ip`, `limits`, `quota`, `catalog`, `completion` | — |
+| Orca-exclusive | `overview`, `find`, `audit`, `cleanup`, `watch`, `doctor`, `export`, `profile`, `setup` | — |
 
-## Quick Start
+## Quick start
 
 ```bash
 pip install orca-openstackclient
-orca setup
-orca server list
+orca setup           # interactive credential setup
+orca server list     # list your VMs
 ```
 
-See the [Getting Started](getting-started.md) guide for full installation and configuration instructions, and the [Command Reference](commands/index.md) for per-command documentation generated directly from the running CLI.
+If you're coming from OSC, jump to [Coming from OSC](from-osc.md)
+for a one-page tour of the differences and the orca-exclusive
+commands.
+
+For full installation, profile management, and shell completion
+setup, see [Getting Started](getting-started.md). For per-command
+documentation generated directly from the running CLI, see the
+[Command Reference](commands/index.md).
