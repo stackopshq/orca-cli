@@ -1,6 +1,6 @@
 site_name: orca
 site_description: OpenStack Rich Command-line Alternative
-site_url: https://stackopshq.github.io/orca-cli/
+site_url: https://docs.orca.stackops.ch/
 repo_url: https://github.com/stackopshq/orca-cli
 repo_name: stackopshq/orca-cli
 
