@@ -9,14 +9,14 @@
 </p>
 
 <p align="center">
-  <strong><a href="https://stackopshq.github.io/orca-cli/">Full Documentation</a></strong>
+  <strong><a href="https://docs.orca.stackops.ch/">Full Documentation</a></strong>
 </p>
 
 ## Highlights
 
 - **100 % OSC parity** on the 10 core services (635/635 verbs).
   Drop-in replacement: `alias openstack=orca` and you're done.
-  See [Coming from OSC](https://stackopshq.github.io/orca-cli/from-osc/).
+  See [Coming from OSC](https://docs.orca.stackops.ch/from-osc/).
 - **80+ top-level command groups** — every major OpenStack service
   (Keystone, Nova, Neutron, Cinder, Glance, Swift, Heat, Designate,
   Barbican, Placement, Octavia, Magnum, Manila, Gnocchi, Aodh,
@@ -81,7 +81,7 @@ Requires Python **3.10 – 3.14**.
 
 ## Documentation
 
-Full documentation: **[stackopshq.github.io/orca-cli](https://stackopshq.github.io/orca-cli/)**
+Full documentation: **[docs.orca.stackops.ch](https://docs.orca.stackops.ch/)**
 
 Local preview:
 
