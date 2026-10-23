@@ -33,6 +33,12 @@ Attendre la validation du plan par Kevin (voir la description de la MR), puis é
 - Projet GitLab 88002825, privé ; Pages en accès public ; runners partagés actifs ;
   aucun tag protégé ni environnement au 23/10.
 - Miroir push GitLab → GitHub `stackopshq/orca-cli` (toutes branches et tags).
+- Miroir : 1re synchro OK (23/10 13:18Z, confirmée par gitlab-admin).
+- Tags protégés `v*` : gitlab-admin MR !37 (brouillon, en attente de Kevin).
+- Pas d'environnement protégé (plan Free). PyPI ne vérifie pas la ref d'origine du job :
+  un pousseur de branche pourrait publier. Membres actuels : uniquement Maintainer/Owner.
+  Alternative : variable CI protégée contenant un jeton PyPI limité au projet. Décision de Kevin.
+- gitlab-admin est d'accord pour supprimer `.github/workflows/`.
 - La couverture est juste au-dessus du seuil (85,11 %) : un ajout non testé peut casser la CI.
 - Pas de `poetry.lock` dans le dépôt : les dépendances sont résolues à chaque job.
 - Branche `feat/3.0.0` (MR !10) : branche de Kevin, ne pas y toucher.
