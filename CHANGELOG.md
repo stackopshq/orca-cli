@@ -4,6 +4,19 @@ All notable changes to orca are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+* Python 3.15 support — added to the CI test matrix and the package
+  classifiers. Supported range is now 3.10 – 3.15.
+
+### Changed
+
+* Dev tooling pinned to what CI runs: ruff ``^0.17``, mypy ``^2.4``,
+  pre-commit hooks refreshed. ``poetry.lock`` is now versioned for
+  reproducible installs.
+
 ## [2.7.0] — 2026-05-29
 
 Live API audit closure — orca now answers to every ``openstack
