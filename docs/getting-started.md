@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Python **3.9 – 3.14**
+- Python **3.10 – 3.15**
 - An OpenStack account with API credentials
 
 ## Installation

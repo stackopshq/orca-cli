@@ -83,7 +83,7 @@ pytest:
   needs: [ruff, mypy]
   parallel:
     matrix:
-      - PYTHON_VERSION: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+      - PYTHON_VERSION: ["3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
   cache:
     key: pip-py$PYTHON_VERSION
     paths:
