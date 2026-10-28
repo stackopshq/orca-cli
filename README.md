@@ -54,7 +54,7 @@ poetry install --with dev
 poetry run orca --help
 ```
 
-Requires Python **3.10 – 3.14**.
+Requires Python **3.10 – 3.15**.
 
 ## Commands at a glance
 
