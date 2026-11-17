@@ -6,6 +6,11 @@
 #   deploy  documentation to GitLab Pages (default branch only)
 #           PyPI release through Trusted Publishing (v* tags only)
 
+include:
+  - project: stackopsplatform/ci-components
+    ref: v1.2.0
+    file: diagnostic/pipeline-doctor.yml
+
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
